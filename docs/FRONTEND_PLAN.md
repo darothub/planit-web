@@ -110,7 +110,7 @@ planit-web/
 | 1 | Homepage | `/` | ✅ Done |
 | 2 | Discovery | `/listings` | ⬜ Not started |
 | 3 | Listing Detail | `/listings/[id]` | ⬜ Not started |
-| 4 | Auth (Login + Register) | `/auth/login`, `/auth/register` | ⬜ Not started |
+| 4 | Auth (Login + Register) | `/auth/login`, `/auth/register` | ✅ Done |
 | 5 | Client Dashboard | `/dashboard` | ⬜ Not started |
 | 6 | Planner Dashboard | `/dashboard` (role-aware) | ⬜ Not started |
 | 7 | Messages / Chat | `/messages/[inquiryId]` | ⬜ Not started |
