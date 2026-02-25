@@ -107,7 +107,7 @@ planit-web/
 
 | # | Page | Route | Status |
 |---|---|---|---|
-| 1 | Homepage | `/` | ⬜ Not started |
+| 1 | Homepage | `/` | ✅ Done |
 | 2 | Discovery | `/listings` | ⬜ Not started |
 | 3 | Listing Detail | `/listings/[id]` | ⬜ Not started |
 | 4 | Auth (Login + Register) | `/auth/login`, `/auth/register` | ⬜ Not started |
@@ -126,15 +126,16 @@ Before building any page, these must exist:
 
 | Task | File | Status |
 |---|---|---|
-| Tailwind earth-tone config | `tailwind.config.ts` | ⬜ |
-| Global font setup | `src/pages/_document.tsx` | ⬜ |
-| Axios API client | `src/lib/api.ts` | ⬜ |
-| TypeScript types | `src/lib/types.ts` | ⬜ |
-| Auth store (Zustand) | `src/store/authStore.ts` | ⬜ |
-| App providers | `src/pages/_app.tsx` | ⬜ |
-| Utility functions | `src/lib/utils.ts` | ⬜ |
-| Navbar component | `src/components/layout/Navbar.tsx` | ⬜ |
-| Footer component | `src/components/layout/Footer.tsx` | ⬜ |
+| Tailwind v4 earth-tone config (`@theme` in globals.css) | `src/styles/globals.css` | ✅ |
+| Global font setup (Plus Jakarta Sans) | `src/pages/_document.tsx` | ✅ |
+| Axios API client | `src/lib/api.ts` | ✅ |
+| TypeScript types | `src/lib/types.ts` | ✅ |
+| Auth store (Zustand) | `src/store/authStore.ts` | ✅ |
+| App providers (QueryClientProvider) | `src/pages/_app.tsx` | ✅ |
+| Utility functions | `src/lib/utils.ts` | ✅ |
+| Navbar component | `src/components/layout/Navbar.tsx` | ✅ |
+| Footer component | `src/components/layout/Footer.tsx` | ✅ |
+| Demo data (Unsplash images, 7 categories) | `src/lib/demoData.ts` | ✅ |
 
 ---
 

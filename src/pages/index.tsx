@@ -1,8 +1,7 @@
 import Head from 'next/head'
 import PageShell from '@/components/layout/PageShell'
-import HeroSearch from '@/components/home/HeroSearch'
-import EventCategories from '@/components/home/EventCategories'
-import FeaturedListings from '@/components/home/FeaturedListings'
+import SearchStrip from '@/components/home/SearchStrip'
+import CategoryRows from '@/components/home/CategoryRows'
 import HowItWorks from '@/components/home/HowItWorks'
 
 export default function HomePage() {
@@ -15,10 +14,14 @@ export default function HomePage() {
           content="Browse curated events from verified planners — weddings, birthdays, corporate gatherings and more. Book with confidence."
         />
       </Head>
+      {/*
+        PageShell wraps with Navbar + Footer.
+        SearchStrip is sticky (top-16) so it hugs the Navbar on scroll.
+        CategoryRows shows listings immediately — no hero, no waiting.
+      */}
       <PageShell>
-        <HeroSearch />
-        <EventCategories />
-        <FeaturedListings />
+        <SearchStrip />
+        <CategoryRows />
         <HowItWorks />
       </PageShell>
     </>

@@ -18,12 +18,14 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 bg-parchment/95 backdrop-blur-md border-b border-cream">
+    <nav className="sticky top-0 z-50 bg-white border-b border-cream">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-8">
 
         {/* Logo */}
-        <Link href="/" className="text-xl font-bold text-accent tracking-tight">
-          planit
+        <Link href="/" className="flex items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/favicon.ico" alt="" aria-hidden className="w-6 h-6 object-contain" />
+          <span className="text-xl font-bold text-accent tracking-tight">planit</span>
         </Link>
 
         {/* Desktop links */}
@@ -32,7 +34,7 @@ export default function Navbar() {
             href="/listings"
             className="text-sm font-medium text-charcoal hover:text-primary transition-colors"
           >
-            Browse Planners
+            Browse Events
           </Link>
 
           {user ? (
@@ -87,13 +89,13 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-parchment border-t border-cream px-4 py-4 flex flex-col gap-3">
+        <div className="md:hidden bg-white border-t border-cream px-4 py-4 flex flex-col gap-3">
           <Link
             href="/listings"
             className="text-sm font-medium text-charcoal py-2"
             onClick={() => setMobileOpen(false)}
           >
-            Browse Planners
+            Browse Events
           </Link>
           {user ? (
             <>
