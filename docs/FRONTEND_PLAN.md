@@ -113,7 +113,7 @@ planit-web/
 | 4 | Auth (Login + Register) | `/auth/login`, `/auth/register` | ✅ Done |
 | 5 | Client Dashboard | `/dashboard` | ✅ Done |
 | 6 | Planner Dashboard | `/dashboard` (role-aware) | ✅ Done |
-| 7 | Messages / Chat | `/messages/[inquiryId]` | ⬜ Not started |
+| 7 | Messages / Chat | `/messages/[inquiryId]` | ✅ Done |
 | 8 | Public Planner Profile | `/planners/[id]` | ⬜ Not started |
 
 **Legend:** ⬜ Not started · 🔄 In progress · ✅ Done
