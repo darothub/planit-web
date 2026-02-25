@@ -416,3 +416,8 @@ export const demoCategories: DemoCategory[] = [
 export function getDemoListings(eventTypeName: string): EventListingResponse[] {
   return demoCategories.find(d => d.eventTypeName === eventTypeName)?.listings ?? []
 }
+
+/** All demo listings across every category — used as fallback on the discovery page. */
+export function getAllDemoListings(): EventListingResponse[] {
+  return demoCategories.flatMap(d => d.listings)
+}

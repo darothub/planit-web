@@ -108,7 +108,7 @@ planit-web/
 | # | Page | Route | Status |
 |---|---|---|---|
 | 1 | Homepage | `/` | ✅ Done |
-| 2 | Discovery | `/listings` | ⬜ Not started |
+| 2 | Discovery | `/listings` | ✅ Done |
 | 3 | Listing Detail | `/listings/[id]` | ⬜ Not started |
 | 4 | Auth (Login + Register) | `/auth/login`, `/auth/register` | ✅ Done |
 | 5 | Client Dashboard | `/dashboard` | ⬜ Not started |
