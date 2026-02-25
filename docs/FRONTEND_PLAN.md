@@ -111,8 +111,8 @@ planit-web/
 | 2 | Discovery | `/listings` | ✅ Done |
 | 3 | Listing Detail | `/listings/[id]` | ✅ Done |
 | 4 | Auth (Login + Register) | `/auth/login`, `/auth/register` | ✅ Done |
-| 5 | Client Dashboard | `/dashboard` | ⬜ Not started |
-| 6 | Planner Dashboard | `/dashboard` (role-aware) | ⬜ Not started |
+| 5 | Client Dashboard | `/dashboard` | ✅ Done |
+| 6 | Planner Dashboard | `/dashboard` (role-aware) | ✅ Done |
 | 7 | Messages / Chat | `/messages/[inquiryId]` | ⬜ Not started |
 | 8 | Public Planner Profile | `/planners/[id]` | ⬜ Not started |
 
