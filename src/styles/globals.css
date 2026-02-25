@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ─── Tailwind v4 Theme ─────────────────────────────────────── */
+@theme {
+  /* Colours */
+  --color-primary:        #C1694F;
+  --color-primary-hover:  #A85640;
+  --color-primary-light:  #E8A090;
+  --color-accent:         #4A5240;
+  --color-accent-hover:   #3A4132;
+  --color-accent-light:   #7A8B70;
+  --color-sand:           #F5ECD7;
+  --color-sand-dark:      #EDE0CB;
+  --color-parchment:      #FAF7F2;
+  --color-charcoal:       #2C2C2C;
+  --color-stone-warm:     #8C7B6B;
+  --color-cream:          #EDE0CB;
+
+  /* Font */
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+
+  /* Border radius */
+  --radius-card: 16px;
+  --radius-btn:  12px;
+
+  /* Shadows */
+  --shadow-card:       0 2px 16px rgba(44, 44, 44, 0.08);
+  --shadow-card-hover: 0 8px 32px rgba(44, 44, 44, 0.14);
+  --shadow-modal:      0 20px 60px rgba(44, 44, 44, 0.2);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ─── Base Styles ────────────────────────────────────────────── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-sand);
+  color: var(--color-charcoal);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Reusable utility classes ───────────────────────────────── */
+
+/* Standard text input */
+.input-base {
+  width: 100%;
+  border: 1px solid var(--color-cream);
+  background: white;
+  border-radius: var(--radius-btn);
+  padding: 0.75rem 1rem;
+  color: var(--color-charcoal);
+  font-size: 0.875rem;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  outline: none;
+}
+
+.input-base::placeholder {
+  color: var(--color-stone-warm);
+}
+
+.input-base:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(193, 105, 79, 0.15);
+}
+
+/* Line clamp */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
