@@ -114,7 +114,7 @@ planit-web/
 | 5 | Client Dashboard | `/dashboard` | ✅ Done |
 | 6 | Planner Dashboard | `/dashboard` (role-aware) | ✅ Done |
 | 7 | Messages / Chat | `/messages/[inquiryId]` | ✅ Done |
-| 8 | Public Planner Profile | `/planners/[id]` | ⬜ Not started |
+| 8 | Public Planner Profile | `/planners/[id]` | ✅ Done |
 
 **Legend:** ⬜ Not started · 🔄 In progress · ✅ Done
 
