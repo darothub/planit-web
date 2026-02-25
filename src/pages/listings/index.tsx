@@ -35,7 +35,7 @@ export default function DiscoveryPage() {
       <FilterBar />
       <div className="max-w-7xl mx-auto px-4 py-8">
         <p className="text-stone-warm text-sm mb-6">
-          {data.totalElements} {data.totalElements === 1 ? 'planner' : 'planners'} found
+          {data.totalElements} {data.totalElements === 1 ? 'event' : 'events'} found
         </p>
         <ListingGrid listings={data.content} isLoading={isLoading && !data.content.length} />
         <Pagination page={data.page} totalPages={data.totalPages} />
