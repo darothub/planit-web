@@ -7,6 +7,8 @@ import PhotoGallery from '@/components/listings/PhotoGallery'
 import BookingCard from '@/components/listings/BookingCard'
 import PlannerCard from '@/components/listings/PlannerCard'
 import ReviewList from '@/components/listings/ReviewList'
+import EventAmenities from '@/components/listings/EventAmenities'
+import AvailabilityCalendar from '@/components/listings/AvailabilityCalendar'
 import { formatPrice } from '@/lib/utils'
 
 type Props = { listing: EventListingDetailResponse }
@@ -54,8 +56,6 @@ export default function ListingDetailPage({ listing }: Props) {
                 <span>{listing.eventType.displayName}</span>
               </div>
 
-              <hr className="my-6 border-cream" />
-
               {/* Capacity + price summary */}
               <div className="flex gap-6 mb-6">
                 <div>
@@ -70,27 +70,41 @@ export default function ListingDetailPage({ listing }: Props) {
                 </div>
               </div>
 
-              <h2 className="text-lg font-semibold text-charcoal mb-3">About this service</h2>
-              <p className="text-charcoal leading-relaxed whitespace-pre-line">
-                {listing.description || 'No description provided.'}
-              </p>
+              <div className="border-t border-cream py-6">
+                <h2 className="text-lg font-semibold text-charcoal mb-3">About this service</h2>
+                <p className="text-charcoal leading-relaxed whitespace-pre-line">
+                  {listing.description || 'No description provided.'}
+                </p>
+              </div>
 
-              <hr className="my-6 border-cream" />
+              {/* What this event includes */}
+              {(listing.amenities?.length ?? 0) > 0 && (
+                <div className="border-t border-cream py-8">
+                  <EventAmenities amenities={listing.amenities!} />
+                </div>
+              )}
 
-              {/* Planner */}
-              <h2 className="text-lg font-semibold text-charcoal mb-4">Your planner</h2>
-              <PlannerCard planner={listing.planner} />
+              {/* Availability calendar */}
+              <div className="border-t border-cream py-8">
+                <h2 className="text-xl font-semibold text-charcoal mb-5">Availability</h2>
+                <AvailabilityCalendar listingId={listing.id} />
+              </div>
+
+              <div className="border-t border-cream py-8">
+                {/* Planner */}
+                <h2 className="text-lg font-semibold text-charcoal mb-4">Your planner</h2>
+                <PlannerCard planner={listing.planner} />
+              </div>
 
               {/* Reviews */}
               {listing.reviewCount > 0 && (
-                <>
-                  <hr className="my-6 border-cream" />
+                <div className="border-t border-cream py-8">
                   <ReviewList
                     reviews={listing.recentReviews}
                     listingId={listing.id}
                     totalCount={listing.reviewCount}
                   />
-                </>
+                </div>
               )}
             </div>
 

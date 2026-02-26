@@ -16,6 +16,14 @@ export type BlockScope = 'ALL' | 'SELECTED'
 export type ReviewTargetType = 'LISTING' | 'PLANNER' | 'CLIENT'
 export type BudgetRange = 'BUDGET' | 'MID_RANGE' | 'LUXURY'
 export type ListingSortBy = 'PRICE_ASC' | 'PRICE_DESC' | 'RATING' | 'NEWEST'
+export type EventAmenity =
+  | 'RED_CARPET' | 'LIVE_BAND' | 'DJ_SERVICE' | 'MC_HOST' | 'DANCE_FLOOR'
+  | 'PHOTO_BOOTH' | 'PHOTOGRAPHY_STANDARD' | 'PHOTOGRAPHY_PROFESSIONAL'
+  | 'VIDEOGRAPHY_CINEMATIC' | 'DRONE_FOOTAGE' | 'CATERING_BUFFET' | 'CATERING_PLATED'
+  | 'OPEN_BAR' | 'WELCOME_DRINKS' | 'CAKE_INCLUDED' | 'DESSERT_STATION'
+  | 'FLORAL_ARRANGEMENTS' | 'BALLOON_DECOR' | 'LIGHTING_PREMIUM' | 'THEMED_DECOR'
+  | 'VALET_PARKING' | 'SECURITY' | 'DEDICATED_COORDINATOR' | 'OUTDOOR_SPACE'
+  | 'AIR_CONDITIONING'
 
 // ─── API Wrapper ─────────────────────────────────────────────────────────────
 
@@ -79,6 +87,7 @@ export type EventListingResponse = {
   eventType: { id: number; name: string; displayName: string }
   planner: { id: number; businessName: string | null; profileImageUrl: string | null }
   createdAt: string
+  amenities?: EventAmenity[]
 }
 
 export type EventListingImage = {
@@ -278,6 +287,14 @@ export type PaymentScheduleTemplateResponse = {
   fourthPercentage: number | null
   fourthDaysBeforeEvent: number | null
   nonRefundableWindowHours: number
+}
+
+// ─── Availability ────────────────────────────────────────────────────────────
+
+export type BlockedPeriodResponse = {
+  startDate: string
+  endDate: string
+  reason: string | null
 }
 
 // ─── Calendar ────────────────────────────────────────────────────────────────

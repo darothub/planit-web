@@ -2,8 +2,36 @@ import { useState } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 import { api } from '@/lib/api'
-import { EventListingResponse, EventType, CancellationPolicy } from '@/lib/types'
+import { EventAmenity, EventListingResponse, EventType, CancellationPolicy } from '@/lib/types'
 import FormField from '@/components/ui/FormField'
+
+const ALL_AMENITIES: { key: EventAmenity; label: string }[] = [
+  { key: 'RED_CARPET',               label: 'Red carpet entrance' },
+  { key: 'LIVE_BAND',                label: 'Live band' },
+  { key: 'DJ_SERVICE',               label: 'DJ service' },
+  { key: 'MC_HOST',                  label: 'Master of ceremonies' },
+  { key: 'DANCE_FLOOR',              label: 'Dance floor' },
+  { key: 'PHOTO_BOOTH',              label: 'Photo booth' },
+  { key: 'PHOTOGRAPHY_STANDARD',     label: 'Standard photography' },
+  { key: 'PHOTOGRAPHY_PROFESSIONAL', label: 'Professional photography (4K)' },
+  { key: 'VIDEOGRAPHY_CINEMATIC',    label: 'Cinematic videography' },
+  { key: 'DRONE_FOOTAGE',            label: 'Aerial drone footage' },
+  { key: 'CATERING_BUFFET',          label: 'Buffet catering' },
+  { key: 'CATERING_PLATED',          label: 'Plated meal service' },
+  { key: 'OPEN_BAR',                 label: 'Open bar' },
+  { key: 'WELCOME_DRINKS',           label: 'Welcome drinks' },
+  { key: 'CAKE_INCLUDED',            label: 'Custom cake included' },
+  { key: 'DESSERT_STATION',          label: 'Dessert station' },
+  { key: 'FLORAL_ARRANGEMENTS',      label: 'Floral arrangements' },
+  { key: 'BALLOON_DECOR',            label: 'Balloon décor' },
+  { key: 'LIGHTING_PREMIUM',         label: 'Premium event lighting' },
+  { key: 'THEMED_DECOR',             label: 'Custom themed décor' },
+  { key: 'VALET_PARKING',            label: 'Valet parking' },
+  { key: 'SECURITY',                 label: 'Security team' },
+  { key: 'DEDICATED_COORDINATOR',    label: 'Dedicated event coordinator' },
+  { key: 'OUTDOOR_SPACE',            label: 'Outdoor venue' },
+  { key: 'AIR_CONDITIONING',         label: 'Air conditioning' },
+]
 
 type FormValues = {
   title: string
@@ -47,6 +75,17 @@ export default function ListingForm({ initial }: Props) {
     coverImageUrl:       initial?.coverImageUrl ?? '',
   })
 
+  const [amenities, setAmenities] = useState<Set<EventAmenity>>(
+    () => new Set(initial?.amenities ?? [])
+  )
+
+  const toggleAmenity = (key: EventAmenity) =>
+    setAmenities(prev => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+
   const { data: eventTypes = DEMO_TYPES } = useQuery<EventType[]>({
     queryKey: ['event-types'],
     queryFn: () => api.get('/event-types').then(r => r.data.data),
@@ -69,6 +108,7 @@ export default function ListingForm({ initial }: Props) {
         maxGuests:          Number(form.maxGuests),
         cancellationPolicy: form.cancellationPolicy,
         coverImageUrl:      form.coverImageUrl || undefined,
+        amenities:          Array.from(amenities),
       }
       return isEdit
         ? api.put(`/planners/me/listings/${initial!.id}`, body).then(r => r.data.data)
@@ -125,6 +165,25 @@ export default function ListingForm({ initial }: Props) {
       <FormField label="Cover Image URL (optional)">
         <input value={form.coverImageUrl} onChange={set('coverImageUrl')} className="input-base" placeholder="https://…" />
       </FormField>
+
+      <div>
+        <p className="text-sm font-medium text-charcoal mb-3">What this event includes</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+          {ALL_AMENITIES.map(({ key, label }) => (
+            <label key={key} className="flex items-center gap-2 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={amenities.has(key)}
+                onChange={() => toggleAmenity(key)}
+                className="w-4 h-4 rounded accent-primary"
+              />
+              <span className="text-sm text-charcoal group-hover:text-primary transition-colors">
+                {label}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
 
       {mutation.isError && (
         <p className="text-red-600 text-sm">Something went wrong. Please try again.</p>

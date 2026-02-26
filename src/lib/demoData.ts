@@ -4,7 +4,7 @@
  * Once real listings exist the CategoryRows component automatically prefers API data.
  */
 
-import { EventListingResponse } from './types'
+import { EventAmenity, EventListingResponse } from './types'
 
 type DemoCategory = {
   /** Matches EventType.name from the API */
@@ -73,6 +73,7 @@ export const demoCategories: DemoCategory[] = [
         reviewCount: 28,
         coverImageUrl: u('1519741347347-c3dc0ff1b1b4'),
         eventTypeName: 'WEDDING', eventTypeDisplayName: 'Wedding', eventTypeId: 1,
+        amenities: ['FLORAL_ARRANGEMENTS', 'PHOTOGRAPHY_STANDARD', 'CATERING_PLATED', 'WELCOME_DRINKS', 'DEDICATED_COORDINATOR', 'OUTDOOR_SPACE', 'CAKE_INCLUDED', 'LIGHTING_PREMIUM'] as EventAmenity[],
       }),
       demo({
         title: 'Luxury Marquee Wedding',
@@ -83,6 +84,7 @@ export const demoCategories: DemoCategory[] = [
         isFeatured: true,
         coverImageUrl: u('1465495976277-4387d4b0b4c6'),
         eventTypeName: 'WEDDING', eventTypeDisplayName: 'Wedding', eventTypeId: 1,
+        amenities: ['RED_CARPET', 'LIVE_BAND', 'DJ_SERVICE', 'MC_HOST', 'PHOTOGRAPHY_PROFESSIONAL', 'VIDEOGRAPHY_CINEMATIC', 'DRONE_FOOTAGE', 'CATERING_BUFFET', 'OPEN_BAR', 'FLORAL_ARRANGEMENTS', 'VALET_PARKING', 'DEDICATED_COORDINATOR'] as EventAmenity[],
       }),
       demo({
         title: 'Romantic Vineyard Affair',
@@ -136,6 +138,7 @@ export const demoCategories: DemoCategory[] = [
         reviewCount: 16,
         coverImageUrl: u('1530103862676-de4d9de8fa72'),
         eventTypeName: 'BIRTHDAY', eventTypeDisplayName: 'Birthday', eventTypeId: 2,
+        amenities: ['DJ_SERVICE', 'PHOTO_BOOTH', 'OPEN_BAR', 'WELCOME_DRINKS', 'CAKE_INCLUDED', 'BALLOON_DECOR', 'LIGHTING_PREMIUM', 'THEMED_DECOR'] as EventAmenity[],
       }),
       demo({
         title: 'Garden Fiesta & Live Band',
@@ -200,6 +203,7 @@ export const demoCategories: DemoCategory[] = [
         isFeatured: true,
         coverImageUrl: u('1511578314322-372d23d4d6ea'),
         eventTypeName: 'CORPORATE', eventTypeDisplayName: 'Corporate', eventTypeId: 3,
+        amenities: ['RED_CARPET', 'MC_HOST', 'DANCE_FLOOR', 'PHOTOGRAPHY_PROFESSIONAL', 'CATERING_PLATED', 'OPEN_BAR', 'LIGHTING_PREMIUM', 'SECURITY', 'DEDICATED_COORDINATOR', 'VALET_PARKING'] as EventAmenity[],
       }),
       demo({
         title: 'Product Launch Experience',
