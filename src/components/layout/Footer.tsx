@@ -19,7 +19,7 @@ export default function Footer() {
             </p>
             <nav className="flex flex-col gap-2">
               <Link href="/listings" className="text-sm text-white/80 hover:text-white transition-colors">
-                Browse Planners
+                Browse Events
               </Link>
               <Link href="/auth/register" className="text-sm text-white/80 hover:text-white transition-colors">
                 Become a Planner
