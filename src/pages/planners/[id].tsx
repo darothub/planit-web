@@ -134,38 +134,32 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const base = process.env.NEXT_PUBLIC_API_URL
 
   try {
-    // TODO: Replace with GET /planners/{id} when the public endpoint is added.
-    // For now, fetch a large page of listings and filter by planner.id client-side.
-    const [listingsRes, reviewsRes] = await Promise.all([
-      fetch(`${base}/listings?size=50`),
+    const [profileRes, listingsRes, reviewsRes] = await Promise.all([
+      fetch(`${base}/planners/${id}`),
+      fetch(`${base}/listings?plannerId=${id}&size=50`),
       fetch(`${base}/planners/${id}/reviews`),
     ])
 
+    if (!profileRes.ok) return { notFound: true }
+
+    const profileJson  = await profileRes.json()
     const listingsJson = await listingsRes.json()
     const reviewsJson  = await reviewsRes.json()
 
+    const profile = profileJson.data
     const allListings: EventListingResponse[] = listingsJson.data?.content ?? []
-    const plannerListings = allListings.filter(l => l.planner.id === id)
-
     const reviews: ReviewResponse[] = Array.isArray(reviewsJson.data) ? reviewsJson.data : []
-
-    // Derive planner info from listings (or reviews if no listings found)
-    const plannerSnippet = plannerListings[0]?.planner
-
-    if (!plannerSnippet && reviews.length === 0) {
-      return { notFound: true }
-    }
 
     const planner: PlannerInfo = {
       id,
-      businessName:    plannerSnippet?.businessName ?? 'Event Planner',
-      profileImageUrl: plannerSnippet?.profileImageUrl ?? null,
-      location:        plannerListings[0]?.location ?? null,
-      averageRating:   plannerListings[0]?.averageRating ?? null,
-      reviewCount:     reviews.length,
+      businessName:    profile.businessName ?? 'Event Planner',
+      profileImageUrl: profile.profileImageUrl ?? null,
+      location:        profile.location ?? null,
+      averageRating:   profile.rating ?? null,
+      reviewCount:     profile.reviewCount ?? reviews.length,
     }
 
-    return { props: { planner, listings: plannerListings, reviews } }
+    return { props: { planner, listings: allListings, reviews } }
   } catch {
     return { notFound: true }
   }
