@@ -45,6 +45,12 @@ export default function Navbar() {
               >
                 Dashboard
               </Link>
+              <Link
+                href="/messages"
+                className="text-sm font-medium text-charcoal hover:text-primary transition-colors"
+              >
+                Messages
+              </Link>
               <button
                 onClick={handleLogout}
                 className="text-sm font-medium text-stone-warm hover:text-primary transition-colors"
@@ -101,6 +107,9 @@ export default function Navbar() {
             <>
               <Link href="/dashboard" className="text-sm font-medium text-charcoal py-2" onClick={() => setMobileOpen(false)}>
                 Dashboard
+              </Link>
+              <Link href="/messages" className="text-sm font-medium text-charcoal py-2" onClick={() => setMobileOpen(false)}>
+                Messages
               </Link>
               <button onClick={handleLogout} className="text-sm font-medium text-stone-warm text-left py-2">
                 Sign out
