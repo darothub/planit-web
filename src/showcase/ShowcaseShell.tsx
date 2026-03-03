@@ -1,0 +1,217 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useAuthStore } from '@/store/authStore'
+import { DEMO_CLIENT_USER, DEMO_PLANNER_USER } from './data'
+
+type DeviceWidth = 'mobile' | 'tablet' | 'desktop'
+type DemoRole = 'CLIENT' | 'PLANNER' | 'GUEST'
+
+type Props = {
+  pageName: string
+  demoRole?: DemoRole
+  children: React.ReactNode
+}
+
+const DEVICE_WIDTHS: Record<DeviceWidth, string> = {
+  mobile:  'max-w-[390px]',
+  tablet:  'max-w-[768px]',
+  desktop: 'max-w-full',
+}
+
+// ─── Route interception ───────────────────────────────────────────────────────
+//
+// Every component rendered in the showcase can produce navigation (Links,
+// router.push, router.replace). All of it must stay inside /showcase/*.
+//
+// Return values:
+//   null      → suppress navigation entirely  (no page change)
+//   string    → redirect to this showcase URL instead
+//   undefined → allow through unchanged
+
+function getShowcaseRedirect(
+  url: string | { pathname?: string },
+  demoRole: DemoRole,
+): string | null | undefined {
+  const raw      = typeof url === 'string' ? url : (url.pathname ?? '/')
+  const pathname = raw.split('?')[0]
+
+  // ── Always suppress auth routes (login/register redirects) ────────────────
+  if (pathname.startsWith('/auth/')) return null
+
+  // ── Home ──────────────────────────────────────────────────────────────────
+  if (pathname === '/') return '/showcase/home'
+
+  // ── Public listings ───────────────────────────────────────────────────────
+  if (pathname === '/listings') return '/showcase/listings'
+  if (pathname.startsWith('/listings/')) return '/showcase/listing-detail'
+
+  // ── Messages ──────────────────────────────────────────────────────────────
+  const msgMatch = pathname.match(/^\/messages\/(.+)/)
+  if (msgMatch) return `/showcase/messages?inquiryId=${msgMatch[1]}`
+
+  // ── Planner profiles (no showcase page — suppress) ────────────────────────
+  if (pathname.startsWith('/planners/')) return null
+
+  // ── Dashboard routes ──────────────────────────────────────────────────────
+  if (!pathname.startsWith('/dashboard')) return undefined // allow anything else through
+
+  const clientOverview  = '/showcase/dashboard-client'
+  const plannerOverview = '/showcase/dashboard-planner'
+
+  if (demoRole === 'CLIENT') {
+    if (pathname === '/dashboard')                             return clientOverview
+    if (pathname === '/dashboard/bookings')                    return '/showcase/dashboard-bookings-client'
+    if (pathname.startsWith('/dashboard/bookings/'))           return '/showcase/dashboard-booking-detail?id=demo-1'
+    if (pathname === '/dashboard/inquiries')                   return '/showcase/dashboard-inquiries'
+    if (pathname === '/dashboard/disputes')                    return '/showcase/dashboard-disputes'
+    if (pathname === '/dashboard/profile')                     return clientOverview
+    return clientOverview
+  }
+
+  if (demoRole === 'PLANNER') {
+    if (pathname === '/dashboard')                             return plannerOverview
+    if (pathname === '/dashboard/bookings')                    return '/showcase/dashboard-bookings-planner'
+    if (pathname.startsWith('/dashboard/bookings/'))           return '/showcase/dashboard-booking-detail?id=demo-1'
+    if (pathname === '/dashboard/listings')                    return '/showcase/dashboard-listings'
+    if (pathname === '/dashboard/listings/new')                return '/showcase/dashboard-listing-form'
+    if (pathname.startsWith('/dashboard/listings/'))           return '/showcase/dashboard-listing-form'
+    if (pathname === '/dashboard/inquiries')                   return '/showcase/dashboard-inquiries-planner'
+    if (pathname === '/dashboard/calendar')                    return '/showcase/dashboard-calendar'
+    if (pathname === '/dashboard/disputes')                    return '/showcase/dashboard-disputes'
+    if (pathname === '/dashboard/profile')                     return plannerOverview
+    return plannerOverview
+  }
+
+  // GUEST hitting any dashboard route — send to showcase index
+  return '/showcase'
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+export default function ShowcaseShell({ pageName, demoRole = 'GUEST', children }: Props) {
+  const router = useRouter()
+  const [device, setDevice] = useState<DeviceWidth>('desktop')
+
+  // authReady gates child rendering: children only mount AFTER auth has been
+  // injected into the store, so protected pages' useEffect redirect guards
+  // always see a valid (or intentionally null) token on their first render.
+  const [authReady, setAuthReady] = useState(false)
+  const savedRef = useRef(useAuthStore.getState())
+
+  // ── Auth injection (before children mount) ────────────────────────────────
+  useLayoutEffect(() => {
+    if (demoRole === 'CLIENT') {
+      useAuthStore.setState({
+        token: DEMO_CLIENT_USER.token,
+        user: {
+          id:        DEMO_CLIENT_USER.userId,
+          email:     DEMO_CLIENT_USER.email,
+          firstName: DEMO_CLIENT_USER.firstName,
+          lastName:  DEMO_CLIENT_USER.lastName,
+          role:      DEMO_CLIENT_USER.role,
+        },
+      })
+    } else if (demoRole === 'PLANNER') {
+      useAuthStore.setState({
+        token: DEMO_PLANNER_USER.token,
+        user: {
+          id:        DEMO_PLANNER_USER.userId,
+          email:     DEMO_PLANNER_USER.email,
+          firstName: DEMO_PLANNER_USER.firstName,
+          lastName:  DEMO_PLANNER_USER.lastName,
+          role:      DEMO_PLANNER_USER.role,
+        },
+      })
+    } else {
+      // GUEST keeps token null (auth-page showcase: prevents redirect to /dashboard)
+      useAuthStore.setState({ token: null, user: null })
+    }
+
+    // React flushes this synchronously before paint — children always mount
+    // with auth already in the store, so their useEffect redirect guards pass.
+    setAuthReady(true)
+
+    return () => { useAuthStore.setState(savedRef.current) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demoRole])
+
+  // ── Router interception (all navigation stays inside /showcase/*) ─────────
+  useEffect(() => {
+    const hadOwnPush    = Object.prototype.hasOwnProperty.call(router, 'push')
+    const hadOwnReplace = Object.prototype.hasOwnProperty.call(router, 'replace')
+    const origPush      = router.push.bind(router)
+    const origReplace   = router.replace.bind(router)
+
+    const intercept =
+      (orig: typeof router.push) =>
+      (
+        url:     Parameters<typeof router.push>[0],
+        as?:     Parameters<typeof router.push>[1],
+        options?: Parameters<typeof router.push>[2],
+      ) => {
+        const redirect = getShowcaseRedirect(
+          url as string | { pathname?: string },
+          demoRole,
+        )
+        if (redirect === null)      return Promise.resolve(true)           // suppress
+        if (redirect !== undefined) return orig(redirect, undefined, options) // reroute
+        return orig(url, as, options)                                      // pass through
+      }
+
+    ;(router as any).push    = intercept(origPush)
+    ;(router as any).replace = intercept(origReplace)
+
+    return () => {
+      if (hadOwnPush)    { ;(router as any).push    = origPush    }
+      else               { delete (router as any).push             }
+      if (hadOwnReplace) { ;(router as any).replace = origReplace  }
+      else               { delete (router as any).replace          }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demoRole])
+
+  return (
+    <div className="min-h-screen bg-sand">
+      {/* Chrome bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 h-10 bg-charcoal text-white flex items-center px-4 gap-4 text-sm">
+        <Link
+          href="/showcase"
+          className="flex items-center gap-1 text-white/70 hover:text-white transition-colors text-xs shrink-0"
+        >
+          ← All screens
+        </Link>
+
+        <span className="flex-1 text-center font-semibold truncate">{pageName}</span>
+
+        <div className="flex items-center gap-1 shrink-0">
+          {(
+            [
+              { key: 'mobile',  icon: '📱', label: 'Mobile'  },
+              { key: 'tablet',  icon: '💻', label: 'Tablet'  },
+              { key: 'desktop', icon: '🖥',  label: 'Desktop' },
+            ] as { key: DeviceWidth; icon: string; label: string }[]
+          ).map(({ key, icon, label }) => (
+            <button
+              key={key}
+              title={label}
+              onClick={() => setDevice(key)}
+              className={`w-7 h-7 flex items-center justify-center rounded transition-colors text-base ${
+                device === key ? 'bg-white/20' : 'hover:bg-white/10'
+              }`}
+            >
+              {icon}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content — offset by chrome bar height (h-10 = 40px) */}
+      <div className="pt-10">
+        <div className={`${DEVICE_WIDTHS[device]} mx-auto transition-all duration-300`}>
+          {authReady && children}
+        </div>
+      </div>
+    </div>
+  )
+}
