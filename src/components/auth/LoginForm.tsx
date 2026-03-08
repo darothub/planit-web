@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
@@ -34,6 +35,12 @@ export default function LoginForm() {
 
       <FormField label="Password" error={errors.password?.message}>
         <PasswordInput {...register('password')} />
+        <Link
+          href="/forgot-password"
+          className="self-end text-xs text-primary hover:underline mt-1"
+        >
+          Forgot password?
+        </Link>
       </FormField>
 
       {mutation.isError && (
