@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate:types": "openapi-typescript http://localhost:8081/api-docs -o /tmp/planit-api-types.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
