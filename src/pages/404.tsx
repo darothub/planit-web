@@ -1,0 +1,31 @@
+import Head from 'next/head'
+import Link from 'next/link'
+import PageShell from '@/components/layout/PageShell'
+
+export default function NotFoundPage() {
+  return (
+    <>
+      <Head>
+        <title>Page Not Found — Planit</title>
+      </Head>
+      <PageShell>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
+          <p className="text-8xl font-bold text-primary opacity-20 leading-none select-none">
+            404
+          </p>
+          <h1 className="text-2xl font-bold text-charcoal mt-4">Page not found</h1>
+          <p className="text-stone-warm mt-2 max-w-sm">
+            The page you&apos;re looking for doesn&apos;t exist or has been moved.
+          </p>
+          <Link
+            href="/"
+            className="mt-8 bg-primary hover:bg-primary-hover text-white font-semibold
+              px-6 py-3 rounded-btn transition-colors"
+          >
+            Back to home
+          </Link>
+        </div>
+      </PageShell>
+    </>
+  )
+}
