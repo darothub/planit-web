@@ -119,8 +119,8 @@ export default function BookingCard({ booking, role }: Props) {
           </button>
         )}
 
-        {/* Both: confirm completion when ACCEPTED */}
-        {booking.status === 'ACCEPTED' && (
+        {/* Both: confirm completion when ACCEPTED and haven't confirmed yet */}
+        {booking.status === 'ACCEPTED' && !(role === 'PLANNER' ? booking.plannerConfirmedAt : booking.clientConfirmedAt) && (
           <button
             onClick={() => confirmMutation.mutate()}
             disabled={confirmMutation.isPending}
