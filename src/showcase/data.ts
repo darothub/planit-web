@@ -218,6 +218,9 @@ export const DEMO_BOOKINGS_PLANNER: BookingResponse[] = [
 
 export const DEMO_BOOKING_DETAIL: BookingResponse = {
   ...DEMO_BOOKINGS_CLIENT[0],
+  // Override so the showcase shows both Cancel and Confirm Completion buttons
+  clientConfirmedAt: null,
+  plannerConfirmedAt: null,
 }
 
 // ─── Inquiries ────────────────────────────────────────────────────────────────

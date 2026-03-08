@@ -46,7 +46,7 @@ const sections: Section[] = [
     screens: [
       { href: '/showcase/dashboard-client',           name: 'Overview',       description: 'Client dashboard — active bookings + messages' },
       { href: '/showcase/dashboard-bookings-client',  name: 'Bookings',       description: 'Full bookings list (CLIENT view)' },
-      { href: '/showcase/dashboard-booking-detail',   name: 'Booking Detail', description: 'Single booking with payment schedule' },
+      { href: '/showcase/dashboard-booking-detail',   name: 'Booking Detail', description: 'ACCEPTED booking — cancel + confirm completion actions' },
       { href: '/showcase/dashboard-inquiries',        name: 'Inquiries',      description: 'Conversation list in dashboard context (CLIENT)' },
       { href: '/showcase/dashboard-disputes',         name: 'Disputes',       description: 'Dispute list with status badges' },
       { href: '/showcase/messages',                   name: 'Messages',       description: 'Full chat — inbox sidebar + chat window' },
@@ -58,7 +58,8 @@ const sections: Section[] = [
     bgColour: 'bg-rose-50',
     screens: [
       { href: '/showcase/dashboard-planner',               name: 'Overview',          description: 'Planner dashboard — stats row + pending bookings' },
-      { href: '/showcase/dashboard-bookings-planner',      name: 'Received Bookings', description: 'Full bookings list (PLANNER view)' },
+      { href: '/showcase/dashboard-bookings-planner',           name: 'Received Bookings',       description: 'Full bookings list (PLANNER view)' },
+      { href: '/showcase/dashboard-booking-detail-planner',     name: 'Booking Detail (Planner)', description: 'REQUESTED booking — accept / decline actions' },
       { href: '/showcase/dashboard-listings',              name: 'My Listings',       description: 'Listing management grid with publish/draft toggle' },
       { href: '/showcase/dashboard-listing-form',          name: 'Listing Form',      description: 'Create / edit listing form with amenity picker' },
       { href: '/showcase/dashboard-inquiries-planner',     name: 'Inquiries',         description: 'Conversation list in dashboard context (PLANNER)' },
