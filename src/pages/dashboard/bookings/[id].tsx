@@ -7,6 +7,7 @@ import { api } from '@/lib/api'
 import { BookingResponse } from '@/lib/types'
 import DashboardShell from '@/components/dashboard/DashboardShell'
 import BookingStatusBadge from '@/components/bookings/BookingStatusBadge'
+import ReviewForm from '@/components/reviews/ReviewForm'
 import { formatPrice, formatShortDate } from '@/lib/utils'
 
 export default function BookingDetailPage() {
@@ -117,6 +118,35 @@ export default function BookingDetailPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Reviews — only shown when booking is COMPLETED */}
+      {booking.status === 'COMPLETED' && (
+        <div className="bg-white border border-cream rounded-xl p-6 mb-6">
+          <h3 className="font-semibold text-charcoal mb-4">Leave a Review</h3>
+          <div className="flex flex-col gap-4">
+            {isPlanner ? (
+              <ReviewForm
+                inquiryId={booking.inquiryId}
+                targetType="CLIENT"
+                targetLabel={`${booking.client.firstName} ${booking.client.lastName}`}
+              />
+            ) : (
+              <>
+                <ReviewForm
+                  inquiryId={booking.inquiryId}
+                  targetType="LISTING"
+                  targetLabel={booking.listing.title}
+                />
+                <ReviewForm
+                  inquiryId={booking.inquiryId}
+                  targetType="PLANNER"
+                  targetLabel={booking.planner.businessName ?? 'your planner'}
+                />
+              </>
+            )}
           </div>
         </div>
       )}
