@@ -61,7 +61,7 @@ const sections: Section[] = [
       { href: '/showcase/dashboard-bookings-planner',           name: 'Received Bookings',       description: 'Full bookings list (PLANNER view)' },
       { href: '/showcase/dashboard-booking-detail-planner',     name: 'Booking Detail (Planner)', description: 'REQUESTED booking — accept / decline actions' },
       { href: '/showcase/dashboard-listings',              name: 'My Listings',       description: 'Listing management grid with publish/draft toggle' },
-      { href: '/showcase/dashboard-listing-form',          name: 'Listing Form',      description: 'Create / edit listing form with amenity picker' },
+      { href: '/showcase/dashboard-listing-form',          name: 'Listing Form',      description: 'Edit listing form — cover image upload, gallery management, amenities' },
       { href: '/showcase/dashboard-inquiries-planner',     name: 'Inquiries',         description: 'Conversation list in dashboard context (PLANNER)' },
       { href: '/showcase/dashboard-calendar',              name: 'Calendar',          description: 'Availability calendar with block-date picker' },
       { href: '/showcase/dashboard-disputes',              name: 'Disputes',          description: 'Dispute list with status badges' },

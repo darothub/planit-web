@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import ShowcaseShell from '@/showcase/ShowcaseShell'
-import NewListingPage from '@/pages/dashboard/listings/new'
+import DashboardShell from '@/components/dashboard/DashboardShell'
+import ListingForm from '@/components/dashboard/ListingForm'
+import { DEMO_PLANNER_LISTINGS, DEMO_LISTING_DETAIL } from '@/showcase/data'
 import { EventType } from '@/lib/types'
 
 export const getServerSideProps = () => {
@@ -19,17 +21,22 @@ const DEMO_EVENT_TYPES: EventType[] = [
   { id: 7, name: 'ENGAGEMENT',  displayName: 'Engagement',  description: 'Engagement celebrations',          isActive: true },
 ]
 
+const demoListing = DEMO_PLANNER_LISTINGS[0]
+
 export default function ShowcaseDashboardListingForm() {
   const qc = useMemo(() => {
     const c = new QueryClient()
     c.setQueryData(['event-types'], DEMO_EVENT_TYPES)
+    c.setQueryData(['listing-detail', demoListing.id], DEMO_LISTING_DETAIL)
     return c
   }, [])
 
   return (
     <QueryClientProvider client={qc}>
-      <ShowcaseShell pageName="New Listing Form" demoRole="PLANNER">
-        <NewListingPage />
+      <ShowcaseShell pageName="Listing Form (Edit)" demoRole="PLANNER">
+        <DashboardShell title="Edit Listing">
+          <ListingForm initial={demoListing} />
+        </DashboardShell>
       </ShowcaseShell>
     </QueryClientProvider>
   )

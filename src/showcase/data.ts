@@ -10,6 +10,7 @@ import {
   InquiryMessageResponse,
   PlannerStatsResponse,
   EventListingResponse,
+  EventListingDetailResponse,
   CalendarBlockResponse,
   DisputeResponse,
 } from '@/lib/types'
@@ -391,6 +392,33 @@ export const DEMO_PLANNER_LISTINGS: EventListingResponse[] = [
     planner: { id: 2001, businessName: 'Events by Rivera', profileImageUrl: null },
   },
 ]
+
+// ─── Listing Detail (with gallery) ────────────────────────────────────────────
+
+export const DEMO_LISTING_DETAIL: EventListingDetailResponse = {
+  ...DEMO_PLANNER_LISTINGS[0],
+  images: [
+    {
+      id: 101,
+      imageUrl: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=400&fit=crop&q=80',
+      caption: null,
+      displayOrder: 1,
+    },
+    {
+      id: 102,
+      imageUrl: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=400&fit=crop&q=80',
+      caption: null,
+      displayOrder: 2,
+    },
+    {
+      id: 103,
+      imageUrl: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=600&h=400&fit=crop&q=80',
+      caption: null,
+      displayOrder: 3,
+    },
+  ],
+  recentReviews: [],
+}
 
 // ─── Messages ─────────────────────────────────────────────────────────────────
 
