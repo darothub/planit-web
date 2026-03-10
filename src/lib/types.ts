@@ -317,8 +317,6 @@ export type UploadResponse = {
 
 // ─── Admin ───────────────────────────────────────────────────────────────────
 
-export type PriceRange = 'BUDGET' | 'MID_RANGE' | 'LUXURY'
-
 export type PendingPlannerResponse = {
   id: number
   email: string
