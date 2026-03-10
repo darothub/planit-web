@@ -48,7 +48,10 @@ export default function ClientSettingsPage() {
       phone:           form.phone || undefined,
       profileImageUrl: form.profileImageUrl || undefined,
     }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['user-profile'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['user-profile'] })
+      qc.invalidateQueries({ queryKey: ['profile-avatar'] })
+    },
   })
 
   function handleSubmit(e: React.FormEvent) {

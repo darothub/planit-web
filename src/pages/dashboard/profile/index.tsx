@@ -78,7 +78,10 @@ export default function PlannerProfilePage() {
       phone:                form.phone || undefined,
       isAcceptingInquiries,
     }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['planner-profile'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['planner-profile'] })
+      qc.invalidateQueries({ queryKey: ['profile-avatar'] })
+    },
   })
 
   const specialtiesMutation = useMutation({

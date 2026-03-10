@@ -1,14 +1,32 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useAuthStore } from '@/store/authStore'
+import { useQuery } from '@tanstack/react-query'
+import { api } from '@/lib/api'
 import Cookies from 'js-cookie'
 import { useState, useEffect, useRef } from 'react'
 
 export default function Navbar() {
-  const { user, logout } = useAuthStore()
+  const { token, user, logout } = useAuthStore()
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+
+  // Fetch profile photo — shares cache with profile/settings pages
+  const { data: profileImageUrl } = useQuery<string | null>({
+    queryKey: ['profile-avatar', user?.id],
+    queryFn: async () => {
+      if (user?.role === 'PLANNER') {
+        const res = await api.get('/planners/me')
+        return res.data.data.profileImageUrl ?? null
+      }
+      const res = await api.get('/users/me')
+      return res.data.data.profileImageUrl ?? null
+    },
+    enabled: !!token && !!user,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  })
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -31,6 +49,8 @@ export default function Navbar() {
   const initials = user
     ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
     : null
+
+  const profileHref = user?.role === 'PLANNER' ? '/dashboard/profile' : '/dashboard/settings'
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-cream">
@@ -67,7 +87,10 @@ export default function Navbar() {
             </svg>
 
             {/* Avatar */}
-            {initials ? (
+            {profileImageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={profileImageUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
+            ) : initials ? (
               <span className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold leading-none">
                 {initials}
               </span>
@@ -92,7 +115,9 @@ export default function Navbar() {
                 <>
                   <DropItem href="/dashboard" onClick={() => setOpen(false)}>Dashboard</DropItem>
                   <DropItem href="/messages" onClick={() => setOpen(false)}>Messages</DropItem>
-                  <DropItem href="/dashboard/profile" onClick={() => setOpen(false)}>Profile &amp; Settings</DropItem>
+                  <DropItem href={profileHref} onClick={() => setOpen(false)}>
+                    {user?.role === 'PLANNER' ? 'Profile & Settings' : 'Settings'}
+                  </DropItem>
                   {user.role === 'CLIENT' && (
                     <DropItem href="/auth/register?role=PLANNER" onClick={() => setOpen(false)}>Become a Planner</DropItem>
                   )}
