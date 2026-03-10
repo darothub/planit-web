@@ -50,8 +50,8 @@ function getShowcaseRedirect(
   const msgMatch = pathname.match(/^\/messages\/(.+)/)
   if (msgMatch) return `/showcase/messages?inquiryId=${msgMatch[1]}`
 
-  // ── Planner profiles (no showcase page — suppress) ────────────────────────
-  if (pathname.startsWith('/planners/')) return null
+  // ── Planner profiles ──────────────────────────────────────────────────────
+  if (pathname.startsWith('/planners/')) return '/showcase/planner-profile'
 
   // ── Dashboard routes ──────────────────────────────────────────────────────
   if (!pathname.startsWith('/dashboard')) return undefined // allow anything else through
@@ -155,39 +155,53 @@ export default function ShowcaseShell({ pageName, demoRole = 'GUEST', children }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [demoRole])
 
-  // ── Router interception (all navigation stays inside /showcase/*) ─────────
+  // ── Route interception — catches ALL navigation including <Link> clicks ─────
+  //
+  // Monkey-patching router.push/replace misses <Link> clicks because Next.js
+  // Pages Router's <Link> goes through the router singleton directly. Using
+  // router.events catches every route change regardless of how it was triggered.
+  //
+  // Pattern: throw in routeChangeStart to cancel; re-navigate in routeChangeError.
   useEffect(() => {
-    const hadOwnPush    = Object.prototype.hasOwnProperty.call(router, 'push')
-    const hadOwnReplace = Object.prototype.hasOwnProperty.call(router, 'replace')
-    const origPush      = router.push.bind(router)
-    const origReplace   = router.replace.bind(router)
+    function onRouteChangeStart(url: string) {
+      if (url.startsWith('/showcase')) return  // already in showcase — allow
 
-    const intercept =
-      (orig: typeof router.push) =>
-      (
-        url:     Parameters<typeof router.push>[0],
-        as?:     Parameters<typeof router.push>[1],
-        options?: Parameters<typeof router.push>[2],
-      ) => {
-        const adminRedirect = demoRole === 'ADMIN'
-          ? getAdminShowcaseRedirect(url as string | { pathname?: string })
-          : undefined
-        const redirect = adminRedirect !== undefined
-          ? adminRedirect
-          : getShowcaseRedirect(url as string | { pathname?: string }, demoRole)
-        if (redirect === null)      return Promise.resolve(true)           // suppress
-        if (redirect !== undefined) return orig(redirect, undefined, options) // reroute
-        return orig(url, as, options)                                      // pass through
+      const adminRedirect = demoRole === 'ADMIN'
+        ? getAdminShowcaseRedirect(url)
+        : undefined
+      const redirect = adminRedirect !== undefined
+        ? adminRedirect
+        : getShowcaseRedirect(url, demoRole)
+
+      if (redirect !== undefined) {
+        // null = suppress, string = reroute — cancel this navigation either way
+        throw 'showcase-intercept'
       }
+      // undefined = allow through unchanged
+    }
 
-    ;(router as any).push    = intercept(origPush)
-    ;(router as any).replace = intercept(origReplace)
+    function onRouteChangeError(err: unknown, url: string) {
+      if (err !== 'showcase-intercept') return
+
+      const adminRedirect = demoRole === 'ADMIN'
+        ? getAdminShowcaseRedirect(url)
+        : undefined
+      const redirect = adminRedirect !== undefined
+        ? adminRedirect
+        : getShowcaseRedirect(url, demoRole)
+
+      if (redirect !== null && redirect !== undefined) {
+        router.push(redirect)  // triggers routeChangeStart again, passes /showcase guard
+      }
+      // redirect === null: suppress entirely — do nothing
+    }
+
+    router.events.on('routeChangeStart', onRouteChangeStart)
+    router.events.on('routeChangeError', onRouteChangeError)
 
     return () => {
-      if (hadOwnPush)    { ;(router as any).push    = origPush    }
-      else               { delete (router as any).push             }
-      if (hadOwnReplace) { ;(router as any).replace = origReplace  }
-      else               { delete (router as any).replace          }
+      router.events.off('routeChangeStart', onRouteChangeStart)
+      router.events.off('routeChangeError', onRouteChangeError)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [demoRole])
