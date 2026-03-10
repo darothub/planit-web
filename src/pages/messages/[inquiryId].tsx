@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
@@ -9,12 +9,15 @@ import { useStompChat } from '@/hooks/useStompChat'
 import Navbar from '@/components/layout/Navbar'
 import ChatWindow from '@/components/messages/ChatWindow'
 import InquiryList from '@/components/messages/InquiryList'
+import BookNowModal from '@/components/bookings/BookNowModal'
 import { formatShortDate } from '@/lib/utils'
 
 export default function MessagesPage() {
   const router = useRouter()
   const { token, user } = useAuthStore()
   const inquiryId = Number(router.query.inquiryId)
+
+  const [showBookNow, setShowBookNow] = useState(false)
 
   useEffect(() => {
     if (!token) router.replace('/auth/login')
@@ -46,25 +49,36 @@ export default function MessagesPage() {
   }, [history])
 
   const currentInquiry = inquiries.find(i => i.id === inquiryId)
+  const canBook = !isPlanner && currentInquiry?.status === 'ACTIVE'
 
   if (!token || !user) return null
 
   const chatHeader = currentInquiry && (
-    <div>
-      <p className="font-semibold text-charcoal text-sm leading-tight">
-        {currentInquiry.listing.title}
-      </p>
-      <p className="text-xs text-stone-warm mt-0.5">
-        📅 {formatShortDate(currentInquiry.eventDate)} · 📍 {currentInquiry.eventLocation}
-        {' '}·{' '}
-        <span className={`font-medium ${
-          currentInquiry.status === 'ACTIVE'  ? 'text-green-700' :
-          currentInquiry.status === 'CLOSED'  ? 'text-stone-warm' :
-          'text-yellow-700'
-        }`}>
-          {currentInquiry.status}
-        </span>
-      </p>
+    <div className="flex items-center justify-between gap-3">
+      <div>
+        <p className="font-semibold text-charcoal text-sm leading-tight">
+          {currentInquiry.listing.title}
+        </p>
+        <p className="text-xs text-stone-warm mt-0.5">
+          📅 {formatShortDate(currentInquiry.eventDate)} · 📍 {currentInquiry.eventLocation}
+          {' '}·{' '}
+          <span className={`font-medium ${
+            currentInquiry.status === 'ACTIVE'  ? 'text-green-700' :
+            currentInquiry.status === 'CLOSED'  ? 'text-stone-warm' :
+            'text-yellow-700'
+          }`}>
+            {currentInquiry.status}
+          </span>
+        </p>
+      </div>
+      {canBook && (
+        <button
+          onClick={() => setShowBookNow(true)}
+          className="shrink-0 px-4 py-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-btn transition-colors"
+        >
+          Book Now
+        </button>
+      )}
     </div>
   )
 
@@ -103,6 +117,13 @@ export default function MessagesPage() {
           </div>
         )}
       </div>
+
+      {showBookNow && currentInquiry && (
+        <BookNowModal
+          inquiry={currentInquiry}
+          onClose={() => setShowBookNow(false)}
+        />
+      )}
     </div>
   )
 }
