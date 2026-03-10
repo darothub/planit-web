@@ -5,10 +5,11 @@ import Navbar from '@/components/layout/Navbar'
 import { cn } from '@/lib/utils'
 
 const clientNav = [
-  { href: '/dashboard',            label: 'Overview',  icon: '🏠', exact: true },
-  { href: '/dashboard/bookings',   label: 'Bookings',  icon: '📋' },
-  { href: '/dashboard/inquiries',  label: 'Messages',  icon: '💬' },
-  { href: '/dashboard/disputes',   label: 'Disputes',  icon: '⚠️' },
+  { href: '/dashboard',             label: 'Overview',  icon: '🏠', exact: true },
+  { href: '/dashboard/bookings',    label: 'Bookings',  icon: '📋' },
+  { href: '/dashboard/inquiries',   label: 'Messages',  icon: '💬' },
+  { href: '/dashboard/disputes',    label: 'Disputes',  icon: '⚠️' },
+  { href: '/dashboard/settings',    label: 'Settings',  icon: '⚙️' },
 ]
 
 const plannerNav = [

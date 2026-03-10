@@ -42,6 +42,7 @@ export default function PlannerProfilePage() {
     phone:             '',
   })
   const [selectedIds, setSelectedIds] = useState<number[]>([])
+  const [isAcceptingInquiries, setIsAcceptingInquiries] = useState(true)
 
   useEffect(() => {
     if (profile) {
@@ -54,6 +55,7 @@ export default function PlannerProfilePage() {
         phone:             profile.phone ?? '',
       })
       setSelectedIds(profile.specialties?.map(s => s.id) ?? [])
+      setIsAcceptingInquiries(profile.isAcceptingInquiries ?? true)
     }
   }, [profile])
 
@@ -68,12 +70,13 @@ export default function PlannerProfilePage() {
   // ── Mutations ─────────────────────────────────────────────────────────────
   const profileMutation = useMutation({
     mutationFn: () => api.put('/planners/me', {
-      businessName:      form.businessName || undefined,
-      bio:               form.bio || undefined,
-      location:          form.location || undefined,
-      yearsOfExperience: form.yearsOfExperience ? Number(form.yearsOfExperience) : undefined,
-      profileImageUrl:   form.profileImageUrl || undefined,
-      phone:             form.phone || undefined,
+      businessName:         form.businessName || undefined,
+      bio:                  form.bio || undefined,
+      location:             form.location || undefined,
+      yearsOfExperience:    form.yearsOfExperience ? Number(form.yearsOfExperience) : undefined,
+      profileImageUrl:      form.profileImageUrl || undefined,
+      phone:                form.phone || undefined,
+      isAcceptingInquiries,
     }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['planner-profile'] }),
   })
@@ -165,6 +168,31 @@ export default function PlannerProfilePage() {
             </div>
           </div>
         )}
+
+        {/* ── Availability ──────────────────────────────────────────────── */}
+        <div className="bg-white border border-cream rounded-xl p-6">
+          <h2 className="text-sm font-semibold text-charcoal mb-1">Availability</h2>
+          <p className="text-xs text-stone-warm mb-4">
+            Control whether clients can send you new inquiries.
+          </p>
+          <label className="flex items-center gap-3 cursor-pointer select-none w-fit">
+            <div
+              onClick={() => setIsAcceptingInquiries(v => !v)}
+              className={`relative w-11 h-6 rounded-full transition-colors ${
+                isAcceptingInquiries ? 'bg-primary' : 'bg-cream'
+              }`}
+            >
+              <span
+                className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+                  isAcceptingInquiries ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </div>
+            <span className="text-sm text-charcoal">
+              {isAcceptingInquiries ? 'Accepting new inquiries' : 'Not accepting new inquiries'}
+            </span>
+          </label>
+        </div>
 
         {/* ── Save ──────────────────────────────────────────────────────── */}
         {isError   && <p className="text-red-600 text-sm">Something went wrong. Please try again.</p>}

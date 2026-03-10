@@ -56,6 +56,16 @@ export type AuthResponse = {
   emailVerified: boolean
 }
 
+export type UserResponse = {
+  id: number
+  email: string
+  firstName: string
+  lastName: string
+  phone: string | null
+  role: UserRole
+  emailVerified: boolean
+}
+
 // ─── Event Types ─────────────────────────────────────────────────────────────
 
 export type EventType = {

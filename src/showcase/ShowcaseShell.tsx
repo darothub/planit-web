@@ -69,6 +69,7 @@ function getShowcaseRedirect(
     if (pathname.startsWith('/dashboard/bookings/'))           return '/showcase/dashboard-booking-detail?id=demo-1'
     if (pathname === '/dashboard/inquiries')                   return '/showcase/dashboard-inquiries'
     if (pathname === '/dashboard/disputes')                    return '/showcase/dashboard-disputes'
+    if (pathname === '/dashboard/settings')                    return '/showcase/dashboard-client-settings'
     if (pathname === '/dashboard/profile')                     return clientOverview
     return clientOverview
   }
@@ -83,7 +84,7 @@ function getShowcaseRedirect(
     if (pathname === '/dashboard/inquiries')                   return '/showcase/dashboard-inquiries-planner'
     if (pathname === '/dashboard/calendar')                    return '/showcase/dashboard-calendar'
     if (pathname === '/dashboard/disputes')                    return '/showcase/dashboard-disputes'
-    if (pathname === '/dashboard/profile')                     return plannerOverview
+    if (pathname === '/dashboard/profile')                     return '/showcase/dashboard-planner-profile'
     return plannerOverview
   }
 

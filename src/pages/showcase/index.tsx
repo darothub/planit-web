@@ -50,6 +50,7 @@ const sections: Section[] = [
       { href: '/showcase/dashboard-booking-detail-completed', name: 'Booking Detail (Completed)', description: 'COMPLETED booking — leave a review for listing and planner' },
       { href: '/showcase/dashboard-booking-detail-disputed',  name: 'Booking Detail (Disputed)',  description: 'DISPUTED booking — dispute panel, evidence list, upload evidence' },
       { href: '/showcase/dashboard-bookings-client',         name: 'Bookings',                 description: 'Full bookings list (CLIENT view)' },
+      { href: '/showcase/dashboard-client-settings',         name: 'Account Settings',         description: 'Edit name and phone number' },
       { href: '/showcase/dashboard-disputes',                name: 'Disputes',                 description: 'Dispute list with status badges' },
       { href: '/showcase/dashboard-inquiries',               name: 'Inquiries',                description: 'Conversation list in dashboard context (CLIENT)' },
       { href: '/showcase/messages',                          name: 'Messages',                 description: 'Full chat — inbox sidebar + chat window' },
