@@ -130,7 +130,10 @@ function BookNowForm({
 
           {/* Card */}
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-stone-warm">Payment card</label>
+            <div className="flex items-baseline justify-between">
+              <label className="text-xs font-medium text-stone-warm">Payment card</label>
+              <span className="text-xs text-stone-warm/70">Card number · Expiry · CVC</span>
+            </div>
             {isDemo || !stripePromise ? (
               <div className="input-base py-3 text-sm text-stone-400 bg-sand cursor-not-allowed select-none">
                 Card input — demo mode
