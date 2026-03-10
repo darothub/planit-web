@@ -14,6 +14,10 @@ type PlannerInfo = {
   location: string | null
   averageRating: number | null
   reviewCount: number
+  bio: string | null
+  yearsOfExperience: number | null
+  specialties: string[]
+  isAcceptingInquiries: boolean
 }
 
 type Props = {
@@ -33,7 +37,7 @@ export default function PlannerProfilePage({ planner, listings, reviews }: Props
         <title>{planner.businessName} — Planit</title>
         <meta
           name="description"
-          content={`Book ${planner.businessName} on Planit.${avgRating ? ` ★${avgRating} rating.` : ''}`}
+          content={`Book ${planner.businessName} on Planit.${avgRating ? ` ★${avgRating} rating.` : ''}${planner.bio ? ` ${planner.bio.slice(0, 100)}` : ''}`}
         />
         <meta property="og:title" content={planner.businessName} />
       </Head>
@@ -45,6 +49,7 @@ export default function PlannerProfilePage({ planner, listings, reviews }: Props
         <div className="max-w-5xl mx-auto px-4">
           {/* Planner header — overlaps hero */}
           <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-16 mb-8">
+            {/* Avatar */}
             <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden
               border-4 border-white shadow-lg flex-shrink-0 bg-sand">
               {planner.profileImageUrl ? (
@@ -62,10 +67,13 @@ export default function PlannerProfilePage({ planner, listings, reviews }: Props
               )}
             </div>
 
+            {/* Name + meta */}
             <div className="flex-1 pb-1">
               <h1 className="text-2xl font-bold text-charcoal leading-tight">
                 {planner.businessName}
               </h1>
+
+              {/* Meta row */}
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-sm text-stone-warm">
                 {avgRating && (
                   <span className="text-charcoal font-medium">
@@ -75,10 +83,36 @@ export default function PlannerProfilePage({ planner, listings, reviews }: Props
                     </span>
                   </span>
                 )}
-                {planner.location && <><span>·</span><span>📍 {planner.location}</span></>}
+                {planner.location && (
+                  <><span>·</span><span>📍 {planner.location}</span></>
+                )}
+                {planner.yearsOfExperience != null && planner.yearsOfExperience > 0 && (
+                  <><span>·</span><span>{planner.yearsOfExperience} yrs exp</span></>
+                )}
                 <span>·</span>
                 <span className="text-green-700 font-medium">✓ Verified</span>
+                <span>·</span>
+                {planner.isAcceptingInquiries ? (
+                  <span className="text-green-700 font-medium">Accepting clients</span>
+                ) : (
+                  <span className="text-amber-600 font-medium">Not accepting new clients</span>
+                )}
               </div>
+
+              {/* Specialties chips */}
+              {planner.specialties.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2.5">
+                  {planner.specialties.map(s => (
+                    <span
+                      key={s}
+                      className="px-2.5 py-0.5 bg-sand border border-cream rounded-full
+                        text-xs font-medium text-charcoal"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="pb-1">
@@ -86,7 +120,15 @@ export default function PlannerProfilePage({ planner, listings, reviews }: Props
             </div>
           </div>
 
-          {/* Listings */}
+          {/* Bio */}
+          {planner.bio && (
+            <section className="mb-12">
+              <h2 className="text-xl font-semibold text-charcoal mb-3">About</h2>
+              <p className="text-stone-warm leading-relaxed max-w-2xl">{planner.bio}</p>
+            </section>
+          )}
+
+          {/* Services */}
           {listings.length > 0 && (
             <section className="mb-12">
               <h2 className="text-xl font-semibold text-charcoal mb-5">Services</h2>
@@ -112,7 +154,7 @@ export default function PlannerProfilePage({ planner, listings, reviews }: Props
             </section>
           )}
 
-          {listings.length === 0 && reviews.length === 0 && (
+          {listings.length === 0 && reviews.length === 0 && !planner.bio && (
             <div className="py-16 text-center">
               <p className="text-stone-warm">No public information available for this planner yet.</p>
             </div>
@@ -146,13 +188,21 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const allListings: EventListingResponse[] = listingsJson.data?.content ?? []
     const reviews: ReviewResponse[] = Array.isArray(reviewsJson.data) ? reviewsJson.data : []
 
+    const specialties: string[] = Array.isArray(profile.specialties)
+      ? profile.specialties.map((s: { displayName?: string; name?: string }) => s.displayName ?? s.name ?? '').filter(Boolean)
+      : []
+
     const planner: PlannerInfo = {
       id,
-      businessName:    profile.businessName ?? 'Event Planner',
-      profileImageUrl: profile.profileImageUrl ?? null,
-      location:        profile.location ?? null,
-      averageRating:   profile.rating ?? null,
-      reviewCount:     profile.reviewCount ?? reviews.length,
+      businessName:        profile.businessName ?? 'Event Planner',
+      profileImageUrl:     profile.profileImageUrl ?? null,
+      location:            profile.location ?? null,
+      averageRating:       profile.rating ?? null,
+      reviewCount:         profile.reviewCount ?? reviews.length,
+      bio:                 profile.bio ?? null,
+      yearsOfExperience:   profile.yearsOfExperience ?? null,
+      specialties,
+      isAcceptingInquiries: profile.isAcceptingInquiries ?? true,
     }
 
     return { props: { planner, listings: allListings, reviews } }
