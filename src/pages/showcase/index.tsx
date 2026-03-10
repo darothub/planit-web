@@ -72,6 +72,7 @@ const sections: Section[] = [
       { href: '/showcase/messages',                             name: 'Messages',                      description: 'Full chat — inbox sidebar + chat window' },
       { href: '/showcase/dashboard-listings',                   name: 'My Listings',                   description: 'Listing management grid with publish/draft toggle' },
       { href: '/showcase/dashboard-planner',                    name: 'Overview',                      description: 'Planner dashboard — stats row + pending bookings' },
+      { href: '/showcase/dashboard-planner-profile',            name: 'Profile & Settings',            description: 'Profile photo upload, bio, and event-type specialties multi-select' },
     ],
   },
   {
