@@ -12,7 +12,9 @@ import {
   EventListingResponse,
   EventListingDetailResponse,
   CalendarBlockResponse,
+  DateChangeRequestResponse,
   DisputeResponse,
+  PendingPlannerResponse,
 } from '@/lib/types'
 import { getAllDemoListings } from '@/lib/demoData'
 
@@ -26,6 +28,17 @@ export const DEMO_CLIENT_USER: AuthResponse = {
   firstName: 'Sarah',
   lastName: 'Chen',
   role: 'CLIENT',
+  emailVerified: true,
+}
+
+export const DEMO_ADMIN_USER: AuthResponse = {
+  token: 'showcase-demo-admin',
+  type: 'Bearer',
+  userId: 9001,
+  email: 'admin@planit.com',
+  firstName: 'Admin',
+  lastName: 'User',
+  role: 'ADMIN',
   emailVerified: true,
 }
 
@@ -220,6 +233,14 @@ export const DEMO_BOOKINGS_PLANNER: BookingResponse[] = [
 export const DEMO_BOOKING_DETAIL: BookingResponse = {
   ...DEMO_BOOKINGS_CLIENT[0],
   // Override so the showcase shows both Cancel and Confirm Completion buttons
+  clientConfirmedAt: null,
+  plannerConfirmedAt: null,
+}
+
+export const DEMO_DISPUTED_BOOKING: BookingResponse = {
+  ...DEMO_BOOKINGS_CLIENT[0],
+  status: 'DISPUTED',
+  eventDate: '2026-01-15',       // past date — dispute is already open
   clientConfirmedAt: null,
   plannerConfirmedAt: null,
 }
@@ -523,6 +544,23 @@ export const DEMO_CALENDAR_BLOCKS: CalendarBlockResponse[] = [
 
 // ─── Disputes ─────────────────────────────────────────────────────────────────
 
+// ─── Date Change Requests ──────────────────────────────────────────────────────
+
+export const DEMO_DATE_CHANGE_REQUESTS: DateChangeRequestResponse[] = [
+  {
+    id: 1,
+    bookingId: 203,
+    originalDate: '2026-05-30',
+    requestedDate: '2026-07-12',
+    reason: 'A family emergency has come up on the original date. We would greatly appreciate moving the event to July if possible.',
+    reschedulingFeeAmount: 1200,
+    couponCode: null,
+    discountedFeeAmount: 1200,
+    status: 'PENDING',
+    createdAt: '2026-03-08T14:00:00Z',
+  },
+]
+
 export const DEMO_DISPUTES: DisputeResponse[] = [
   {
     id: 1,
@@ -549,5 +587,103 @@ export const DEMO_DISPUTES: DisputeResponse[] = [
     createdAt: '2025-11-28T14:00:00Z',
     raisedBy: { id: 1001, firstName: 'Sarah', lastName: 'Chen', role: 'CLIENT' },
     evidence: [],
+  },
+]
+
+// ─── Admin: Pending Planners ───────────────────────────────────────────────────
+
+export const DEMO_PENDING_PLANNERS: PendingPlannerResponse[] = [
+  {
+    id: 3001,
+    email: 'jasmine.okafor@blossomevents.co.uk',
+    firstName: 'Jasmine',
+    lastName: 'Okafor',
+    phone: '+44 7700 900123',
+    businessName: 'Blossom & Bloom Events',
+    bio: 'Specialist in luxury weddings and corporate galas. 8 years experience across London and the South East. Known for bespoke floral arrangements and seamless coordination.',
+    location: 'London',
+    priceRange: 'LUXURY',
+    yearsExperience: 8,
+    portfolioDescription: 'My portfolio showcases 60+ events from intimate garden weddings to 500-guest corporate dinners.',
+    verificationStatus: 'PENDING',
+    specialties: ['Wedding', 'Corporate', 'Engagement'],
+    portfolioImageCount: 12,
+    registeredAt: '2026-03-01T10:30:00Z',
+    profileImageUrl: null,
+  },
+  {
+    id: 3002,
+    email: 'david.mensah@mensahcelebrations.com',
+    firstName: 'David',
+    lastName: 'Mensah',
+    phone: '+44 7911 223344',
+    businessName: 'Mensah Celebrations',
+    bio: 'I bring a vibrant, cultural touch to every event — from traditional African ceremonies to modern birthday bashes. Based in Manchester.',
+    location: 'Manchester',
+    priceRange: 'MID_RANGE',
+    yearsExperience: 4,
+    portfolioDescription: null,
+    verificationStatus: 'PENDING',
+    specialties: ['Birthday', 'Wedding', 'Baby Shower'],
+    portfolioImageCount: 5,
+    registeredAt: '2026-03-03T14:15:00Z',
+    profileImageUrl: null,
+  },
+  {
+    id: 3003,
+    email: 'sophie.wright@wrightmoments.co.uk',
+    firstName: 'Sophie',
+    lastName: 'Wright',
+    phone: null,
+    businessName: null,
+    bio: 'Freelance event coordinator with a passion for creating memorable graduation parties and anniversary celebrations.',
+    location: 'Bristol',
+    priceRange: 'BUDGET',
+    yearsExperience: 2,
+    portfolioDescription: null,
+    verificationStatus: 'PENDING',
+    specialties: ['Graduation', 'Anniversary'],
+    portfolioImageCount: 0,
+    registeredAt: '2026-03-07T09:00:00Z',
+    profileImageUrl: null,
+  },
+]
+
+// ─── Admin: Open Disputes ─────────────────────────────────────────────────────
+
+export const DEMO_ADMIN_DISPUTES: DisputeResponse[] = [
+  {
+    id: 10,
+    bookingId: 501,
+    reason: 'The venue was not cleaned or set up before guests arrived. We had to spend the first 45 minutes arranging tables ourselves. This was not what we agreed upon.',
+    status: 'OPEN',
+    resolution: null,
+    resolutionNote: null,
+    refundAmount: null,
+    evidenceDeadline: '2026-03-15T00:00:00Z',
+    createdAt: '2026-03-10T08:00:00Z',
+    raisedBy: { id: 1005, firstName: 'Tom', lastName: 'Bradley', role: 'CLIENT' },
+    evidence: [],
+  },
+  {
+    id: 11,
+    bookingId: 502,
+    reason: 'The DJ arrived over 2 hours late and only performed for 90 minutes instead of the agreed 4 hours. Guests left early and the event was ruined.',
+    status: 'UNDER_REVIEW',
+    resolution: null,
+    resolutionNote: null,
+    refundAmount: null,
+    evidenceDeadline: '2026-03-12T00:00:00Z',
+    createdAt: '2026-03-05T11:30:00Z',
+    raisedBy: { id: 1006, firstName: 'Emma', lastName: 'Davis', role: 'CLIENT' },
+    evidence: [
+      {
+        id: 101,
+        fileUrl: 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=800',
+        description: 'Screenshot of messages confirming 4-hour DJ set',
+        createdAt: '2026-03-06T10:00:00Z',
+        uploadedBy: { id: 1006, firstName: 'Emma', lastName: 'Davis', role: 'CLIENT' },
+      },
+    ],
   },
 ]

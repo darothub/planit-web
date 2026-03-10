@@ -314,3 +314,26 @@ export type CalendarBlockResponse = {
 export type UploadResponse = {
   url: string
 }
+
+// ─── Admin ───────────────────────────────────────────────────────────────────
+
+export type PriceRange = 'BUDGET' | 'MID_RANGE' | 'LUXURY'
+
+export type PendingPlannerResponse = {
+  id: number
+  email: string
+  firstName: string
+  lastName: string
+  phone: string | null
+  businessName: string | null
+  bio: string | null
+  location: string | null
+  priceRange: PriceRange | null
+  yearsExperience: number | null
+  portfolioDescription: string | null
+  verificationStatus: 'PENDING' | 'VERIFIED' | 'REJECTED'
+  specialties: string[]
+  portfolioImageCount: number
+  registeredAt: string
+  profileImageUrl: string | null
+}

@@ -3,32 +3,30 @@ import type { GetServerSideProps } from 'next'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import ShowcaseShell from '@/showcase/ShowcaseShell'
 import BookingDetailPage from '@/pages/dashboard/bookings/[id]'
-import { DEMO_BOOKING_DETAIL } from '@/showcase/data'
-import type { DateChangeRequestResponse } from '@/lib/types'
+import { DEMO_BOOKINGS_PLANNER, DEMO_DATE_CHANGE_REQUESTS } from '@/showcase/data'
 
 export const getServerSideProps: GetServerSideProps = ({ query }) => {
   if (process.env.NODE_ENV === 'production') return Promise.resolve({ notFound: true })
-  // BookingDetailPage reads router.query.id to form the query key.
-  // Redirect to inject a stable demo id so the seeded cache key matches.
   if (!query.id) {
     return Promise.resolve({
-      redirect: { destination: '/showcase/dashboard-booking-detail?id=demo-1', permanent: false },
+      redirect: { destination: '/showcase/dashboard-booking-detail-date-change?id=demo-p3', permanent: false },
     })
   }
   return Promise.resolve({ props: {} })
 }
 
-export default function ShowcaseBookingDetail() {
+export default function ShowcaseBookingDetailDateChange() {
   const qc = useMemo(() => {
     const c = new QueryClient()
-    c.setQueryData(['booking', 'demo-1'], DEMO_BOOKING_DETAIL)
-    c.setQueryData<DateChangeRequestResponse[]>(['date-changes', 'demo-1'], [])
+    // ACCEPTED booking (index 2) — has a pending date change request from client
+    c.setQueryData(['booking', 'demo-p3'], DEMO_BOOKINGS_PLANNER[2])
+    c.setQueryData(['date-changes', 'demo-p3'], DEMO_DATE_CHANGE_REQUESTS)
     return c
   }, [])
 
   return (
     <QueryClientProvider client={qc}>
-      <ShowcaseShell pageName="Booking Detail" demoRole="CLIENT">
+      <ShowcaseShell pageName="Booking Detail (Date Change)" demoRole="PLANNER">
         <BookingDetailPage />
       </ShowcaseShell>
     </QueryClientProvider>

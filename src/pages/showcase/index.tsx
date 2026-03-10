@@ -46,10 +46,20 @@ const sections: Section[] = [
     screens: [
       { href: '/showcase/dashboard-client',           name: 'Overview',       description: 'Client dashboard — active bookings + messages' },
       { href: '/showcase/dashboard-bookings-client',  name: 'Bookings',       description: 'Full bookings list (CLIENT view)' },
-      { href: '/showcase/dashboard-booking-detail',   name: 'Booking Detail', description: 'ACCEPTED booking — cancel + confirm completion actions' },
+      { href: '/showcase/dashboard-booking-detail',          name: 'Booking Detail',          description: 'ACCEPTED booking — cancel + confirm completion actions' },
+      { href: '/showcase/dashboard-booking-detail-disputed', name: 'Booking Detail (Disputed)', description: 'DISPUTED booking — dispute panel, evidence list, upload evidence' },
       { href: '/showcase/dashboard-inquiries',        name: 'Inquiries',      description: 'Conversation list in dashboard context (CLIENT)' },
       { href: '/showcase/dashboard-disputes',         name: 'Disputes',       description: 'Dispute list with status badges' },
       { href: '/showcase/messages',                   name: 'Messages',       description: 'Full chat — inbox sidebar + chat window' },
+    ],
+  },
+  {
+    label: '🔑 Admin',
+    colour: 'border-amber-500',
+    bgColour: 'bg-amber-50',
+    screens: [
+      { href: '/showcase/admin-planners', name: 'Planner Queue', description: 'Pending planner applications — approve or reject with notes' },
+      { href: '/showcase/admin-disputes', name: 'Disputes',      description: 'Open disputes — resolve with full/partial refund or release to planner' },
     ],
   },
   {
@@ -59,7 +69,8 @@ const sections: Section[] = [
     screens: [
       { href: '/showcase/dashboard-planner',               name: 'Overview',          description: 'Planner dashboard — stats row + pending bookings' },
       { href: '/showcase/dashboard-bookings-planner',           name: 'Received Bookings',       description: 'Full bookings list (PLANNER view)' },
-      { href: '/showcase/dashboard-booking-detail-planner',     name: 'Booking Detail (Planner)', description: 'REQUESTED booking — accept / decline actions' },
+      { href: '/showcase/dashboard-booking-detail-planner',          name: 'Booking Detail (Planner)',      description: 'REQUESTED booking — accept / decline actions' },
+      { href: '/showcase/dashboard-booking-detail-date-change',       name: 'Booking Detail (Date Change)',  description: 'ACCEPTED booking — pending date change request, accept / decline' },
       { href: '/showcase/dashboard-listings',              name: 'My Listings',       description: 'Listing management grid with publish/draft toggle' },
       { href: '/showcase/dashboard-listing-form',          name: 'Listing Form',      description: 'Edit listing form — cover image upload, gallery management, amenities' },
       { href: '/showcase/dashboard-inquiries-planner',     name: 'Inquiries',         description: 'Conversation list in dashboard context (PLANNER)' },

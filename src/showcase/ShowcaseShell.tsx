@@ -2,10 +2,10 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useAuthStore } from '@/store/authStore'
-import { DEMO_CLIENT_USER, DEMO_PLANNER_USER } from './data'
+import { DEMO_ADMIN_USER, DEMO_CLIENT_USER, DEMO_PLANNER_USER } from './data'
 
 type DeviceWidth = 'mobile' | 'tablet' | 'desktop'
-type DemoRole = 'CLIENT' | 'PLANNER' | 'GUEST'
+type DemoRole = 'CLIENT' | 'PLANNER' | 'ADMIN' | 'GUEST'
 
 type Props = {
   pageName: string
@@ -87,6 +87,14 @@ function getShowcaseRedirect(
   return '/showcase'
 }
 
+function getAdminShowcaseRedirect(url: string | { pathname?: string }): string | null | undefined {
+  const raw      = typeof url === 'string' ? url : (url.pathname ?? '/')
+  const pathname = raw.split('?')[0]
+  if (pathname === '/admin' || pathname === '/admin/planners') return '/showcase/admin-planners'
+  if (pathname === '/admin/disputes') return '/showcase/admin-disputes'
+  return undefined
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ShowcaseShell({ pageName, demoRole = 'GUEST', children }: Props) {
@@ -123,6 +131,17 @@ export default function ShowcaseShell({ pageName, demoRole = 'GUEST', children }
           role:      DEMO_PLANNER_USER.role,
         },
       })
+    } else if (demoRole === 'ADMIN') {
+      useAuthStore.setState({
+        token: DEMO_ADMIN_USER.token,
+        user: {
+          id:        DEMO_ADMIN_USER.userId,
+          email:     DEMO_ADMIN_USER.email,
+          firstName: DEMO_ADMIN_USER.firstName,
+          lastName:  DEMO_ADMIN_USER.lastName,
+          role:      DEMO_ADMIN_USER.role,
+        },
+      })
     } else {
       // GUEST keeps token null (auth-page showcase: prevents redirect to /dashboard)
       useAuthStore.setState({ token: null, user: null })
@@ -150,10 +169,12 @@ export default function ShowcaseShell({ pageName, demoRole = 'GUEST', children }
         as?:     Parameters<typeof router.push>[1],
         options?: Parameters<typeof router.push>[2],
       ) => {
-        const redirect = getShowcaseRedirect(
-          url as string | { pathname?: string },
-          demoRole,
-        )
+        const adminRedirect = demoRole === 'ADMIN'
+          ? getAdminShowcaseRedirect(url as string | { pathname?: string })
+          : undefined
+        const redirect = adminRedirect !== undefined
+          ? adminRedirect
+          : getShowcaseRedirect(url as string | { pathname?: string }, demoRole)
         if (redirect === null)      return Promise.resolve(true)           // suppress
         if (redirect !== undefined) return orig(redirect, undefined, options) // reroute
         return orig(url, as, options)                                      // pass through
