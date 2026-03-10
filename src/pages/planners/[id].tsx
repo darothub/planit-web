@@ -69,7 +69,7 @@ export default function PlannerProfilePage({ planner, listings, reviews }: Props
 
             {/* Name + meta */}
             <div className="flex-1 pb-1">
-              <h1 className="text-2xl font-bold text-charcoal leading-tight">
+              <h1 className="text-2xl font-bold text-white leading-tight">
                 {planner.businessName}
               </h1>
 
