@@ -7,10 +7,6 @@ import ListingCard from '@/components/listings/ListingCard'
 import ReviewCard from '@/components/listings/ReviewCard'
 import ContactButton from '@/components/planners/ContactButton'
 
-// TODO: Replace with real GET /api/v1/planners/{id} endpoint once added to the backend.
-// Currently, planner info is derived from their listing data since no public
-// planner profile endpoint exists.
-
 type PlannerInfo = {
   id: number
   businessName: string
