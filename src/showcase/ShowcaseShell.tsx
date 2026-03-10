@@ -157,54 +157,72 @@ export default function ShowcaseShell({ pageName, demoRole = 'GUEST', children }
 
   // ── Route interception — catches ALL navigation including <Link> clicks ─────
   //
-  // Monkey-patching router.push/replace misses <Link> clicks because Next.js
-  // Pages Router's <Link> goes through the router singleton directly. Using
-  // router.events catches every route change regardless of how it was triggered.
+  // Two-pronged approach (routeChangeStart throw+catch is unreliable in Pages
+  // Router — router.push inside routeChangeError silently fails):
   //
-  // Pattern: throw in routeChangeStart to cancel; re-navigate in routeChangeError.
+  //  1. Monkey-patch router.push / router.replace → programmatic navigation
+  //  2. Document capture-phase click listener → <Link> clicks (fires before
+  //     React/Next.js see the event, so we intercept before the Link's onClick)
+  //
+  // Both translate real-app URLs to their showcase equivalents using the same
+  // getShowcaseRedirect / getAdminShowcaseRedirect helpers.
   useEffect(() => {
-    function onRouteChangeStart(url: string) {
-      if (url.startsWith('/showcase')) return  // already in showcase — allow
+    const origPush    = router.push.bind(router)
+    const origReplace = router.replace.bind(router)
 
-      const adminRedirect = demoRole === 'ADMIN'
-        ? getAdminShowcaseRedirect(url)
-        : undefined
-      const redirect = adminRedirect !== undefined
-        ? adminRedirect
-        : getShowcaseRedirect(url, demoRole)
+    function computeRedirect(url: string | { pathname?: string }): string | null | undefined {
+      const raw = typeof url === 'string' ? url : (url?.pathname ?? '/')
+      if (raw.startsWith('/showcase')) return undefined  // already showcase — pass through
 
-      if (redirect !== undefined) {
-        // null = suppress, string = reroute — cancel this navigation either way
-        throw 'showcase-intercept'
+      if (demoRole === 'ADMIN') {
+        const ar = getAdminShowcaseRedirect(url)
+        if (ar !== undefined) return ar
       }
-      // undefined = allow through unchanged
+      return getShowcaseRedirect(url, demoRole)
     }
 
-    function onRouteChangeError(err: unknown, url: string) {
-      if (err !== 'showcase-intercept') return
-
-      const adminRedirect = demoRole === 'ADMIN'
-        ? getAdminShowcaseRedirect(url)
-        : undefined
-      const redirect = adminRedirect !== undefined
-        ? adminRedirect
-        : getShowcaseRedirect(url, demoRole)
-
-      if (redirect !== null && redirect !== undefined) {
-        // Defer until the router has fully settled from the cancelled navigation.
-        // Calling router.push synchronously here fails silently because the router
-        // is still in error-cleanup state at this point.
-        setTimeout(() => router.push(redirect), 0)
-      }
-      // redirect === null: suppress entirely — do nothing
+    // 1. Monkey-patch programmatic navigation
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    router.push = (url: any, as?: any, options?: any) => {
+      const redirect = computeRedirect(url)
+      if (redirect === undefined) return origPush(url, as, options)
+      if (redirect === null)      return Promise.resolve(false)
+      return origPush(redirect)
     }
 
-    router.events.on('routeChangeStart', onRouteChangeStart)
-    router.events.on('routeChangeError', onRouteChangeError)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    router.replace = (url: any, as?: any, options?: any) => {
+      const redirect = computeRedirect(url)
+      if (redirect === undefined) return origReplace(url, as, options)
+      if (redirect === null)      return Promise.resolve(false)
+      return origReplace(redirect)
+    }
+
+    // 2. Capture-phase click listener — intercepts <Link> clicks before
+    //    Next.js's own handlers fire. stopPropagation() in capture phase
+    //    prevents the event from reaching any child element handlers (including
+    //    React synthetic events on the <a> tag), so the Link never calls push.
+    function handleClick(e: MouseEvent) {
+      const a = (e.target as Element).closest('a[href]')
+      if (!a) return
+      const href = a.getAttribute('href') ?? ''
+      if (!href.startsWith('/') || href.startsWith('/showcase')) return  // not an internal app link
+
+      const redirect = computeRedirect(href)
+      if (redirect === undefined) return  // allow through unchanged
+
+      e.preventDefault()
+      e.stopPropagation()
+      if (redirect !== null) origPush(redirect)
+      // redirect === null → suppressed, do nothing
+    }
+
+    document.addEventListener('click', handleClick, true)
 
     return () => {
-      router.events.off('routeChangeStart', onRouteChangeStart)
-      router.events.off('routeChangeError', onRouteChangeError)
+      router.push    = origPush
+      router.replace = origReplace
+      document.removeEventListener('click', handleClick, true)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [demoRole])
