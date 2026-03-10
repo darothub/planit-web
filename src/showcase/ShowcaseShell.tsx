@@ -47,6 +47,7 @@ function getShowcaseRedirect(
   if (pathname.startsWith('/listings/')) return '/showcase/listing-detail'
 
   // ── Messages ──────────────────────────────────────────────────────────────
+  if (pathname === '/messages') return '/showcase/messages'
   const msgMatch = pathname.match(/^\/messages\/(.+)/)
   if (msgMatch) return `/showcase/messages?inquiryId=${msgMatch[1]}`
 
