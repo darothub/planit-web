@@ -237,6 +237,8 @@ export const DEMO_BOOKING_DETAIL: BookingResponse = {
   plannerConfirmedAt: null,
 }
 
+export const DEMO_COMPLETED_BOOKING: BookingResponse = DEMO_BOOKINGS_CLIENT[2]
+
 export const DEMO_DISPUTED_BOOKING: BookingResponse = {
   ...DEMO_BOOKINGS_CLIENT[0],
   status: 'DISPUTED',
