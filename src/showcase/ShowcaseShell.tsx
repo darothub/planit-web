@@ -191,7 +191,10 @@ export default function ShowcaseShell({ pageName, demoRole = 'GUEST', children }
         : getShowcaseRedirect(url, demoRole)
 
       if (redirect !== null && redirect !== undefined) {
-        router.push(redirect)  // triggers routeChangeStart again, passes /showcase guard
+        // Defer until the router has fully settled from the cancelled navigation.
+        // Calling router.push synchronously here fails silently because the router
+        // is still in error-cleanup state at this point.
+        setTimeout(() => router.push(redirect), 0)
       }
       // redirect === null: suppress entirely — do nothing
     }
