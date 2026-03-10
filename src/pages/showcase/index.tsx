@@ -58,8 +58,9 @@ const sections: Section[] = [
     colour: 'border-rose-400',
     bgColour: 'bg-rose-50',
     screens: [
-      { href: '/showcase/dashboard-booking-detail-date-change', name: 'Booking Detail (Date Change)', description: 'ACCEPTED booking — pending date change request, accept / decline' },
-      { href: '/showcase/dashboard-booking-detail-planner',     name: 'Booking Detail (Planner)',      description: 'REQUESTED booking — accept / decline actions' },
+      { href: '/showcase/dashboard-booking-detail-completed-planner', name: 'Booking Detail (Completed)', description: 'COMPLETED booking — leave a review for the client' },
+      { href: '/showcase/dashboard-booking-detail-date-change',       name: 'Booking Detail (Date Change)', description: 'ACCEPTED booking — pending date change request, accept / decline' },
+      { href: '/showcase/dashboard-booking-detail-planner',           name: 'Booking Detail (Planner)',      description: 'REQUESTED booking — accept / decline actions' },
       { href: '/showcase/dashboard-bookings-planner',           name: 'Received Bookings',             description: 'Full bookings list (PLANNER view)' },
       { href: '/showcase/dashboard-calendar',                   name: 'Calendar',                      description: 'Availability calendar with block-date picker' },
       { href: '/showcase/dashboard-disputes',                   name: 'Disputes',                      description: 'Dispute list with status badges' },

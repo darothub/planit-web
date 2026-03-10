@@ -239,6 +239,39 @@ export const DEMO_BOOKING_DETAIL: BookingResponse = {
 
 export const DEMO_COMPLETED_BOOKING: BookingResponse = DEMO_BOOKINGS_CLIENT[2]
 
+export const DEMO_COMPLETED_BOOKING_PLANNER: BookingResponse = {
+  id: 204,
+  inquiryId: 304,
+  status: 'COMPLETED',
+  agreedPrice: 9800,
+  currency: 'GBP',
+  eventDate: '2025-10-18',
+  eventLocation: 'NEC Birmingham',
+  guestCount: 350,
+  clientNote: 'Full AV setup with LED walls — everything was perfect.',
+  reschedulingCount: 0,
+  clientConfirmedAt: '2025-10-19T10:00:00Z',
+  plannerConfirmedAt: '2025-10-19T11:00:00Z',
+  fundsReleasedAt: '2025-10-21T00:00:00Z',
+  createdAt: '2025-08-10T09:00:00Z',
+  updatedAt: '2025-10-21T00:00:00Z',
+  client: { id: 1101, firstName: 'James', lastName: 'Whitfield' },
+  planner: { id: 2001, businessName: 'Events by Rivera' },
+  listing: { id: 4, title: 'Awards Ceremony Night' },
+  payments: [
+    {
+      id: 20,
+      instalmentNumber: 1,
+      amount: 9800,
+      currency: 'GBP',
+      dueDate: '2025-08-20',
+      paidAt: '2025-08-19T14:00:00Z',
+      status: 'CAPTURED',
+      isNonRefundable: true,
+    },
+  ],
+}
+
 export const DEMO_DISPUTED_BOOKING: BookingResponse = {
   ...DEMO_BOOKINGS_CLIENT[0],
   status: 'DISPUTED',
