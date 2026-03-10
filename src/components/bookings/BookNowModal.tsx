@@ -7,9 +7,11 @@ import { api } from '@/lib/api'
 import { InquiryResponse, BookingResponse } from '@/lib/types'
 import { formatPrice, formatShortDate } from '@/lib/utils'
 
-// Load Stripe once at module level (null-safe when key is absent)
-const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-  ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+// Load Stripe once at module level.
+// Guard against partial keys (e.g. "pk_test_" with no secret appended).
+const _stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+const stripePromise = _stripeKey && _stripeKey.length > 20
+  ? loadStripe(_stripeKey)
   : null
 
 const CARD_ELEMENT_OPTIONS = {
@@ -29,10 +31,12 @@ const CARD_ELEMENT_OPTIONS = {
 function BookNowForm({
   inquiry,
   isDemo,
+  inline = false,
   onClose,
 }: {
   inquiry: InquiryResponse
   isDemo: boolean
+  inline?: boolean
   onClose: () => void
 }) {
   const router = useRouter()
@@ -74,9 +78,8 @@ function BookNowForm({
     },
   })
 
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
+  const card = (
+    <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
         {/* Header */}
         <div className="px-6 pt-6 pb-4 border-b border-cream">
           <h2 className="font-semibold text-charcoal text-lg">Confirm Booking</h2>
@@ -189,6 +192,13 @@ function BookNowForm({
           </button>
         </div>
       </div>
+  )
+
+  if (inline) return card
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+      {card}
     </div>
   )
 }
@@ -198,13 +208,14 @@ function BookNowForm({
 type Props = {
   inquiry: InquiryResponse
   onClose: () => void
+  inline?: boolean
 }
 
-export default function BookNowModal({ inquiry, onClose }: Props) {
+export default function BookNowModal({ inquiry, onClose, inline }: Props) {
   const isDemo = inquiry.id < 0
   return (
     <Elements stripe={stripePromise}>
-      <BookNowForm inquiry={inquiry} isDemo={isDemo} onClose={onClose} />
+      <BookNowForm inquiry={inquiry} isDemo={isDemo} inline={inline} onClose={onClose} />
     </Elements>
   )
 }
