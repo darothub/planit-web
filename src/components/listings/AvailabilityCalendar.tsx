@@ -22,11 +22,6 @@ function formatYMD(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
-function parseYMD(s: string): Date {
-  const [y, m, d] = s.split('-').map(Number)
-  return new Date(y, m - 1, d)
-}
-
 function isDateBlocked(dateStr: string, blocked: BlockedPeriodResponse[]): boolean {
   return blocked.some(b => dateStr >= b.startDate && dateStr <= b.endDate)
 }
@@ -53,20 +48,23 @@ function MonthGrid({
   year,
   month,
   blocked,
+  selectedDate,
+  onSelectDate,
 }: {
   year: number
   month: number
   blocked: BlockedPeriodResponse[]
+  selectedDate?: string
+  onSelectDate?: (date: string) => void
 }) {
   const today = formatYMD(new Date())
   const daysInMonth = getDaysInMonth(year, month)
-  const startOffset = getMondayFirstDay(year, month) // 0-based Mon-first
+  const startOffset = getMondayFirstDay(year, month)
 
   const cells: (number | null)[] = [
     ...Array(startOffset).fill(null),
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ]
-  // pad to complete weeks
   while (cells.length % 7 !== 0) cells.push(null)
 
   return (
@@ -81,21 +79,43 @@ function MonthGrid({
         {cells.map((day, i) => {
           if (day === null) return <div key={i} />
           const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-          const blocked_ = isDateBlocked(dateStr, blocked)
+          const isBlocked = isDateBlocked(dateStr, blocked)
           const isToday = dateStr === today
           const isPast = dateStr < today
+          const isSelected = dateStr === selectedDate
+          const isSelectable = onSelectDate && !isBlocked && !isPast
+
+          if (isSelectable) {
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => onSelectDate(dateStr)}
+                className={[
+                  'text-center text-sm py-1.5 rounded-md mx-0.5 my-0.5 w-full transition-colors',
+                  isSelected
+                    ? 'bg-primary text-white font-semibold'
+                    : isToday
+                    ? 'font-bold text-primary hover:bg-sand'
+                    : 'text-charcoal hover:bg-sand',
+                ].join(' ')}
+              >
+                {day}
+              </button>
+            )
+          }
 
           return (
             <div
               key={i}
               className={[
                 'text-center text-sm py-1.5 rounded-md mx-0.5 my-0.5 select-none',
-                blocked_
-                  ? 'bg-red-50 text-stone-400 line-through'
+                isBlocked
+                  ? 'text-stone-300 line-through'
                   : isPast
                   ? 'text-stone-300'
                   : 'text-charcoal',
-                isToday && !blocked_ ? 'font-bold relative after:absolute after:bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-primary after:rounded-full' : '',
+                isToday && !isBlocked ? 'font-bold' : '',
               ].filter(Boolean).join(' ')}
             >
               {day}
@@ -128,18 +148,20 @@ function CalendarSkeleton() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-type Props = { listingId: number }
+type Props = {
+  listingId: number
+  selectedDate?: string
+  onSelectDate?: (date: string) => void
+}
 
-export default function AvailabilityCalendar({ listingId }: Props) {
+export default function AvailabilityCalendar({ listingId, selectedDate, onSelectDate }: Props) {
   const now = new Date()
   const [baseYear, setBaseYear] = useState(now.getFullYear())
   const [baseMonth, setBaseMonth] = useState(now.getMonth())
 
-  // Second displayed month
   const secondMonth = baseMonth === 11 ? 0 : baseMonth + 1
-  const secondYear = baseMonth === 11 ? baseYear + 1 : baseYear
+  const secondYear  = baseMonth === 11 ? baseYear + 1 : baseYear
 
-  // Date range for API call: cover both visible months
   const rangeStart = `${baseYear}-${String(baseMonth + 1).padStart(2, '0')}-01`
   const lastDayOfSecond = getDaysInMonth(secondYear, secondMonth)
   const rangeEnd = `${secondYear}-${String(secondMonth + 1).padStart(2, '0')}-${lastDayOfSecond}`
@@ -180,8 +202,9 @@ export default function AvailabilityCalendar({ listingId }: Props) {
         >
           ‹
         </button>
-        <div className="text-sm text-stone-warm">
-          <span className="text-red-400 font-medium">━</span> Unavailable&emsp;Available: plain date
+        <div className="text-xs text-stone-warm">
+          <span className="text-stone-300 line-through mr-1">00</span>Unavailable
+          {onSelectDate && <span className="ml-3 text-primary font-medium">Tap a date to select</span>}
         </div>
         <button
           onClick={handleNext}
@@ -197,10 +220,22 @@ export default function AvailabilityCalendar({ listingId }: Props) {
       ) : (
         <div className="flex flex-col md:flex-row gap-8">
           <div className="flex-1">
-            <MonthGrid year={baseYear} month={baseMonth} blocked={displayBlocked} />
+            <MonthGrid
+              year={baseYear}
+              month={baseMonth}
+              blocked={displayBlocked}
+              selectedDate={selectedDate}
+              onSelectDate={onSelectDate}
+            />
           </div>
           <div className="flex-1">
-            <MonthGrid year={secondYear} month={secondMonth} blocked={displayBlocked} />
+            <MonthGrid
+              year={secondYear}
+              month={secondMonth}
+              blocked={displayBlocked}
+              selectedDate={selectedDate}
+              onSelectDate={onSelectDate}
+            />
           </div>
         </div>
       )}

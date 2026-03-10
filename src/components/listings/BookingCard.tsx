@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { useMutation } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/authStore'
 import { api } from '@/lib/api'
 import { EventListingDetailResponse, InquiryResponse, BudgetRange } from '@/lib/types'
-import { formatPrice, cancellationPolicyLabel } from '@/lib/utils'
+import { formatPrice, formatShortDate, cancellationPolicyLabel } from '@/lib/utils'
+import AvailabilityCalendar from '@/components/listings/AvailabilityCalendar'
 
 type Props = {
   listing: EventListingDetailResponse
@@ -21,11 +22,26 @@ export default function BookingCard({ listing }: Props) {
   const { user } = useAuthStore()
   const router = useRouter()
 
-  const [eventDate, setEventDate]     = useState('')
+  const [eventDate, setEventDate]         = useState('')
+  const [showCalendar, setShowCalendar]   = useState(false)
   const [eventLocation, setEventLocation] = useState(listing.location)
-  const [guestCount, setGuestCount]   = useState(listing.minGuests)
-  const [budgetRange, setBudgetRange] = useState<BudgetRange>('MID_RANGE')
-  const [message, setMessage]         = useState('')
+  const [guestCount, setGuestCount]       = useState(listing.minGuests)
+  const [budgetRange, setBudgetRange]     = useState<BudgetRange>('MID_RANGE')
+  const [message, setMessage]             = useState('')
+
+  const calendarRef = useRef<HTMLDivElement>(null)
+
+  // Close calendar on outside click
+  useEffect(() => {
+    if (!showCalendar) return
+    function handleClick(e: MouseEvent) {
+      if (calendarRef.current && !calendarRef.current.contains(e.target as Node)) {
+        setShowCalendar(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showCalendar])
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -90,16 +106,29 @@ export default function BookingCard({ listing }: Props) {
       <p className="text-stone-warm text-sm mb-5">Starting price</p>
 
       <div className="flex flex-col gap-3">
-        {/* Date */}
-        <div className="flex flex-col gap-1">
+        {/* Date picker */}
+        <div className="flex flex-col gap-1 relative" ref={calendarRef}>
           <label className="text-xs font-medium text-stone-warm">Event date</label>
-          <input
-            type="date"
-            value={eventDate}
-            onChange={e => setEventDate(e.target.value)}
-            min={new Date().toISOString().split('T')[0]}
-            className="input-base py-2.5 text-sm"
-          />
+          <button
+            type="button"
+            onClick={() => setShowCalendar(s => !s)}
+            className={[
+              'input-base py-2.5 text-sm text-left transition-colors',
+              eventDate ? 'text-charcoal' : 'text-stone-400',
+            ].join(' ')}
+          >
+            {eventDate ? formatShortDate(eventDate) : 'Select a date'}
+          </button>
+
+          {showCalendar && (
+            <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-white border border-cream rounded-xl shadow-xl p-4">
+              <AvailabilityCalendar
+                listingId={listing.id}
+                selectedDate={eventDate}
+                onSelectDate={(date) => { setEventDate(date); setShowCalendar(false) }}
+              />
+            </div>
+          )}
         </div>
 
         {/* Location */}
