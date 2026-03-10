@@ -6,10 +6,12 @@
  * Instead, this page composes the same UI using sub-components and routes to
  * /showcase/messages?inquiryId=X so navigation stays within the showcase.
  */
+import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
 import ChatWindow from '@/components/messages/ChatWindow'
+import BookNowModal from '@/components/bookings/BookNowModal'
 import ShowcaseShell from '@/showcase/ShowcaseShell'
 import {
   DEMO_INQUIRIES_CLIENT,
@@ -74,24 +76,37 @@ function MessagesContent() {
   const router = useRouter()
   const inquiryId = router.query.inquiryId ? Number(router.query.inquiryId) : null
   const currentInquiry = DEMO_INQUIRIES_CLIENT.find(i => i.id === inquiryId) ?? null
+  const [showBookNow, setShowBookNow] = useState(false)
+
+  const canBook = currentInquiry?.status === 'ACTIVE'
 
   const chatHeader = currentInquiry && (
-    <div>
-      <p className="font-semibold text-charcoal text-sm leading-tight">
-        {currentInquiry.listing.title}
-      </p>
-      <p className="text-xs text-stone-warm mt-0.5">
-        📅 {formatShortDate(currentInquiry.eventDate)} · 📍 {currentInquiry.eventLocation}
-        {' · '}
-        <span className={cn(
-          'font-medium',
-          currentInquiry.status === 'ACTIVE'  ? 'text-green-700' :
-          currentInquiry.status === 'CLOSED'  ? 'text-stone-warm' :
-          'text-yellow-700'
-        )}>
-          {currentInquiry.status}
-        </span>
-      </p>
+    <div className="flex items-center justify-between gap-3">
+      <div>
+        <p className="font-semibold text-charcoal text-sm leading-tight">
+          {currentInquiry.listing.title}
+        </p>
+        <p className="text-xs text-stone-warm mt-0.5">
+          📅 {formatShortDate(currentInquiry.eventDate)} · 📍 {currentInquiry.eventLocation}
+          {' · '}
+          <span className={cn(
+            'font-medium',
+            currentInquiry.status === 'ACTIVE'  ? 'text-green-700' :
+            currentInquiry.status === 'CLOSED'  ? 'text-stone-warm' :
+            'text-yellow-700'
+          )}>
+            {currentInquiry.status}
+          </span>
+        </p>
+      </div>
+      {canBook && (
+        <button
+          onClick={() => setShowBookNow(true)}
+          className="shrink-0 px-4 py-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-btn transition-colors"
+        >
+          Book Now
+        </button>
+      )}
     </div>
   )
 
@@ -124,6 +139,13 @@ function MessagesContent() {
           </div>
         )}
       </div>
+
+      {showBookNow && currentInquiry && (
+        <BookNowModal
+          inquiry={currentInquiry}
+          onClose={() => setShowBookNow(false)}
+        />
+      )}
     </div>
   )
 }
