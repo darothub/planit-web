@@ -62,6 +62,7 @@ export type UserResponse = {
   firstName: string
   lastName: string
   phone: string | null
+  profileImageUrl: string | null
   role: UserRole
   emailVerified: boolean
 }

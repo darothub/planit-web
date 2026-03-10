@@ -6,6 +6,7 @@ import { api } from '@/lib/api'
 import { UserResponse } from '@/lib/types'
 import DashboardShell from '@/components/dashboard/DashboardShell'
 import FormField from '@/components/ui/FormField'
+import ImageUploadField from '@/components/ui/ImageUploadField'
 
 export default function ClientSettingsPage() {
   const { token, user } = useAuthStore()
@@ -23,14 +24,15 @@ export default function ClientSettingsPage() {
     retry: false,
   })
 
-  const [form, setForm] = useState({ firstName: '', lastName: '', phone: '' })
+  const [form, setForm] = useState({ firstName: '', lastName: '', phone: '', profileImageUrl: '' })
 
   useEffect(() => {
     if (profile) {
       setForm({
-        firstName: profile.firstName ?? '',
-        lastName:  profile.lastName ?? '',
-        phone:     profile.phone ?? '',
+        firstName:       profile.firstName ?? '',
+        lastName:        profile.lastName ?? '',
+        phone:           profile.phone ?? '',
+        profileImageUrl: profile.profileImageUrl ?? '',
       })
     }
   }, [profile])
@@ -41,9 +43,10 @@ export default function ClientSettingsPage() {
 
   const mutation = useMutation({
     mutationFn: () => api.put('/users/me', {
-      firstName: form.firstName || undefined,
-      lastName:  form.lastName || undefined,
-      phone:     form.phone || undefined,
+      firstName:       form.firstName || undefined,
+      lastName:        form.lastName || undefined,
+      phone:           form.phone || undefined,
+      profileImageUrl: form.profileImageUrl || undefined,
     }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['user-profile'] }),
   })
@@ -58,6 +61,17 @@ export default function ClientSettingsPage() {
   return (
     <DashboardShell title="Account Settings">
       <form onSubmit={handleSubmit} className="flex flex-col gap-6 max-w-2xl">
+
+        {/* ── Profile photo ─────────────────────────────────────────────── */}
+        <div className="bg-white border border-cream rounded-xl p-6">
+          <h2 className="text-sm font-semibold text-charcoal mb-4">Profile photo</h2>
+          <ImageUploadField
+            variant="avatar"
+            folder="avatars"
+            value={form.profileImageUrl}
+            onChange={url => setForm(f => ({ ...f, profileImageUrl: url }))}
+          />
+        </div>
 
         {/* ── Personal info ─────────────────────────────────────────────── */}
         <div className="bg-white border border-cream rounded-xl p-6 flex flex-col gap-4">

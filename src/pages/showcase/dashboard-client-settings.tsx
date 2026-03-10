@@ -15,6 +15,7 @@ const DEMO_USER: UserResponse = {
   firstName: 'Sarah',
   lastName: 'Chen',
   phone: '+44 7700 654321',
+  profileImageUrl: null,
   role: 'CLIENT',
   emailVerified: true,
 }
