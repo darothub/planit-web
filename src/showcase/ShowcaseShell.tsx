@@ -36,8 +36,11 @@ function getShowcaseRedirect(
   const raw      = typeof url === 'string' ? url : (url.pathname ?? '/')
   const pathname = raw.split('?')[0]
 
-  // ── Always suppress auth routes (login/register redirects) ────────────────
-  if (pathname.startsWith('/auth/')) return null
+  // ── Auth routes — specific showcase redirects first, then suppress the rest
+  if (pathname === '/forgot-password')      return '/showcase/auth-forgot-password'
+  if (pathname === '/reset-password')       return '/showcase/auth-reset-password'
+  if (pathname === '/verify-email')         return '/showcase/auth-verify-email'
+  if (pathname.startsWith('/auth/')) return null  // suppress login/register redirects
 
   // ── Home ──────────────────────────────────────────────────────────────────
   if (pathname === '/') return '/showcase/home'

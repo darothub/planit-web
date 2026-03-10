@@ -34,8 +34,11 @@ const sections: Section[] = [
     colour: 'border-purple-500',
     bgColour: 'bg-purple-50',
     screens: [
-      { href: '/showcase/auth-login',    name: 'Login',    description: 'Email / password sign-in form' },
-      { href: '/showcase/auth-register', name: 'Register', description: 'Role picker + registration form' },
+      { href: '/showcase/auth-forgot-password', name: 'Forgot Password',  description: 'Enter email to receive a reset link' },
+      { href: '/showcase/auth-login',           name: 'Login',            description: 'Email / password sign-in form' },
+      { href: '/showcase/auth-register',        name: 'Register',         description: 'Role picker + registration form' },
+      { href: '/showcase/auth-reset-password',  name: 'Reset Password',   description: 'Choose a new password using the token from the reset email' },
+      { href: '/showcase/auth-verify-email',    name: 'Verify Email',     description: 'Email verified confirmation screen' },
     ],
   },
   {

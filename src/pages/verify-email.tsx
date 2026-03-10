@@ -8,12 +8,18 @@ import AuthShell from '@/components/auth/AuthShell'
 
 type Status = 'loading' | 'success' | 'expired' | 'invalid' | 'no-token'
 
-export default function VerifyEmailPage() {
+type Props = {
+  /** Pre-set the outcome — skips the API call. Used by the showcase. */
+  initialStatus?: Status
+}
+
+export default function VerifyEmailPage({ initialStatus }: Props = {}) {
   const router = useRouter()
   const { token: authToken } = useAuthStore()
-  const [status, setStatus] = useState<Status>('loading')
+  const [status, setStatus] = useState<Status>(initialStatus ?? 'loading')
 
   useEffect(() => {
+    if (initialStatus) return  // showcase: status already set, skip API call
     if (!router.isReady) return
 
     const token = router.query.token as string | undefined
@@ -29,7 +35,7 @@ export default function VerifyEmailPage() {
         const msg: string = err?.response?.data?.message ?? ''
         setStatus(msg.toLowerCase().includes('expired') ? 'expired' : 'invalid')
       })
-  }, [router.isReady, router.query.token])
+  }, [router.isReady, router.query.token, initialStatus])
 
   return (
     <>
