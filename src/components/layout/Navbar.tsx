@@ -63,13 +63,19 @@ export default function Navbar() {
           <span className="text-xl font-bold text-accent tracking-tight">planit</span>
         </Link>
 
-        {/* Centre nav link */}
-        <div className="hidden md:flex flex-1 justify-center">
+        {/* Centre nav links */}
+        <div className="hidden md:flex flex-1 justify-center gap-7">
           <Link
             href="/listings"
             className="text-sm font-medium text-charcoal hover:text-primary transition-colors"
           >
             Browse Events
+          </Link>
+          <Link
+            href="/planners"
+            className="text-sm font-medium text-charcoal hover:text-primary transition-colors"
+          >
+            Browse Planners
           </Link>
         </div>
 
@@ -106,6 +112,12 @@ export default function Navbar() {
           {/* Dropdown */}
           {open && (
             <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-2xl shadow-lg border border-cream z-50 py-1 overflow-hidden">
+              {/* Discovery links — only shown on mobile (desktop uses centre nav) */}
+              <div className="md:hidden">
+                <DropItem href="/listings"  onClick={() => setOpen(false)}>Browse Events</DropItem>
+                <DropItem href="/planners"  onClick={() => setOpen(false)}>Browse Planners</DropItem>
+                <div className="border-t border-cream my-1" />
+              </div>
               {!user ? (
                 <>
                   <DropItem href="/auth/login" onClick={() => setOpen(false)}>Sign in</DropItem>
