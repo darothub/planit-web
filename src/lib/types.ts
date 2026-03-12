@@ -142,6 +142,20 @@ export type PlannerProfileResponse = {
   updatedAt: string
 }
 
+export type PlannerSummaryResponse = {
+  id: number
+  businessName: string | null
+  firstName: string
+  profileImageUrl: string | null
+  location: string | null
+  bio: string | null
+  rating: number | null
+  reviewCount: number
+  totalBookings: number
+  isAcceptingInquiries: boolean
+  specialties: { id: number; name: string; displayName: string }[]
+}
+
 export type PlannerStatsResponse = {
   totalInquiries: number
   totalBookings: number
