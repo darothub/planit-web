@@ -54,7 +54,8 @@ function getShowcaseRedirect(
   const msgMatch = pathname.match(/^\/messages\/(.+)/)
   if (msgMatch) return `/showcase/messages?inquiryId=${msgMatch[1]}`
 
-  // ── Planner profiles ──────────────────────────────────────────────────────
+  // ── Planner routes ────────────────────────────────────────────────────────
+  if (pathname === '/planners') return '/showcase/planners-browse'
   if (pathname.startsWith('/planners/')) return '/showcase/planner-profile'
 
   // ── Dashboard routes ──────────────────────────────────────────────────────
