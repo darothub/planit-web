@@ -16,6 +16,7 @@ import {
   DisputeResponse,
   PendingPlannerResponse,
   PlannerSummaryResponse,
+  AdminStatsResponse,
 } from '@/lib/types'
 import { getAllDemoListings } from '@/lib/demoData'
 
@@ -723,6 +724,19 @@ export const DEMO_ADMIN_DISPUTES: DisputeResponse[] = [
     ],
   },
 ]
+
+// ─── Admin Stats ─────────────────────────────────────────────────────────────
+
+export const DEMO_ADMIN_STATS: AdminStatsResponse = {
+  pendingPlanners:  3,
+  verifiedPlanners: 24,
+  openDisputes:     2,
+  totalClients:     187,
+  totalPlanners:    27,
+  publishedListings: 61,
+  totalBookings:    142,
+  totalRevenue:     284750,
+}
 
 // ─── Planners (browse) ────────────────────────────────────────────────────────
 

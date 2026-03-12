@@ -342,6 +342,17 @@ export type UploadResponse = {
 
 // ─── Admin ───────────────────────────────────────────────────────────────────
 
+export type AdminStatsResponse = {
+  pendingPlanners: number
+  verifiedPlanners: number
+  openDisputes: number
+  totalClients: number
+  totalPlanners: number
+  publishedListings: number
+  totalBookings: number
+  totalRevenue: number
+}
+
 export type PendingPlannerResponse = {
   id: number
   email: string

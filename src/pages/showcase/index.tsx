@@ -25,6 +25,7 @@ const sections: Section[] = [
     colour: 'border-amber-500',
     bgColour: 'bg-amber-50',
     screens: [
+      { href: '/showcase/admin-stats',    name: 'Overview',      description: 'Platform stats — pending approvals, open disputes, revenue, user counts' },
       { href: '/showcase/admin-disputes', name: 'Disputes',      description: 'Open disputes — resolve with full/partial refund or release to planner' },
       { href: '/showcase/admin-planners', name: 'Planner Queue', description: 'Pending planner applications — approve or reject with notes' },
     ],
