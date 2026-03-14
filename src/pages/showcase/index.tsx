@@ -27,6 +27,7 @@ const sections: Section[] = [
     screens: [
       { href: '/showcase/admin-stats',    name: 'Overview',      description: 'Platform stats — pending approvals, open disputes, revenue, user counts' },
       { href: '/showcase/admin-disputes', name: 'Disputes',      description: 'Open disputes — resolve with full/partial refund or release to planner' },
+      { href: '/showcase/admin-listings', name: 'Listings',      description: 'All listings table — search, checkbox select, bulk delete with confirm dialog' },
       { href: '/showcase/admin-planners', name: 'Planner Queue', description: 'Pending planner applications — approve or reject with notes' },
     ],
   },
