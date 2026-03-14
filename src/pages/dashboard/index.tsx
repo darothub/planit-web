@@ -11,15 +11,13 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!token) router.replace('/auth/login?redirect=/dashboard')
-  }, [token, router])
+    else if (user?.role === 'ADMIN') router.replace('/admin')
+  }, [token, user, router])
 
   if (!user) return null
   if (user.role === 'CLIENT')  return <ClientDashboard />
   if (user.role === 'PLANNER') return <PlannerDashboard />
 
-  return (
-    <DashboardShell title="Admin">
-      <p className="text-stone-warm">Admin panel coming soon.</p>
-    </DashboardShell>
-  )
+  // ADMIN: return null while redirect fires — never show the placeholder
+  return null
 }
