@@ -17,7 +17,7 @@ export default function AdminListingsPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [resultMsg, setResultMsg] = useState<string | null>(null)
 
-  const { data = EMPTY_PAGE, isLoading } = useQuery<PageResponse<EventListingResponse>>({
+  const { data = EMPTY_PAGE, isLoading, isError, error } = useQuery<PageResponse<EventListingResponse>>({
     queryKey: ['admin-listings', search, page],
     queryFn: () =>
       api.get('/admin/listings', { params: { q: search || undefined, page, size: 20 } })
@@ -88,6 +88,16 @@ export default function AdminListingsPage() {
       {resultMsg && (
         <div className="mb-4 px-4 py-3 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm">
           {resultMsg}
+        </div>
+      )}
+
+      {/* Error banner */}
+      {isError && (
+        <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm">
+          Failed to load listings:{' '}
+          {(error as { response?: { data?: { message?: string }; status?: number } })?.response?.data?.message
+            ?? (error as Error)?.message
+            ?? 'Unknown error'}
         </div>
       )}
 
