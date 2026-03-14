@@ -136,6 +136,9 @@ export default function Navbar() {
                   {user.role === 'PLANNER' && (
                     <DropItem href="/dashboard/listings" onClick={() => setOpen(false)}>My Listings</DropItem>
                   )}
+                  {user.role === 'ADMIN' && (
+                    <DropItem href="/admin" onClick={() => setOpen(false)}>Admin Panel</DropItem>
+                  )}
                   <div className="border-t border-cream my-1" />
                   <button
                     onClick={handleLogout}
