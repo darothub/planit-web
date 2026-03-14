@@ -11,8 +11,11 @@ export default function RegisterPage() {
   const [registered, setRegistered] = useState(false)
 
   useEffect(() => {
-    if (token) router.replace('/dashboard')
-  }, [token, router])
+    // Allow a logged-in CLIENT to reach this page via ?role=PLANNER (Become a Planner flow)
+    if (token && router.isReady && router.query.role !== 'PLANNER') {
+      router.replace('/dashboard')
+    }
+  }, [token, router, router.isReady, router.query.role])
 
   return (
     <AuthShell title="Create your account">
