@@ -7,7 +7,7 @@ import Cookies from 'js-cookie'
 import { useState, useEffect, useRef } from 'react'
 
 export default function Navbar() {
-  const { token, user, logout } = useAuthStore()
+  const { token, user, logout, _hasHydrated } = useAuthStore()
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -118,7 +118,7 @@ export default function Navbar() {
                 <DropItem href="/planners"  onClick={() => setOpen(false)}>Browse Planners</DropItem>
                 <div className="border-t border-cream my-1" />
               </div>
-              {!user ? (
+              {!_hasHydrated ? null : !user ? (
                 <>
                   <DropItem href="/auth/login" onClick={() => setOpen(false)}>Sign in</DropItem>
                   <DropItem href="/auth/register" onClick={() => setOpen(false)}>Sign up</DropItem>
