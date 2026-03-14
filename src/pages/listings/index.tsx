@@ -2,18 +2,17 @@ import { useRouter } from 'next/router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { EventListingResponse, PageResponse } from '@/lib/types'
-import { getAllDemoListings } from '@/lib/demoData'
 import PageShell from '@/components/layout/PageShell'
 import FilterBar from '@/components/listings/FilterBar'
 import ListingGrid from '@/components/listings/ListingGrid'
 import Pagination from '@/components/ui/Pagination'
 
-const DEMO_PAGE: PageResponse<EventListingResponse> = {
-  content: getAllDemoListings(),
+const EMPTY_PAGE: PageResponse<EventListingResponse> = {
+  content: [],
   page: 0,
   size: 30,
-  totalElements: getAllDemoListings().length,
-  totalPages: 1,
+  totalElements: 0,
+  totalPages: 0,
   first: true,
   last: true,
 }
@@ -21,7 +20,7 @@ const DEMO_PAGE: PageResponse<EventListingResponse> = {
 export default function DiscoveryPage() {
   const router = useRouter()
 
-  const { data = DEMO_PAGE, isLoading } = useQuery<PageResponse<EventListingResponse>>({
+  const { data = EMPTY_PAGE, isLoading } = useQuery<PageResponse<EventListingResponse>>({
     queryKey: ['listings', router.query],
     queryFn: () =>
       api.get('/listings', { params: router.query }).then(r => r.data.data),

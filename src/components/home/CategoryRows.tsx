@@ -39,20 +39,20 @@ function CategoryRowWithData({ eventType }: { eventType: EventType }) {
   //   pending  → placeholderData (demo)
   //   success  → real API data (or demo if empty)
   //   error    → default value = demoFallback (API down / no connection)
-  const { data: listings = demoFallback } = useQuery<EventListingResponse[]>({
+  const { data: listings = [] } = useQuery<EventListingResponse[]>({
     queryKey: ['category-listings', eventType.id],
     queryFn: async () => {
       // Skip API call for placeholder (negative) event type IDs
-      if (eventType.id < 0) return demoFallback
+      if (eventType.id < 0) return []
       const r = await api.get('/listings', {
         params: { eventTypeId: eventType.id, sortBy: 'RATING', size: 8, page: 0 },
       })
       const page = r.data.data as PageResponse<EventListingResponse>
-      return page.content.length > 0 ? page.content : demoFallback
+      return page.content
     },
     staleTime: 1000 * 60 * 5,
     placeholderData: demoFallback,
-    retry: false, // fail fast → default value kicks in immediately
+    retry: false,
   })
 
   if (listings.length === 0) return null

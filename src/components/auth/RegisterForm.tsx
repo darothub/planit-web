@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
@@ -13,7 +14,15 @@ type Props = {
 }
 
 export default function RegisterForm({ onSuccess }: Props) {
+  const router = useRouter()
   const [role, setRole] = useState<'CLIENT' | 'PLANNER'>('CLIENT')
+
+  // Pre-select PLANNER when navigating from "Become a Planner" link (?role=PLANNER)
+  useEffect(() => {
+    if (router.isReady && router.query.role === 'PLANNER') {
+      setRole('PLANNER')
+    }
+  }, [router.isReady, router.query.role])
 
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),

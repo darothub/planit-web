@@ -126,8 +126,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const id = context.params!.id as string
   const numId = parseInt(id)
 
-  // Demo fallback for negative IDs (demo listings from homepage/discovery)
+  // Demo listings (negative IDs) are only accessible in development
   if (numId < 0) {
+    if (process.env.NODE_ENV === 'production') return { notFound: true }
     const demo = getAllDemoListings().find(l => l.id === numId)
     if (!demo) return { notFound: true }
     return {
