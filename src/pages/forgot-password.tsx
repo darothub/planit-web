@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { api } from '@/lib/api'
 import AuthShell from '@/components/auth/AuthShell'
 import FormField from '@/components/ui/FormField'
+import TurnstileWidget from '@/components/auth/TurnstileWidget'
 
 const schema = z.object({
   email: z.string().min(1, 'Email is required').email('Enter a valid email'),
@@ -16,6 +17,7 @@ type Values = z.infer<typeof schema>
 export default function ForgotPasswordPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
 
   const { register, handleSubmit, formState: { errors } } = useForm<Values>({
     resolver: zodResolver(schema),
@@ -24,7 +26,7 @@ export default function ForgotPasswordPage() {
   async function onSubmit(data: Values) {
     setLoading(true)
     try {
-      await api.post('/auth/forgot-password', { email: data.email })
+      await api.post('/auth/forgot-password', { email: data.email, captchaToken })
     } catch {
       // Swallow errors — always show the same confirmation to prevent
       // revealing whether an account exists for this email.
@@ -77,9 +79,11 @@ export default function ForgotPasswordPage() {
               />
             </FormField>
 
+            <TurnstileWidget onVerify={setCaptchaToken} onExpire={() => setCaptchaToken(null)} />
+
             <button
               type="submit"
-              disabled={loading}
+              disabled={!captchaToken || loading}
               className="bg-primary hover:bg-primary-hover text-white font-semibold
                 py-3 rounded-btn transition-colors disabled:opacity-60 mt-1"
             >

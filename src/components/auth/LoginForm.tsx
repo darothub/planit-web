@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -8,9 +9,11 @@ import { useAuthActions } from '@/lib/auth'
 import { AuthResponse } from '@/lib/types'
 import FormField from '@/components/ui/FormField'
 import PasswordInput from '@/components/ui/PasswordInput'
+import TurnstileWidget from '@/components/auth/TurnstileWidget'
 
 export default function LoginForm() {
   const { handleAuthSuccess } = useAuthActions()
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -18,7 +21,7 @@ export default function LoginForm() {
 
   const mutation = useMutation({
     mutationFn: (data: LoginValues) =>
-      api.post<{ data: AuthResponse }>('/auth/login', data).then(r => r.data.data),
+      api.post<{ data: AuthResponse }>('/auth/login', { ...data, captchaToken }).then(r => r.data.data),
     onSuccess: handleAuthSuccess,
   })
 
@@ -43,6 +46,8 @@ export default function LoginForm() {
         </Link>
       </FormField>
 
+      <TurnstileWidget onVerify={setCaptchaToken} onExpire={() => setCaptchaToken(null)} />
+
       {mutation.isError && (
         <p className="text-red-600 text-sm text-center">
           Invalid email or password. Please try again.
@@ -51,7 +56,7 @@ export default function LoginForm() {
 
       <button
         type="submit"
-        disabled={mutation.isPending}
+        disabled={!captchaToken || mutation.isPending}
         className="bg-primary hover:bg-primary-hover text-white font-semibold
           py-3 rounded-btn transition-colors disabled:opacity-60 mt-2"
       >

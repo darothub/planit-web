@@ -7,6 +7,7 @@ import { api } from '@/lib/api'
 import { registerSchema, RegisterValues } from '@/lib/validations'
 import FormField from '@/components/ui/FormField'
 import PasswordInput from '@/components/ui/PasswordInput'
+import TurnstileWidget from '@/components/auth/TurnstileWidget'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
 export default function RegisterForm({ onSuccess }: Props) {
   const router = useRouter()
   const [role, setRole] = useState<'CLIENT' | 'PLANNER'>('CLIENT')
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
 
   // Pre-select PLANNER when navigating from "Become a Planner" link (?role=PLANNER)
   useEffect(() => {
@@ -31,7 +33,7 @@ export default function RegisterForm({ onSuccess }: Props) {
   const mutation = useMutation({
     mutationFn: (data: RegisterValues) => {
       const endpoint = role === 'CLIENT' ? '/auth/register/client' : '/auth/register/planner'
-      return api.post(endpoint, data)
+      return api.post(endpoint, { ...data, captchaToken })
     },
     onSuccess,
   })
@@ -97,6 +99,8 @@ export default function RegisterForm({ onSuccess }: Props) {
         </FormField>
       )}
 
+      <TurnstileWidget onVerify={setCaptchaToken} onExpire={() => setCaptchaToken(null)} />
+
       {mutation.isError && (
         <p className="text-red-600 text-sm text-center">
           Something went wrong. Please check your details and try again.
@@ -105,7 +109,7 @@ export default function RegisterForm({ onSuccess }: Props) {
 
       <button
         type="submit"
-        disabled={mutation.isPending}
+        disabled={!captchaToken || mutation.isPending}
         className="bg-primary hover:bg-primary-hover text-white font-semibold
           py-3 rounded-btn transition-colors disabled:opacity-60 mt-2"
       >
