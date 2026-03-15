@@ -38,7 +38,7 @@ export default function DashboardShell({ children, title }: Props) {
   return (
     <div className="min-h-screen bg-sand">
       <Navbar />
-      <div className="max-w-7xl mx-auto px-4 py-8 flex gap-8">
+      <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-4 md:gap-8">
 
         {/* Sidebar — desktop */}
         <aside className="hidden md:block w-52 flex-shrink-0">
@@ -62,7 +62,7 @@ export default function DashboardShell({ children, title }: Props) {
         </aside>
 
         {/* Mobile nav strip */}
-        <div className="md:hidden w-full mb-4">
+        <div className="md:hidden w-full">
           <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
             {nav.map(item => (
               <Link
