@@ -2,14 +2,21 @@ import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/authStore'
 import { api } from '@/lib/api'
-import { BookingResponse, InquiryResponse } from '@/lib/types'
+import { BookingResponse, InquiryResponse, PlannerProfileResponse } from '@/lib/types'
 import DashboardShell from './DashboardShell'
 import PlannerStatsRow from './PlannerStatsRow'
-import BookingCard from '@/components/bookings/BookingCard'
-import InquiryCard from '@/components/inquiries/InquiryCard'
+import UpcomingBookingsTable from './UpcomingBookingsTable'
+import PendingInquiriesPanel from './PendingInquiriesPanel'
+import PlannerOnboarding from './PlannerOnboarding'
 
 export default function PlannerDashboard() {
   const { user } = useAuthStore()
+
+  const { data: plannerProfile } = useQuery<PlannerProfileResponse>({
+    queryKey: ['planner-profile'],
+    queryFn: () => api.get('/planners/me').then(r => r.data.data),
+    retry: false,
+  })
 
   const { data: bookings = [] } = useQuery<BookingResponse[]>({
     queryKey: ['received-bookings'],
@@ -23,56 +30,55 @@ export default function PlannerDashboard() {
     retry: false,
   })
 
-  const pendingBookings = bookings.filter(b => b.status === 'REQUESTED')
+  if (plannerProfile?.verificationStatus === 'PENDING') {
+    return (
+      <DashboardShell>
+        <PlannerOnboarding profile={plannerProfile} />
+      </DashboardShell>
+    )
+  }
+
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+  const profileIncomplete = plannerProfile && !plannerProfile.bio
 
   return (
     <DashboardShell>
-      <p className="text-stone-warm text-sm mb-4">
-        Hello, <span className="font-semibold text-charcoal">{user?.firstName}</span> 👋
-      </p>
+      <div className="px-4 lg:px-6 py-6">
 
-      <PlannerStatsRow />
-
-      {/* Pending booking requests */}
-      {pendingBookings.length > 0 && (
-        <section className="mb-8">
-          <h2 className="text-lg font-semibold text-charcoal mb-3">
-            Booking Requests
-            <span className="ml-2 bg-primary text-white text-xs font-bold rounded-full px-2 py-0.5">
-              {pendingBookings.length}
-            </span>
-          </h2>
-          <div className="flex flex-col gap-3">
-            {pendingBookings.map(b => (
-              <BookingCard key={b.id} booking={b} role="PLANNER" />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Recent messages */}
-      <section className="mb-8">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-charcoal">Recent Messages</h2>
-          <Link href="/dashboard/inquiries" className="text-primary text-sm font-semibold hover:underline">
-            See all
-          </Link>
-        </div>
-        {inquiries.length === 0 ? (
-          <div className="bg-white border border-cream rounded-xl p-6 text-center">
-            <p className="text-stone-warm text-sm">No messages yet. Make sure your listings are published!</p>
-            <Link href="/dashboard/listings" className="inline-block mt-3 text-primary text-sm font-semibold hover:underline">
-              Manage listings →
+        {/* Incomplete profile alert */}
+        {profileIncomplete && (
+          <div className="bg-orange-50 border border-orange-200 rounded-xl px-5 py-3 mb-5 flex items-center justify-between gap-4">
+            <p className="text-sm text-orange-800 font-medium">
+              Your profile is incomplete — add a bio to get discovered by more clients.
+            </p>
+            <Link
+              href="/dashboard/profile"
+              className="text-sm font-semibold text-orange-700 hover:text-orange-900 whitespace-nowrap underline shrink-0"
+            >
+              Complete profile
             </Link>
           </div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {inquiries.slice(0, 5).map(i => (
-              <InquiryCard key={i.id} inquiry={i} role="PLANNER" />
-            ))}
-          </div>
         )}
-      </section>
+
+        {/* Greeting */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-charcoal">
+            {greeting}, {user?.firstName} 👋
+          </h1>
+          <p className="text-stone-warm text-sm mt-1">Here&apos;s what&apos;s happening today.</p>
+        </div>
+
+        {/* Stats row */}
+        <PlannerStatsRow />
+
+        {/* Two-column layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5">
+          <UpcomingBookingsTable bookings={bookings} />
+          <PendingInquiriesPanel inquiries={inquiries} />
+        </div>
+
+      </div>
     </DashboardShell>
   )
 }

@@ -3,10 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import ShowcaseShell from '@/showcase/ShowcaseShell'
 import PlannerDashboard from '@/components/dashboard/PlannerDashboard'
 import {
-  DEMO_BOOKINGS_PLANNER,
-  DEMO_INQUIRIES_RECEIVED,
-  DEMO_PLANNER_STATS,
-  DEMO_PLANNER_PROFILE_VERIFIED,
+  DEMO_PLANNER_PROFILE_PENDING,
 } from '@/showcase/data'
 
 export const getServerSideProps = () => {
@@ -14,19 +11,17 @@ export const getServerSideProps = () => {
   return { props: {} }
 }
 
-export default function ShowcaseDashboardPlanner() {
+export default function ShowcaseDashboardOnboarding() {
   const qc = useMemo(() => {
     const c = new QueryClient()
-    c.setQueryData(['received-bookings'], DEMO_BOOKINGS_PLANNER)
-    c.setQueryData(['received-inquiries'], DEMO_INQUIRIES_RECEIVED)
-    c.setQueryData(['planner-stats'], DEMO_PLANNER_STATS)
-    c.setQueryData(['planner-profile'], DEMO_PLANNER_PROFILE_VERIFIED)
+    c.setQueryData(['planner-profile'], DEMO_PLANNER_PROFILE_PENDING)
+    c.setQueryData(['my-listings'], [])
     return c
   }, [])
 
   return (
     <QueryClientProvider client={qc}>
-      <ShowcaseShell pageName="Planner Dashboard" demoRole="PLANNER">
+      <ShowcaseShell pageName="Planner Onboarding" demoRole="PLANNER">
         <PlannerDashboard />
       </ShowcaseShell>
     </QueryClientProvider>

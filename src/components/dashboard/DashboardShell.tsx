@@ -1,25 +1,58 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useAuthStore } from '@/store/authStore'
-import Navbar from '@/components/layout/Navbar'
 import { cn } from '@/lib/utils'
+import {
+  Squares2X2Icon,
+  ClipboardDocumentListIcon,
+  ListBulletIcon,
+  ChatBubbleLeftRightIcon,
+  CalendarIcon,
+  ExclamationTriangleIcon,
+  UserCircleIcon,
+  Cog6ToothIcon,
+  MagnifyingGlassIcon,
+} from '@heroicons/react/24/outline'
 
-const clientNav = [
-  { href: '/dashboard',             label: 'Overview',  icon: '🏠', exact: true },
-  { href: '/dashboard/bookings',    label: 'Bookings',  icon: '📋' },
-  { href: '/dashboard/inquiries',   label: 'Messages',  icon: '💬' },
-  { href: '/dashboard/disputes',    label: 'Disputes',  icon: '⚠️' },
-  { href: '/dashboard/settings',    label: 'Settings',  icon: '⚙️' },
+type NavItem = {
+  href: string
+  label: string
+  icon: React.ElementType
+  exact?: boolean
+}
+
+const plannerSideNav: NavItem[] = [
+  { href: '/dashboard',           label: 'Overview',  icon: Squares2X2Icon,             exact: true },
+  { href: '/dashboard/bookings',  label: 'Bookings',  icon: ClipboardDocumentListIcon },
+  { href: '/dashboard/listings',  label: 'Listings',  icon: ListBulletIcon },
+  { href: '/dashboard/inquiries', label: 'Messages',  icon: ChatBubbleLeftRightIcon },
+  { href: '/dashboard/calendar',  label: 'Calendar',  icon: CalendarIcon },
+  { href: '/dashboard/disputes',  label: 'Disputes',  icon: ExclamationTriangleIcon },
+  { href: '/dashboard/profile',   label: 'Profile',   icon: UserCircleIcon },
 ]
 
-const plannerNav = [
-  { href: '/dashboard',            label: 'Overview',  icon: '📊', exact: true },
-  { href: '/dashboard/bookings',   label: 'Bookings',  icon: '📋' },
-  { href: '/dashboard/listings',   label: 'Listings',  icon: '🗂' },
-  { href: '/dashboard/inquiries',  label: 'Messages',  icon: '💬' },
-  { href: '/dashboard/calendar',   label: 'Calendar',  icon: '📅' },
-  { href: '/dashboard/disputes',   label: 'Disputes',  icon: '⚠️' },
-  { href: '/dashboard/profile',    label: 'Profile',   icon: '👤' },
+const clientSideNav: NavItem[] = [
+  { href: '/dashboard',           label: 'Overview',  icon: Squares2X2Icon,             exact: true },
+  { href: '/dashboard/bookings',  label: 'Bookings',  icon: ClipboardDocumentListIcon },
+  { href: '/dashboard/inquiries', label: 'Messages',  icon: ChatBubbleLeftRightIcon },
+  { href: '/dashboard/disputes',  label: 'Disputes',  icon: ExclamationTriangleIcon },
+  { href: '/dashboard/settings',  label: 'Settings',  icon: Cog6ToothIcon },
+]
+
+const plannerMobileNav: NavItem[] = [
+  { href: '/dashboard',           label: 'Overview',  icon: Squares2X2Icon,             exact: true },
+  { href: '/dashboard/listings',  label: 'Listings',  icon: ListBulletIcon },
+  { href: '/dashboard/inquiries', label: 'Messages',  icon: ChatBubbleLeftRightIcon },
+  { href: '/dashboard/calendar',  label: 'Calendar',  icon: CalendarIcon },
+  { href: '/dashboard/profile',   label: 'Profile',   icon: UserCircleIcon },
+]
+
+const clientMobileNav: NavItem[] = [
+  { href: '/dashboard',           label: 'Overview',  icon: Squares2X2Icon,             exact: true },
+  { href: '/dashboard/bookings',  label: 'Bookings',  icon: ClipboardDocumentListIcon },
+  { href: '/dashboard/inquiries', label: 'Messages',  icon: ChatBubbleLeftRightIcon },
+  { href: '/dashboard/disputes',  label: 'Disputes',  icon: ExclamationTriangleIcon },
+  { href: '/dashboard/settings',  label: 'Settings',  icon: Cog6ToothIcon },
 ]
 
 type Props = {
@@ -30,65 +63,150 @@ type Props = {
 export default function DashboardShell({ children, title }: Props) {
   const router = useRouter()
   const { user } = useAuthStore()
-  const nav = user?.role === 'PLANNER' ? plannerNav : clientNav
+  const isPlanner = user?.role === 'PLANNER'
+  const sideNav   = isPlanner ? plannerSideNav  : clientSideNav
+  const mobileNav = isPlanner ? plannerMobileNav : clientMobileNav
 
   const isActive = (href: string, exact?: boolean) =>
     exact ? router.pathname === href : router.pathname.startsWith(href)
 
+  const dateStr = new Date().toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  })
+
+  const initials = user
+    ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
+    : 'U'
+
   return (
     <div className="min-h-screen bg-sand">
-      <Navbar />
-      <div className="max-w-7xl mx-auto px-4 py-8 flex gap-8">
 
-        {/* Sidebar — desktop */}
-        <aside className="hidden md:block w-52 flex-shrink-0">
-          <nav className="flex flex-col gap-1">
-            {nav.map(item => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'flex items-center gap-3 px-4 py-2.5 rounded-btn text-sm font-medium transition-colors',
-                  isActive(item.href, item.exact)
-                    ? 'bg-primary text-white'
-                    : 'text-charcoal hover:bg-cream'
-                )}
-              >
-                <span>{item.icon}</span>
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </aside>
-
-        {/* Mobile nav strip */}
-        <div className="md:hidden w-full mb-4">
-          <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
-            {nav.map(item => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-btn text-xs font-medium transition-colors',
-                  isActive(item.href, item.exact)
-                    ? 'bg-primary text-white'
-                    : 'text-charcoal bg-white border border-cream'
-                )}
-              >
-                <span>{item.icon}</span>
-                {item.label}
-              </Link>
-            ))}
-          </div>
+      {/* ── Desktop sidebar ─────────────────────────────────────────────────── */}
+      <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-14 bg-charcoal z-30 flex-col items-center py-3">
+        {/* Logo */}
+        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mb-5">
+          <span className="text-white text-xs font-bold leading-none">P</span>
         </div>
 
-        {/* Main */}
-        <main className="flex-1 min-w-0">
-          {title && <h1 className="text-2xl font-bold text-charcoal mb-6">{title}</h1>}
+        {/* Nav items */}
+        <div className="flex-1 flex flex-col items-center gap-1 w-full px-2">
+          {sideNav.map(({ href, label, icon: Icon, exact }) => {
+            const active = isActive(href, exact)
+            return (
+              <Link
+                key={href}
+                href={href}
+                title={label}
+                className={cn(
+                  'flex items-center justify-center w-10 h-10 rounded-lg transition-colors',
+                  active
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/55 hover:bg-white/10 hover:text-white'
+                )}
+              >
+                <Icon className="w-5 h-5" />
+              </Link>
+            )
+          })}
+        </div>
+
+        {/* Bottom: settings + avatar */}
+        <div className="flex flex-col items-center gap-2 px-2 pb-1">
+          <Link
+            href="/dashboard/settings"
+            title="Settings"
+            className="flex items-center justify-center w-10 h-10 rounded-lg text-white/55 hover:bg-white/10 hover:text-white transition-colors"
+          >
+            <Cog6ToothIcon className="w-5 h-5" />
+          </Link>
+          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+            <span className="text-white text-xs font-bold">{initials}</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* ── Main area ───────────────────────────────────────────────────────── */}
+      <div className="lg:pl-14">
+
+        {/* Desktop top bar */}
+        <header className="hidden lg:flex items-center gap-4 bg-white border-b border-cream px-6 py-3">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-sm font-semibold text-charcoal">Dashboard</span>
+            <span className="text-stone-warm text-sm">· {dateStr}</span>
+          </div>
+          <div className="flex-1 max-w-xs">
+            <div className="relative">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-warm" />
+              <input
+                type="text"
+                placeholder="Search…"
+                className="input-base pl-9 py-1.5 text-sm"
+              />
+            </div>
+          </div>
+          {isPlanner && (
+            <Link
+              href="/dashboard/listings/new"
+              className="ml-auto flex items-center gap-1 bg-primary text-white text-sm font-semibold px-4 py-2 rounded-btn hover:bg-primary-hover transition-colors whitespace-nowrap"
+            >
+              + New Listing
+            </Link>
+          )}
+        </header>
+
+        {/* Mobile top bar */}
+        <header className="lg:hidden flex items-center justify-between bg-white border-b border-cream px-4 py-3">
+          <span className="font-bold text-primary text-lg tracking-tight">planit*</span>
+          <div className="flex items-center gap-3">
+            {isPlanner && (
+              <Link
+                href="/dashboard/listings/new"
+                className="text-sm font-semibold text-primary"
+              >
+                + New
+              </Link>
+            )}
+            <div className="w-8 h-8 bg-charcoal rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">{initials}</span>
+            </div>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className="min-h-screen pb-24 lg:pb-6">
+          {title && (
+            <div className="px-4 lg:px-6 pt-6 mb-1">
+              <h1 className="text-2xl font-bold text-charcoal">{title}</h1>
+            </div>
+          )}
           {children}
         </main>
-
       </div>
+
+      {/* ── Mobile bottom tab bar ────────────────────────────────────────────── */}
+      <nav className="fixed bottom-0 left-0 right-0 lg:hidden bg-white border-t border-cream z-30">
+        <div className="flex">
+          {mobileNav.map(({ href, label, icon: Icon, exact }) => {
+            const active = isActive(href, exact)
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  'flex-1 flex flex-col items-center gap-0.5 py-2 text-xs font-medium transition-colors',
+                  active ? 'text-primary' : 'text-stone-warm'
+                )}
+              >
+                <Icon className="w-5 h-5" />
+                <span>{label}</span>
+              </Link>
+            )
+          })}
+        </div>
+      </nav>
+
     </div>
   )
 }

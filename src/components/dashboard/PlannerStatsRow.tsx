@@ -1,16 +1,31 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import { PlannerStatsResponse } from '@/lib/types'
-import { formatPrice } from '@/lib/utils'
+import { BookingResponse, PlannerStatsResponse } from '@/lib/types'
+import { formatShortDate } from '@/lib/utils'
+import {
+  ClipboardDocumentListIcon,
+  CheckCircleIcon,
+  ChatBubbleLeftRightIcon,
+  StarIcon,
+} from '@heroicons/react/24/outline'
 
-function StatCard({ icon, value, label }: { icon: string; value: string; label: string }) {
+type StatCardProps = {
+  label: string
+  value: string | number
+  subtitle?: string
+  icon: React.ElementType
+  accent?: boolean
+}
+
+function StatCard({ label, value, subtitle, icon: Icon, accent }: StatCardProps) {
   return (
-    <div className="bg-white border border-cream rounded-xl p-4 flex items-center gap-3">
-      <span className="text-2xl">{icon}</span>
-      <div>
-        <p className="text-xl font-bold text-charcoal leading-tight">{value}</p>
-        <p className="text-xs text-stone-warm">{label}</p>
+    <div className={`bg-white border rounded-xl p-4 flex flex-col gap-1 ${accent ? 'border-amber-300' : 'border-cream'}`}>
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-wider text-stone-warm">{label}</span>
+        <Icon className={`w-4 h-4 ${accent ? 'text-amber-500' : 'text-stone-warm'}`} />
       </div>
+      <p className={`text-3xl font-bold leading-tight ${accent ? 'text-amber-600' : 'text-charcoal'}`}>{value}</p>
+      {subtitle && <p className="text-xs text-stone-warm">{subtitle}</p>}
     </div>
   )
 }
@@ -22,14 +37,49 @@ export default function PlannerStatsRow() {
     retry: false,
   })
 
+  const { data: bookings = [] } = useQuery<BookingResponse[]>({
+    queryKey: ['received-bookings'],
+    queryFn: () => api.get('/bookings/received').then(r => r.data.data),
+    retry: false,
+  })
+
   if (!stats) return null
 
+  const nextBooking = [...bookings]
+    .filter(b => b.status === 'ACCEPTED' || b.status === 'REQUESTED')
+    .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime())[0]
+
+  const nextSubtitle = nextBooking
+    ? `Next: ${formatShortDate(nextBooking.eventDate)}`
+    : 'No upcoming bookings'
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-      <StatCard icon="📋" value={String(stats.totalBookings)} label="Bookings" />
-      <StatCard icon="💬" value={String(stats.activeConversations)} label="Active chats" />
-      <StatCard icon="★" value={stats.rating ? stats.rating.toFixed(1) : '—'} label="Rating" />
-      <StatCard icon="⏱" value={stats.averageResponseTimeDisplay ?? '—'} label="Avg response" />
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      <StatCard
+        label="Total Bookings"
+        value={stats.totalBookings}
+        subtitle={nextSubtitle}
+        icon={ClipboardDocumentListIcon}
+      />
+      <StatCard
+        label="Active Bookings"
+        value={stats.activeConversations}
+        subtitle="In progress"
+        icon={CheckCircleIcon}
+      />
+      <StatCard
+        label="Pending Inquiries"
+        value={stats.pendingResponses}
+        subtitle="Need reply"
+        icon={ChatBubbleLeftRightIcon}
+        accent={stats.pendingResponses > 0}
+      />
+      <StatCard
+        label="Your Rating"
+        value={stats.rating ? stats.rating.toFixed(1) : '—'}
+        subtitle={`${stats.reviewCount} reviews`}
+        icon={StarIcon}
+      />
     </div>
   )
 }

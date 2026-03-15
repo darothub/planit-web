@@ -50,3 +50,12 @@ export const cancellationPolicyLabel: Record<CancellationPolicy, string> = {
 export function truncate(str: string, max: number): string {
   return str.length > max ? str.slice(0, max) + '…' : str
 }
+
+/** Format an ISO date string as relative time: "5m ago", "3h ago", "2d ago" */
+export function formatRelativeTime(dateStr: string): string {
+  const mins = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000)
+  if (mins < 60) return `${mins}m ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}h ago`
+  return `${Math.floor(hours / 24)}d ago`
+}
