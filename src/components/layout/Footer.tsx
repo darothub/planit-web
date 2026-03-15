@@ -1,6 +1,9 @@
 import Link from 'next/link'
+import { useAuthStore } from '@/store/authStore'
 
 export default function Footer() {
+  const { user } = useAuthStore()
+
   return (
     <footer className="bg-accent text-white mt-24">
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -32,12 +35,16 @@ export default function Footer() {
               Account
             </p>
             <nav className="flex flex-col gap-2">
-              <Link href="/auth/login" className="text-sm text-white/80 hover:text-white transition-colors">
-                Sign In
-              </Link>
-              <Link href="/auth/register" className="text-sm text-white/80 hover:text-white transition-colors">
-                Create Account
-              </Link>
+              {!user && (
+                <>
+                  <Link href="/auth/login" className="text-sm text-white/80 hover:text-white transition-colors">
+                    Sign In
+                  </Link>
+                  <Link href="/auth/register" className="text-sm text-white/80 hover:text-white transition-colors">
+                    Create Account
+                  </Link>
+                </>
+              )}
               <Link href="/dashboard" className="text-sm text-white/80 hover:text-white transition-colors">
                 Dashboard
               </Link>

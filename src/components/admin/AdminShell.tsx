@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Cookies from 'js-cookie'
 import { useAuthStore } from '@/store/authStore'
 
 type Props = {
@@ -9,13 +10,19 @@ type Props = {
 }
 
 export default function AdminShell({ title, children }: Props) {
-  const { token, user } = useAuthStore()
+  const { token, user, logout } = useAuthStore()
   const router = useRouter()
 
   useEffect(() => {
     if (!token) router.replace('/auth/login?redirect=/admin')
     else if (user?.role !== 'ADMIN') router.replace('/dashboard')
   }, [token, user, router])
+
+  const handleLogout = () => {
+    Cookies.remove('planit_token')
+    logout()
+    router.push('/auth/login')
+  }
 
   if (!user || user.role !== 'ADMIN') {
     return (
@@ -52,6 +59,12 @@ export default function AdminShell({ title, children }: Props) {
           ))}
         </nav>
         <span className="ml-auto text-xs text-white/40">{user.email}</span>
+        <button
+          onClick={handleLogout}
+          className="text-xs text-white/60 hover:text-white transition-colors"
+        >
+          Sign out
+        </button>
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8">
