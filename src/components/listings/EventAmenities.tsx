@@ -43,7 +43,7 @@ export default function EventAmenities({ amenities }: Props) {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-charcoal mb-5">What this event includes</h2>
+      <h2 className="text-xl font-semibold text-charcoal mb-5">What&apos;s included</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {visible.map(amenity => {
           const meta = AMENITY_META[amenity]

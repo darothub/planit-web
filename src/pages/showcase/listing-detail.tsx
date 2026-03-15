@@ -47,7 +47,7 @@ export const getServerSideProps: GetServerSideProps<Props> = () => {
 export default function ShowcaseListingDetail({ listing }: Props) {
   return (
     <ShowcaseShell pageName="Listing Detail">
-      <ListingDetailPage listing={listing} />
+      <ListingDetailPage listing={listing} plannerProfile={null} />
     </ShowcaseShell>
   )
 }
