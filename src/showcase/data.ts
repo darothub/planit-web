@@ -18,6 +18,7 @@ import {
   PendingPlannerResponse,
   PlannerSummaryResponse,
   AdminStatsResponse,
+  UserResponse,
 } from '@/lib/types'
 import { getAllDemoListings, demoPlanners } from '@/lib/demoData'
 
@@ -53,6 +54,17 @@ export const DEMO_PLANNER_USER: AuthResponse = {
   firstName: 'Alex',
   lastName: 'Rivera',
   role: 'PLANNER',
+  emailVerified: true,
+}
+
+export const DEMO_USER_PROFILE: UserResponse = {
+  id: 1001,
+  email: 'sarah.chen@example.com',
+  firstName: 'Sarah',
+  lastName: 'Chen',
+  phone: '+44 7700 654321',
+  profileImageUrl: null,
+  role: 'CLIENT',
   emailVerified: true,
 }
 
