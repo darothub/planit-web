@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { ChevronLeftIcon } from '@heroicons/react/24/outline'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/authStore'
 import { api } from '@/lib/api'
@@ -8,7 +9,7 @@ import { BookingResponse, DateChangeRequestResponse, DisputeResponse, Rescheduli
 import DashboardShell from '@/components/dashboard/DashboardShell'
 import BookingStatusBadge from '@/components/bookings/BookingStatusBadge'
 import ReviewForm from '@/components/reviews/ReviewForm'
-import { formatPrice, formatShortDate } from '@/lib/utils'
+import { formatPrice, formatShortDate, getListingGradient } from '@/lib/utils'
 
 const disputeStatusColour: Record<string, string> = {
   OPEN:               'bg-orange-100 text-orange-800',
@@ -88,6 +89,8 @@ export default function BookingDetailPage() {
 
   const [showDisputeModal, setShowDisputeModal] = useState(false)
   const [disputeReason, setDisputeReason] = useState('')
+  const [showDeclineModal, setShowDeclineModal] = useState(false)
+  const [declineReason, setDeclineReason] = useState('')
 
   const [showDateChangeModal, setShowDateChangeModal] = useState(false)
   const [dateChangeStep, setDateChangeStep] = useState<'form' | 'quote'>('form')
@@ -132,6 +135,8 @@ export default function BookingDetailPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['booking', id] })
       qc.invalidateQueries({ queryKey: ['received-bookings'] })
+      setShowDeclineModal(false)
+      setDeclineReason('')
     },
   })
 
@@ -216,10 +221,7 @@ export default function BookingDetailPage() {
     (cancelMutation.error as any)?.response?.data?.message ||
     (confirmMutation.error as any)?.response?.data?.message
 
-  const handleDecline = () => {
-    const reason = window.prompt('Reason for declining (optional):') ?? ''
-    respondMutation.mutate({ accept: false, declineReason: reason || undefined })
-  }
+  const handleDecline = () => setShowDeclineModal(true)
 
   const handleCancel = () => {
     if (window.confirm('Are you sure you want to cancel this booking? This cannot be undone.')) {
@@ -257,8 +259,20 @@ export default function BookingDetailPage() {
 
   return (
     <DashboardShell title="Booking Details">
+      {/* Back link */}
+      <Link
+        href="/dashboard/bookings"
+        className="inline-flex items-center gap-1 text-sm text-stone-warm hover:text-charcoal transition-colors mb-4"
+      >
+        <ChevronLeftIcon className="w-4 h-4" />
+        All Bookings
+      </Link>
+
       {/* Booking summary */}
-      <div className="bg-white border border-cream rounded-xl p-6 mb-6">
+      <div className="bg-white border border-cream rounded-xl overflow-hidden mb-6">
+        {/* Gradient accent */}
+        <div className="h-1.5" style={{ background: getListingGradient(booking.listing.id) }} />
+        <div className="p-6">
         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
           <div>
             <h2 className="text-lg font-semibold text-charcoal">{booking.listing.title}</h2>
@@ -295,6 +309,7 @@ export default function BookingDetailPage() {
               <p className="text-charcoal">{booking.clientNote}</p>
             </div>
           )}
+        </div>
         </div>
       </div>
 
@@ -765,6 +780,49 @@ export default function BookingDetailPage() {
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-btn transition-colors disabled:opacity-50"
               >
                 {raiseDisputeMutation.isPending ? 'Submitting…' : 'Submit Dispute'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Decline reason modal */}
+      {showDeclineModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 className="font-semibold text-charcoal text-lg mb-2">Decline Booking</h3>
+            <p className="text-sm text-stone-warm mb-4">
+              Optionally add a reason. The client will be notified.
+            </p>
+            <textarea
+              value={declineReason}
+              onChange={e => setDeclineReason(e.target.value)}
+              rows={3}
+              maxLength={500}
+              placeholder="Reason for declining (optional)"
+              className="input-base w-full resize-none mb-1"
+            />
+            <p className="text-xs text-stone-warm text-right mb-4">{declineReason.length}/500</p>
+            {respondMutation.isError && (
+              <p className="text-sm text-red-600 mb-3">
+                {(respondMutation.error as any)?.response?.data?.message ?? 'Something went wrong.'}
+              </p>
+            )}
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => { setShowDeclineModal(false); setDeclineReason('') }}
+                className="px-4 py-2 border border-cream text-charcoal text-sm rounded-btn hover:bg-sand transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={respondMutation.isPending}
+                onClick={() => respondMutation.mutate({ accept: false, declineReason: declineReason.trim() || undefined })}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-btn transition-colors disabled:opacity-50"
+              >
+                {respondMutation.isPending ? 'Declining…' : 'Confirm Decline'}
               </button>
             </div>
           </div>
