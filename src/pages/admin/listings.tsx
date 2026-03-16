@@ -151,16 +151,14 @@ export default function AdminListingsPage() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    {/* Thumbnail — always shown, gradient fallback */}
-                    <div className="w-10 h-10 rounded-lg shrink-0 overflow-hidden hidden sm:block">
-                      {listing.coverImageUrl ? (
+                    {/* Thumbnail — gradient always as background, image on top */}
+                    <div className="w-10 h-10 rounded-lg shrink-0 overflow-hidden hidden sm:block"
+                      style={{ background: getListingGradient(listing.id) }}>
+                      {listing.coverImageUrl && (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={listing.coverImageUrl} alt=""
-                          className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full" style={{
-                          background: getListingGradient(listing.id)
-                        }} />
+                          className="w-full h-full object-cover"
+                          onError={e => { e.currentTarget.style.display = 'none' }} />
                       )}
                     </div>
                     <div className="min-w-0">

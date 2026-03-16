@@ -96,14 +96,12 @@ export default function PlannerListingsPage() {
           {listings.map(listing => (
             <div key={listing.id} className="bg-white border border-cream rounded-xl overflow-hidden">
 
-              {/* Thumbnail */}
-              <div className="relative aspect-[16/9]">
-                {listing.coverImageUrl ? (
-                  <Image src={listing.coverImageUrl} alt={listing.title} fill className="object-cover" />
-                ) : (
-                  <div className="w-full h-full" style={{
-                    background: getListingGradient(listing.id)
-                  }} />
+              {/* Thumbnail — gradient always as background, image on top */}
+              <div className="relative aspect-[16/9]"
+                style={{ background: getListingGradient(listing.id) }}>
+                {listing.coverImageUrl && (
+                  <Image src={listing.coverImageUrl} alt={listing.title} fill className="object-cover"
+                    onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
                 )}
 
                 {/* Status badge — top left */}
