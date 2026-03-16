@@ -1,24 +1,17 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { XMarkIcon, PhotoIcon } from '@heroicons/react/24/outline'
+import { getListingGradient } from '@/lib/utils'
 
 type Props = {
   coverUrl: string | null
   images: { imageUrl: string; caption: string | null }[]
 }
 
-const SLOT_GRADIENTS = [
-  'linear-gradient(135deg, #C1694F, #8B4513)',
-  'linear-gradient(135deg, #4A5240, #2C3520)',
-  'linear-gradient(135deg, #8B6F47, #6B4F2A)',
-  'linear-gradient(135deg, #5C7A6B, #3D5C4F)',
-  'linear-gradient(135deg, #2C2C2C, #4A5240)',
-]
-
 function Img({ src, alt, slot = 0 }: { src: string; alt: string; slot?: number }) {
   const [err, setErr] = useState(false)
   if (err || !src) {
-    const gradient = SLOT_GRADIENTS[slot % SLOT_GRADIENTS.length]
+    const gradient = getListingGradient(slot)
     return (
       <div
         className="absolute inset-0 flex items-center justify-center"

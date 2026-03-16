@@ -1,5 +1,24 @@
 import { CancellationPolicy } from './types'
 
+// ── Image placeholder gradients ───────────────────────────────────────────────
+
+/** 5-colour palette for listing thumbnail placeholders. Cycle by listing id. */
+export const LISTING_GRADIENTS = [
+  'linear-gradient(135deg, #C1694F, #8B4513)',
+  'linear-gradient(135deg, #4A5240, #2C3520)',
+  'linear-gradient(135deg, #8B6F47, #6B4F2A)',
+  'linear-gradient(135deg, #5C7A6B, #3D5C4F)',
+  'linear-gradient(135deg, #7A5C78, #5C3F5A)',
+]
+
+/** Returns the listing gradient for a given id (cycles through 5 colours). */
+export function getListingGradient(id: number): string {
+  return LISTING_GRADIENTS[Math.abs(id) % LISTING_GRADIENTS.length]
+}
+
+/** Terra gradient used for planner/user avatar placeholders. */
+export const TERRA_GRADIENT = 'linear-gradient(135deg, #C1694F, #A85640)'
+
 /** Merge class names, filtering out falsy values */
 export function cn(...classes: (string | undefined | false | null)[]): string {
   return classes.filter(Boolean).join(' ')

@@ -11,7 +11,7 @@ import BookingCard from '@/components/listings/BookingCard'
 import ReviewList from '@/components/listings/ReviewList'
 import EventAmenities from '@/components/listings/EventAmenities'
 import AvailabilityCalendar from '@/components/listings/AvailabilityCalendar'
-import { formatPrice, cancellationPolicyLabel } from '@/lib/utils'
+import { formatPrice, cancellationPolicyLabel, TERRA_GRADIENT } from '@/lib/utils'
 
 type Props = {
   listing: EventListingDetailResponse
@@ -95,7 +95,7 @@ export default function ListingDetailPage({ listing, plannerProfile }: Props) {
                     ) : (
                       <div
                         className="w-full h-full flex items-center justify-center text-white text-xl font-bold"
-                        style={{ background: 'linear-gradient(135deg, #C1694F, #A85640)' }}
+                        style={{ background: TERRA_GRADIENT }}
                       >
                         {plannerName[0]}
                       </div>

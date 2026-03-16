@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { InquiryResponse, UserRole } from '@/lib/types'
-import { cn } from '@/lib/utils'
+import { cn, getListingGradient } from '@/lib/utils'
 
 type Props = {
   inquiries: InquiryResponse[]
@@ -42,7 +42,7 @@ export default function InquiryList({ inquiries, selectedId, role }: Props) {
               ) : (
                 <div
                   className="w-10 h-10 rounded-lg flex-shrink-0"
-                  style={{ background: 'linear-gradient(135deg, #C1694F, #8B4513)' }}
+                  style={{ background: getListingGradient(inq.listing.id) }}
                 />
               )}
 

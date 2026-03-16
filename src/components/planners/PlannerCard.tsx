@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { PlannerSummaryResponse } from '@/lib/types'
+import { TERRA_GRADIENT } from '@/lib/utils'
 
 type Props = {
   planner: PlannerSummaryResponse
@@ -33,7 +34,7 @@ export default function PlannerCard({ planner }: Props) {
         ) : (
           <div
             className="w-full h-full flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #C1694F, #A85640)' }}
+            style={{ background: TERRA_GRADIENT }}
           >
             <span className="text-4xl font-bold text-white/90">{initials}</span>
           </div>

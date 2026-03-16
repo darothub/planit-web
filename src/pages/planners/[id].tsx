@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import type { GetServerSideProps } from 'next'
 import { EventListingResponse, ReviewResponse } from '@/lib/types'
+import { TERRA_GRADIENT } from '@/lib/utils'
 import PageShell from '@/components/layout/PageShell'
 import ListingCard from '@/components/listings/ListingCard'
 import ReviewCard from '@/components/listings/ReviewCard'
@@ -73,7 +74,7 @@ export default function PlannerProfilePage({ planner, listings, reviews }: Props
               ) : (
                 <div
                   className="w-full h-full flex items-center justify-center text-white text-3xl font-bold"
-                  style={{ background: 'linear-gradient(135deg, #C1694F, #A85640)' }}
+                  style={{ background: TERRA_GRADIENT }}
                 >
                   {planner.businessName[0]}
                 </div>

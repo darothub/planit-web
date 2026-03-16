@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { TERRA_GRADIENT } from '@/lib/utils'
 
 type Props = {
   planner: {
@@ -23,7 +24,7 @@ export default function PlannerCard({ planner }: Props) {
         ) : (
           <div
             className="w-full h-full flex items-center justify-center text-white text-xl font-bold"
-            style={{ background: 'linear-gradient(135deg, #C1694F, #A85640)' }}
+            style={{ background: TERRA_GRADIENT }}
           >
             {(planner.businessName ?? 'P')[0]}
           </div>

@@ -4,19 +4,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { EventListingResponse, PageResponse } from '@/lib/types'
 import AdminShell from '@/components/admin/AdminShell'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, getListingGradient } from '@/lib/utils'
 
 const EMPTY_PAGE: PageResponse<EventListingResponse> = {
   content: [], page: 0, size: 20, totalElements: 0, totalPages: 0, first: true, last: true,
 }
-
-const LISTING_GRADIENTS = [
-  'linear-gradient(135deg, #C1694F, #8B4513)',
-  'linear-gradient(135deg, #4A5240, #2C3520)',
-  'linear-gradient(135deg, #8B6F47, #6B4F2A)',
-  'linear-gradient(135deg, #5C7A6B, #3D5C4F)',
-  'linear-gradient(135deg, #7A5C78, #5C3F5A)',
-]
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value)
@@ -167,7 +159,7 @@ export default function AdminListingsPage() {
                           className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full" style={{
-                          background: LISTING_GRADIENTS[Math.abs(listing.id) % LISTING_GRADIENTS.length]
+                          background: getListingGradient(listing.id)
                         }} />
                       )}
                     </div>

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { InquiryResponse, UserRole } from '@/lib/types'
-import { formatShortDate } from '@/lib/utils'
+import { formatShortDate, getListingGradient } from '@/lib/utils'
 
 const statusColour: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800',
@@ -30,7 +30,7 @@ export default function InquiryCard({ inquiry, role }: Props) {
         ) : (
           <div
             className="w-14 h-14 rounded-lg flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, #C1694F, #8B4513)' }}
+            style={{ background: getListingGradient(inquiry.listing.id) }}
           />
         )}
 

@@ -7,15 +7,7 @@ import { useAuthStore } from '@/store/authStore'
 import { api } from '@/lib/api'
 import { EventListingResponse } from '@/lib/types'
 import DashboardShell from '@/components/dashboard/DashboardShell'
-import { formatPrice } from '@/lib/utils'
-
-const LISTING_GRADIENTS = [
-  'linear-gradient(135deg, #C1694F, #8B4513)',
-  'linear-gradient(135deg, #4A5240, #2C3520)',
-  'linear-gradient(135deg, #8B6F47, #6B4F2A)',
-  'linear-gradient(135deg, #5C7A6B, #3D5C4F)',
-  'linear-gradient(135deg, #7A5C78, #5C3F5A)',
-]
+import { formatPrice, getListingGradient } from '@/lib/utils'
 
 export default function PlannerListingsPage() {
   const { token, user } = useAuthStore()
@@ -110,7 +102,7 @@ export default function PlannerListingsPage() {
                   <Image src={listing.coverImageUrl} alt={listing.title} fill className="object-cover" />
                 ) : (
                   <div className="w-full h-full" style={{
-                    background: LISTING_GRADIENTS[Math.abs(listing.id) % LISTING_GRADIENTS.length]
+                    background: getListingGradient(listing.id)
                   }} />
                 )}
 
