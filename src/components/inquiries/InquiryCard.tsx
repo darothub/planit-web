@@ -28,7 +28,10 @@ export default function InquiryCard({ inquiry, role }: Props) {
             <Image src={inquiry.listing.coverImageUrl} alt={inquiry.listing.title} fill className="object-cover" />
           </div>
         ) : (
-          <div className="w-14 h-14 rounded-lg bg-sand flex items-center justify-center flex-shrink-0 text-xl">🎪</div>
+          <div
+            className="w-14 h-14 rounded-lg flex-shrink-0"
+            style={{ background: 'linear-gradient(135deg, #C1694F, #8B4513)' }}
+          />
         )}
 
         <div className="flex-1 min-w-0">

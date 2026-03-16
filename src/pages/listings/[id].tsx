@@ -85,40 +85,73 @@ export default function ListingDetailPage({ listing, plannerProfile }: Props) {
                 )}
               </div>
 
-              {/* Planner row */}
-              <div className="border-t border-cream mt-6 pt-6 flex items-center gap-4">
-                <div className="relative w-14 h-14 rounded-full overflow-hidden bg-sand flex-shrink-0">
-                  {plannerAvatar ? (
-                    <Image src={plannerAvatar} alt={plannerName} fill className="object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-primary text-white text-xl font-bold">
-                      {plannerName[0]}
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-stone-warm mb-0.5">Hosted by</p>
-                  <Link
-                    href={`/planners/${planner.id}`}
-                    className="font-semibold text-charcoal hover:text-primary transition-colors"
-                  >
-                    {plannerName}
-                  </Link>
-                  <div className="flex flex-wrap items-center gap-x-3 mt-0.5 text-xs text-stone-warm">
-                    {plannerProfile?.rating != null && (
-                      <span>★ {plannerProfile.rating.toFixed(1)}</span>
-                    )}
-                    {(plannerProfile?.totalBookings ?? 0) > 0 && (
-                      <span>{plannerProfile!.totalBookings} bookings</span>
+              {/* Planner strip */}
+              <div className="border-t border-cream mt-6 pt-6">
+                <div className="bg-white border border-cream rounded-xl p-5 flex items-start gap-4">
+                  {/* Avatar */}
+                  <div className="relative w-14 h-14 rounded-full overflow-hidden flex-shrink-0">
+                    {plannerAvatar ? (
+                      <Image src={plannerAvatar} alt={plannerName} fill className="object-cover" />
+                    ) : (
+                      <div
+                        className="w-full h-full flex items-center justify-center text-white text-xl font-bold"
+                        style={{ background: 'linear-gradient(135deg, #C1694F, #A85640)' }}
+                      >
+                        {plannerName[0]}
+                      </div>
                     )}
                   </div>
+
+                  {/* Info + stats */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-stone-warm mb-0.5">Hosted by</p>
+                    <Link
+                      href={`/planners/${planner.id}`}
+                      className="font-semibold text-charcoal hover:text-primary transition-colors"
+                    >
+                      {plannerName}
+                    </Link>
+                    {plannerProfile?.bio && (
+                      <p className="text-xs text-stone-warm mt-1 line-clamp-2 leading-relaxed">
+                        {plannerProfile.bio}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-4 mt-3">
+                      {plannerProfile?.rating != null && (
+                        <div className="text-center">
+                          <p className="text-sm font-bold text-charcoal leading-none">★ {plannerProfile.rating.toFixed(1)}</p>
+                          <p className="text-xs text-stone-warm mt-0.5">Rating</p>
+                        </div>
+                      )}
+                      {(plannerProfile?.totalBookings ?? 0) > 0 && (
+                        <>
+                          <div className="h-6 w-px bg-cream" />
+                          <div className="text-center">
+                            <p className="text-sm font-bold text-charcoal leading-none">{plannerProfile!.totalBookings}</p>
+                            <p className="text-xs text-stone-warm mt-0.5">Bookings</p>
+                          </div>
+                        </>
+                      )}
+                      {(plannerProfile?.reviewCount ?? 0) > 0 && (
+                        <>
+                          <div className="h-6 w-px bg-cream" />
+                          <div className="text-center">
+                            <p className="text-sm font-bold text-charcoal leading-none">{plannerProfile!.reviewCount}</p>
+                            <p className="text-xs text-stone-warm mt-0.5">Reviews</p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* View profile */}
+                  <Link
+                    href={`/planners/${planner.id}`}
+                    className="hidden sm:block text-sm text-primary font-semibold hover:underline underline-offset-2 flex-shrink-0"
+                  >
+                    View profile →
+                  </Link>
                 </div>
-                <Link
-                  href={`/planners/${planner.id}`}
-                  className="text-sm text-primary font-semibold hover:underline underline-offset-2 flex-shrink-0"
-                >
-                  View profile
-                </Link>
               </div>
 
               {/* About */}

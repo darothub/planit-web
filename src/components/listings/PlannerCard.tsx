@@ -21,7 +21,10 @@ export default function PlannerCard({ planner }: Props) {
             className="object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-primary text-white text-xl font-bold">
+          <div
+            className="w-full h-full flex items-center justify-center text-white text-xl font-bold"
+            style={{ background: 'linear-gradient(135deg, #C1694F, #A85640)' }}
+          >
             {(planner.businessName ?? 'P')[0]}
           </div>
         )}

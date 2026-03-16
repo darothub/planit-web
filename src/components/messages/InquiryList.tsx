@@ -40,7 +40,10 @@ export default function InquiryList({ inquiries, selectedId, role }: Props) {
                   <Image src={inq.listing.coverImageUrl} alt="" fill className="object-cover" />
                 </div>
               ) : (
-                <div className="w-10 h-10 rounded-lg bg-sand flex items-center justify-center flex-shrink-0 text-lg">🎪</div>
+                <div
+                  className="w-10 h-10 rounded-lg flex-shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #C1694F, #8B4513)' }}
+                />
               )}
 
               <div className="flex-1 min-w-0">

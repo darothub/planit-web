@@ -9,12 +9,22 @@ type Props = {
   listing: EventListingResponse
 }
 
-function ImagePlaceholder({ label }: { label: string }) {
+const LISTING_GRADIENTS = [
+  'linear-gradient(135deg, #C1694F, #8B4513)',
+  'linear-gradient(135deg, #4A5240, #2C3520)',
+  'linear-gradient(135deg, #8B6F47, #6B4F2A)',
+  'linear-gradient(135deg, #5C7A6B, #3D5C4F)',
+  'linear-gradient(135deg, #7A5C78, #5C3F5A)',
+]
+
+function ImagePlaceholder({ id, label }: { id: number; label: string }) {
+  const gradient = LISTING_GRADIENTS[Math.abs(id) % LISTING_GRADIENTS.length]
   return (
-    <div className="w-full h-full bg-gradient-to-br from-sand via-cream to-parchment
-      flex flex-col items-center justify-center gap-2 select-none">
-      <span className="text-3xl opacity-30">🎪</span>
-      <span className="text-stone-warm text-xs opacity-60 text-center px-2 leading-tight">
+    <div
+      className="w-full h-full flex items-end select-none"
+      style={{ background: gradient }}
+    >
+      <span className="px-3 pb-3 text-white/80 text-xs font-medium line-clamp-2 leading-snug">
         {label}
       </span>
     </div>
@@ -39,7 +49,7 @@ export default function ListingCard({ listing }: Props) {
             onError={() => setImgError(true)}
           />
         ) : (
-          <ImagePlaceholder label={listing.title} />
+          <ImagePlaceholder id={listing.id} label={listing.title} />
         )}
 
         {/* Featured pill — top left (like "Guest favorite") */}

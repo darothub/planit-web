@@ -7,12 +7,24 @@ type Props = {
   images: { imageUrl: string; caption: string | null }[]
 }
 
-function Img({ src, alt, className }: { src: string; alt: string; className?: string }) {
+const SLOT_GRADIENTS = [
+  'linear-gradient(135deg, #C1694F, #8B4513)',
+  'linear-gradient(135deg, #4A5240, #2C3520)',
+  'linear-gradient(135deg, #8B6F47, #6B4F2A)',
+  'linear-gradient(135deg, #5C7A6B, #3D5C4F)',
+  'linear-gradient(135deg, #2C2C2C, #4A5240)',
+]
+
+function Img({ src, alt, slot = 0 }: { src: string; alt: string; slot?: number }) {
   const [err, setErr] = useState(false)
   if (err || !src) {
+    const gradient = SLOT_GRADIENTS[slot % SLOT_GRADIENTS.length]
     return (
-      <div className={`bg-gradient-to-br from-sand via-cream to-parchment flex items-center justify-center ${className ?? ''}`}>
-        <PhotoIcon className="w-10 h-10 text-stone-warm opacity-30" />
+      <div
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ background: gradient }}
+      >
+        <PhotoIcon className="w-8 h-8 text-white/30" />
       </div>
     )
   }
@@ -21,7 +33,7 @@ function Img({ src, alt, className }: { src: string; alt: string; className?: st
       src={src}
       alt={alt}
       fill
-      className={`object-cover ${className ?? ''}`}
+      className="object-cover"
       sizes="(max-width: 768px) 100vw, 50vw"
       onError={() => setErr(true)}
     />
@@ -46,18 +58,18 @@ export default function PhotoGallery({ coverUrl, images }: Props) {
 
         {/* Mobile: single cover image */}
         <div className="md:hidden relative aspect-[4/3]">
-          <Img src={coverUrl ?? ''} alt="Cover" />
+          <Img src={coverUrl ?? ''} alt="Cover" slot={0} />
         </div>
 
         {/* Desktop: Airbnb-style 5-photo grid */}
         <div className="hidden md:grid grid-cols-[2fr_1fr_1fr] grid-rows-2 gap-2 h-[480px]">
           {/* Main — spans 2 rows */}
           <div className="relative row-span-2">
-            <Img src={photo(0)?.imageUrl ?? ''} alt="Main photo" />
+            <Img src={photo(0)?.imageUrl ?? ''} alt="Main photo" slot={0} />
           </div>
           {[1, 2, 3, 4].map(i => (
             <div key={i} className="relative">
-              <Img src={photo(i)?.imageUrl ?? ''} alt={`Photo ${i + 1}`} />
+              <Img src={photo(i)?.imageUrl ?? ''} alt={`Photo ${i + 1}`} slot={i} />
             </div>
           ))}
         </div>
@@ -90,7 +102,7 @@ export default function PhotoGallery({ coverUrl, images }: Props) {
             <div className="clear-right flex flex-col gap-4">
               {allPhotos.map((p, i) => (
                 <div key={i} className="relative aspect-[4/3]">
-                  <Img src={p.imageUrl} alt={p.caption ?? `Photo ${i + 1}`} />
+                  <Img src={p.imageUrl} alt={p.caption ?? `Photo ${i + 1}`} slot={i} />
                 </div>
               ))}
             </div>

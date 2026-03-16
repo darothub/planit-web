@@ -60,8 +60,10 @@ export default function PlannerProfilePage({ planner, listings, reviews }: Props
                   className="object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center
-                  bg-primary text-white text-3xl font-bold">
+                <div
+                  className="w-full h-full flex items-center justify-center text-white text-3xl font-bold"
+                  style={{ background: 'linear-gradient(135deg, #C1694F, #A85640)' }}
+                >
                   {planner.businessName[0]}
                 </div>
               )}

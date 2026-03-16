@@ -31,9 +31,11 @@ export default function PlannerCard({ planner }: Props) {
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center
-            bg-gradient-to-br from-primary/20 to-accent/20">
-            <span className="text-4xl font-bold text-primary/60">{initials}</span>
+          <div
+            className="w-full h-full flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg, #C1694F, #A85640)' }}
+          >
+            <span className="text-4xl font-bold text-white/90">{initials}</span>
           </div>
         )}
 

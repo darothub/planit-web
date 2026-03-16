@@ -13,10 +13,11 @@ type Props = {
   children: React.ReactNode
 }
 
-const DEVICE_WIDTHS: Record<DeviceWidth, string> = {
-  mobile:  'max-w-[390px]',
-  tablet:  'max-w-[768px]',
-  desktop: 'max-w-full',
+// Iframe dimensions for device preview (real viewport widths)
+const DEVICE_FRAMES: Record<DeviceWidth, { w: number; h: number } | null> = {
+  mobile:  { w: 390,  h: 844  },
+  tablet:  { w: 768,  h: 1024 },
+  desktop: null,
 }
 
 // ─── Route interception ───────────────────────────────────────────────────────
@@ -107,6 +108,12 @@ export default function ShowcaseShell({ pageName, demoRole = 'GUEST', children }
   const router = useRouter()
   const [device, setDevice] = useState<DeviceWidth>('desktop')
 
+  // Headless mode: running inside a device preview iframe.
+  // Detected via ?_preview=1 query param — set by the parent shell when it
+  // renders the iframe src. This is SSR-safe (router.query is available on
+  // the server), so there is no hydration flash.
+  const isHeadless = router.query._preview === '1'
+
   // authReady gates child rendering: children only mount AFTER auth has been
   // injected into the store, so protected pages' useEffect redirect guards
   // always see a valid (or intentionally null) token on their first render.
@@ -161,7 +168,7 @@ export default function ShowcaseShell({ pageName, demoRole = 'GUEST', children }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [demoRole])
 
-  // ── Route interception — catches ALL navigation including <Link> clicks ─────
+  // ── Route interception — skipped in headless mode ─────────────────────────
   //
   // Two-pronged approach (routeChangeStart throw+catch is unreliable in Pages
   // Router — router.push inside routeChangeError silently fails):
@@ -173,6 +180,8 @@ export default function ShowcaseShell({ pageName, demoRole = 'GUEST', children }
   // Both translate real-app URLs to their showcase equivalents using the same
   // getShowcaseRedirect / getAdminShowcaseRedirect helpers.
   useEffect(() => {
+    if (isHeadless) return  // no interception needed inside preview iframe
+
     const origPush    = router.push.bind(router)
     const origReplace = router.replace.bind(router)
 
@@ -231,7 +240,20 @@ export default function ShowcaseShell({ pageName, demoRole = 'GUEST', children }
       document.removeEventListener('click', handleClick, true)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [demoRole])
+  }, [demoRole, isHeadless])
+
+  // ── Headless render (inside preview iframe) ───────────────────────────────
+  if (isHeadless) {
+    return <>{authReady && children}</>
+  }
+
+  // ── Build iframe src for device preview ───────────────────────────────────
+  // Append ?_preview=1 so the page renders headless inside the iframe.
+  const iframeSrc = router.asPath.includes('?')
+    ? `${router.asPath}&_preview=1`
+    : `${router.asPath}?_preview=1`
+
+  const frame = DEVICE_FRAMES[device]
 
   return (
     <div className="min-h-screen bg-sand">
@@ -249,8 +271,8 @@ export default function ShowcaseShell({ pageName, demoRole = 'GUEST', children }
         <div className="flex items-center gap-1 shrink-0">
           {(
             [
-              { key: 'mobile',  icon: '📱', label: 'Mobile'  },
-              { key: 'tablet',  icon: '💻', label: 'Tablet'  },
+              { key: 'mobile',  icon: '📱', label: 'Mobile (390px — real viewport)'  },
+              { key: 'tablet',  icon: '💻', label: 'Tablet (768px — real viewport)'  },
               { key: 'desktop', icon: '🖥',  label: 'Desktop' },
             ] as { key: DeviceWidth; icon: string; label: string }[]
           ).map(({ key, icon, label }) => (
@@ -270,9 +292,27 @@ export default function ShowcaseShell({ pageName, demoRole = 'GUEST', children }
 
       {/* Content — offset by chrome bar height (h-10 = 40px) */}
       <div className="pt-10">
-        <div className={`${DEVICE_WIDTHS[device]} mx-auto transition-all duration-300`}>
-          {authReady && children}
-        </div>
+        {frame ? (
+          // Device preview: render in iframe with real viewport width so
+          // Tailwind breakpoints activate correctly (unlike max-w-[390px]
+          // which only constrains the container but not the viewport).
+          <div className="flex justify-center py-8 min-h-[calc(100vh-40px)] bg-[#1a1a2e]">
+            <div className="shadow-2xl rounded-2xl overflow-hidden border border-white/10">
+              <iframe
+                key={device}
+                src={iframeSrc}
+                width={frame.w}
+                height={frame.h}
+                className="block"
+                title={`${pageName} — ${device} preview`}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="transition-all duration-300">
+            {authReady && children}
+          </div>
+        )}
       </div>
     </div>
   )
