@@ -7,13 +7,13 @@ import { EventType } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 const DEMO_TYPES: EventType[] = [
-  { id: 1, name: 'WEDDING',     displayName: 'Wedding',     description: '', isActive: true },
-  { id: 2, name: 'BIRTHDAY',    displayName: 'Birthday',    description: '', isActive: true },
-  { id: 3, name: 'CORPORATE',   displayName: 'Corporate',   description: '', isActive: true },
-  { id: 4, name: 'ANNIVERSARY', displayName: 'Anniversary', description: '', isActive: true },
-  { id: 5, name: 'GRADUATION',  displayName: 'Graduation',  description: '', isActive: true },
-  { id: 6, name: 'BABY_SHOWER', displayName: 'Baby Shower', description: '', isActive: true },
-  { id: 7, name: 'ENGAGEMENT',  displayName: 'Engagement',  description: '', isActive: true },
+  { id: -1, name: 'WEDDING',     displayName: 'Wedding',     description: '', isActive: true },
+  { id: -2, name: 'BIRTHDAY',    displayName: 'Birthday',    description: '', isActive: true },
+  { id: -3, name: 'CORPORATE',   displayName: 'Corporate',   description: '', isActive: true },
+  { id: -4, name: 'ANNIVERSARY', displayName: 'Anniversary', description: '', isActive: true },
+  { id: -5, name: 'GRADUATION',  displayName: 'Graduation',  description: '', isActive: true },
+  { id: -6, name: 'BABY_SHOWER', displayName: 'Baby Shower', description: '', isActive: true },
+  { id: -7, name: 'ENGAGEMENT',  displayName: 'Engagement',  description: '', isActive: true },
 ]
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -29,17 +29,25 @@ export default function FilterBar() {
   const router = useRouter()
   const query = router.query
 
-  const [location, setLocation]   = useState((query.location as string) ?? '')
-  const [maxPrice, setMaxPrice]   = useState((query.maxPrice as string) ?? '')
+  const [location, setLocation]     = useState((query.location as string) ?? '')
+  const [maxPrice, setMaxPrice]     = useState((query.maxPrice as string) ?? '')
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const debouncedLocation = useDebounce(location, 400)
   const debouncedMaxPrice = useDebounce(maxPrice, 400)
 
+  // Sync local state when URL changes externally (e.g. back navigation, clear all, homepage search)
+  useEffect(() => {
+    if (!router.isReady) return
+    setLocation((query.location as string) ?? '')
+    setMaxPrice((query.maxPrice as string) ?? '')
+  }, [router.isReady, query.location, query.maxPrice])
+
   const { data: eventTypes = DEMO_TYPES } = useQuery<EventType[]>({
     queryKey: ['event-types'],
     queryFn: () => api.get('/event-types').then(r => r.data.data),
     staleTime: Infinity,
+    placeholderData: DEMO_TYPES,
     retry: false,
   })
 
@@ -57,6 +65,10 @@ export default function FilterBar() {
 
   const hasFilters = !!(query.eventTypeId || query.location || query.date ||
                         query.maxPrice || query.guests || query.sortBy)
+
+  const activeFilterCount = [
+    query.eventTypeId, query.location, query.date, query.maxPrice, query.guests, query.sortBy,
+  ].filter(Boolean).length
 
   // Sync debounced text fields to URL
   useEffect(() => {
@@ -82,7 +94,7 @@ export default function FilterBar() {
         >
           <option value="">All types</option>
           {eventTypes.map(et => (
-            <option key={et.id} value={et.id}>{et.displayName}</option>
+            <option key={et.id} value={et.id > 0 ? et.id : ''}>{et.displayName}</option>
           ))}
         </select>
       </div>
@@ -188,9 +200,9 @@ export default function FilterBar() {
           >
             <AdjustmentsHorizontalIcon className="w-4 h-4" />
             Filters
-            {hasFilters && (
-              <span className="bg-primary text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                •
+            {activeFilterCount > 0 && (
+              <span className="bg-primary text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-semibold">
+                {activeFilterCount}
               </span>
             )}
           </button>
