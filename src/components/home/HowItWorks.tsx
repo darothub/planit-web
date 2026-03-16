@@ -21,7 +21,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="py-16 bg-parchment border-t border-cream">
+    <section className="py-16 border-t border-cream">
       <div className="max-w-5xl mx-auto px-4 text-center">
         <p className="text-primary text-sm font-semibold uppercase tracking-wider mb-2">
           Stress-free from start to finish
