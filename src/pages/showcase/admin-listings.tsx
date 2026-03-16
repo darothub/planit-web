@@ -12,17 +12,43 @@ export const getServerSideProps = () => {
 export default function ShowcaseAdminListings() {
   const qc = useMemo(() => {
     const listings = getAllDemoListings()
-    const page = {
-      content: listings,
-      page: 0,
-      size: 20,
-      totalElements: listings.length,
-      totalPages: Math.ceil(listings.length / 20),
-      first: true,
-      last: true,
+
+    const makePage = (search: string, page: number) => {
+      const q = (search ?? '').toLowerCase()
+      const filtered = q
+        ? listings.filter(l => l.title.toLowerCase().includes(q))
+        : listings
+      const size = 20
+      const start = page * size
+      return {
+        content: filtered.slice(start, start + size),
+        page,
+        size,
+        totalElements: filtered.length,
+        totalPages: Math.ceil(filtered.length / size),
+        first: page === 0,
+        last: start + size >= filtered.length,
+      }
     }
-    const c = new QueryClient()
-    c.setQueryData(['admin-listings', '', 0], page)
+
+    const c = new QueryClient({
+      defaultOptions: { queries: { staleTime: Infinity, retry: false } },
+    })
+
+    // Pre-seed the initial (empty search) result
+    c.setQueryData(['admin-listings', '', 0], makePage('', 0))
+
+    // For every subsequent query key (new search term / page), seed demo data immediately
+    // so the real queryFn (which hits a real API) is never called
+    c.getQueryCache().subscribe(event => {
+      if (event.type === 'added') {
+        const key = event.query.queryKey as [string, string, number]
+        if (key[0] === 'admin-listings') {
+          c.setQueryData(key, makePage(key[1] ?? '', key[2] ?? 0))
+        }
+      }
+    })
+
     return c
   }, [])
 

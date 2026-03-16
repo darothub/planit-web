@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { EventListingResponse, PageResponse } from '@/lib/types'
@@ -9,13 +10,35 @@ const EMPTY_PAGE: PageResponse<EventListingResponse> = {
   content: [], page: 0, size: 20, totalElements: 0, totalPages: 0, first: true, last: true,
 }
 
+const LISTING_GRADIENTS = [
+  'linear-gradient(135deg, #C1694F, #8B4513)',
+  'linear-gradient(135deg, #4A5240, #2C3520)',
+  'linear-gradient(135deg, #8B6F47, #6B4F2A)',
+  'linear-gradient(135deg, #5C7A6B, #3D5C4F)',
+  'linear-gradient(135deg, #7A5C78, #5C3F5A)',
+]
+
+function useDebounce<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value)
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay)
+    return () => clearTimeout(timer)
+  }, [value, delay])
+  return debounced
+}
+
 export default function AdminListingsPage() {
   const qc = useQueryClient()
-  const [search, setSearch]       = useState('')
-  const [page, setPage]           = useState(0)
-  const [selected, setSelected]   = useState<Set<number>>(new Set())
-  const [confirmOpen, setConfirmOpen] = useState(false)
-  const [resultMsg, setResultMsg] = useState<string | null>(null)
+  const [searchInput, setSearchInput]   = useState('')
+  const [page, setPage]                 = useState(0)
+  const [selected, setSelected]         = useState<Set<number>>(new Set())
+  const [confirmOpen, setConfirmOpen]   = useState(false)
+  const [resultMsg, setResultMsg]       = useState<string | null>(null)
+
+  const search = useDebounce(searchInput, 400)
+
+  // Reset to first page when search term changes
+  useEffect(() => { setPage(0) }, [search])
 
   const { data = EMPTY_PAGE, isLoading, isError, error } = useQuery<PageResponse<EventListingResponse>>({
     queryKey: ['admin-listings', search, page],
@@ -65,13 +88,14 @@ export default function AdminListingsPage() {
 
   return (
     <AdminShell title="All Listings">
+
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <input
           type="text"
           placeholder="Search by title…"
-          value={search}
-          onChange={e => { setSearch(e.target.value); setPage(0); setResultMsg(null) }}
+          value={searchInput}
+          onChange={e => { setSearchInput(e.target.value); setResultMsg(null) }}
           className="flex-1 border border-cream rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
         />
         {selected.size > 0 && (
@@ -122,7 +146,9 @@ export default function AdminListingsPage() {
               <tr><td colSpan={6} className="px-4 py-8 text-center text-stone-warm">Loading…</td></tr>
             )}
             {!isLoading && data.content.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-8 text-center text-stone-warm">No listings found</td></tr>
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-stone-warm">
+                {searchInput ? `No listings matching "${searchInput}"` : 'No listings found'}
+              </td></tr>
             )}
             {data.content.map(listing => (
               <tr key={listing.id}
@@ -133,12 +159,28 @@ export default function AdminListingsPage() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    {listing.coverImageUrl && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={listing.coverImageUrl} alt=""
-                        className="w-10 h-10 rounded-lg object-cover shrink-0 hidden sm:block" />
-                    )}
-                    <span className="font-medium text-charcoal line-clamp-1">{listing.title}</span>
+                    {/* Thumbnail — always shown, gradient fallback */}
+                    <div className="w-10 h-10 rounded-lg shrink-0 overflow-hidden hidden sm:block">
+                      {listing.coverImageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={listing.coverImageUrl} alt=""
+                          className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full" style={{
+                          background: LISTING_GRADIENTS[Math.abs(listing.id) % LISTING_GRADIENTS.length]
+                        }} />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-charcoal line-clamp-1">{listing.title}</p>
+                      <Link
+                        href={`/listings/${listing.id}`}
+                        target="_blank"
+                        className="text-xs text-primary hover:underline"
+                      >
+                        View →
+                      </Link>
+                    </div>
                   </div>
                 </td>
                 <td className="px-4 py-3 text-stone-warm hidden md:table-cell">
@@ -183,11 +225,13 @@ export default function AdminListingsPage() {
         )}
       </div>
 
-      {/* Confirm dialog */}
+      {/* Confirm delete dialog */}
       {confirmOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-            <h2 className="text-lg font-bold text-charcoal mb-2">Delete {selected.size} listing{selected.size !== 1 ? 's' : ''}?</h2>
+            <h2 className="text-lg font-bold text-charcoal mb-2">
+              Delete {selected.size} listing{selected.size !== 1 ? 's' : ''}?
+            </h2>
             <p className="text-sm text-stone-warm mb-6">
               This is permanent. Listings with active inquiries will be skipped and reported.
             </p>
