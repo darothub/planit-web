@@ -11,13 +11,13 @@ import PlannerCard from '@/components/planners/PlannerCard'
 import Pagination from '@/components/ui/Pagination'
 
 const DEMO_TYPES: EventType[] = [
-  { id: 1, name: 'WEDDING',     displayName: 'Wedding',     description: '', isActive: true },
-  { id: 2, name: 'BIRTHDAY',    displayName: 'Birthday',    description: '', isActive: true },
-  { id: 3, name: 'CORPORATE',   displayName: 'Corporate',   description: '', isActive: true },
-  { id: 4, name: 'ANNIVERSARY', displayName: 'Anniversary', description: '', isActive: true },
-  { id: 5, name: 'GRADUATION',  displayName: 'Graduation',  description: '', isActive: true },
-  { id: 6, name: 'BABY_SHOWER', displayName: 'Baby Shower', description: '', isActive: true },
-  { id: 7, name: 'ENGAGEMENT',  displayName: 'Engagement',  description: '', isActive: true },
+  { id: -1, name: 'WEDDING',     displayName: 'Wedding',     description: '', isActive: true },
+  { id: -2, name: 'BIRTHDAY',    displayName: 'Birthday',    description: '', isActive: true },
+  { id: -3, name: 'CORPORATE',   displayName: 'Corporate',   description: '', isActive: true },
+  { id: -4, name: 'ANNIVERSARY', displayName: 'Anniversary', description: '', isActive: true },
+  { id: -5, name: 'GRADUATION',  displayName: 'Graduation',  description: '', isActive: true },
+  { id: -6, name: 'BABY_SHOWER', displayName: 'Baby Shower', description: '', isActive: true },
+  { id: -7, name: 'ENGAGEMENT',  displayName: 'Engagement',  description: '', isActive: true },
 ]
 
 const DEMO_PAGE: PageResponse<PlannerSummaryResponse> = {
@@ -120,7 +120,7 @@ export default function PlannersPage() {
         >
           <option value="">All types</option>
           {eventTypes.map(et => (
-            <option key={et.id} value={et.id}>{et.displayName}</option>
+            <option key={et.id} value={et.id > 0 ? et.id : ''}>{et.displayName}</option>
           ))}
         </select>
       </div>
@@ -204,8 +204,8 @@ export default function PlannersPage() {
               <button
                 key={chip.key}
                 onClick={() => removeFilter(chip.key)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-charcoal text-white
-                  text-xs font-medium rounded-full hover:bg-charcoal/80 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 border border-primary/30
+                  text-primary text-xs font-medium rounded-full hover:bg-primary/20 transition-colors"
               >
                 {chip.label}
                 <XMarkIcon className="w-3.5 h-3.5" />

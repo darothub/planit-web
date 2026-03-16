@@ -1,8 +1,9 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import Link from 'next/link'
 import type { GetServerSideProps } from 'next'
 import { EventListingResponse, ReviewResponse } from '@/lib/types'
-import { TERRA_GRADIENT } from '@/lib/utils'
+import { TERRA_GRADIENT, getListingGradient } from '@/lib/utils'
 import PageShell from '@/components/layout/PageShell'
 import ListingCard from '@/components/listings/ListingCard'
 import ReviewCard from '@/components/listings/ReviewCard'
@@ -53,8 +54,21 @@ export default function PlannerProfilePage({ planner, listings, reviews }: Props
       </Head>
 
       <PageShell>
+        {/* Breadcrumb */}
+        <div className="max-w-5xl mx-auto px-4 pt-5 pb-0">
+          <Link
+            href="/planners"
+            className="inline-flex items-center gap-1.5 text-xs text-stone-warm hover:text-primary transition-colors"
+          >
+            ← Browse Planners
+          </Link>
+        </div>
+
         {/* Hero */}
-        <div className="bg-sand h-44 md:h-52" />
+        <div
+          className="h-44 md:h-52 mt-3"
+          style={{ background: getListingGradient(planner.id) }}
+        />
 
         <div className="max-w-5xl mx-auto px-4">
 

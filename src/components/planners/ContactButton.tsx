@@ -135,7 +135,9 @@ export default function ContactButton({ listings, plannerId }: Props) {
             </div>
 
             {mutation.isError && (
-              <p className="text-red-600 text-sm mt-3">Something went wrong. Please try again.</p>
+              <p className="text-red-600 text-sm mt-3">
+                {(mutation.error as any)?.response?.data?.message ?? 'Something went wrong. Please try again.'}
+              </p>
             )}
 
             <div className="flex gap-3 mt-5">
