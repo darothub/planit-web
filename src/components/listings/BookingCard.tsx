@@ -62,9 +62,11 @@ function VerifiedChecklist() {
 function InquiryForm({
   listing,
   onSuccess,
+  onCancel,
 }: {
   listing: EventListingDetailResponse
   onSuccess: (inquiry: InquiryResponse) => void
+  onCancel: () => void
 }) {
   const [eventDate, setEventDate]         = useState('')
   const [showCalendar, setShowCalendar]   = useState(false)
@@ -178,18 +180,29 @@ function InquiryForm({
 
       {mutation.isError && (
         <p className="text-red-600 text-xs text-center">
-          Something went wrong. Please try again.
+          {(mutation.error as any)?.response?.data?.message ?? 'Something went wrong. Please try again.'}
         </p>
       )}
 
-      <button
-        onClick={() => mutation.mutate()}
-        disabled={mutation.isPending || !eventDate || !message || isDemo}
-        className="w-full bg-primary hover:bg-primary-hover text-white font-semibold
-          py-3 rounded-btn transition-colors disabled:opacity-50"
-      >
-        {mutation.isPending ? 'Sending…' : 'Send Enquiry'}
-      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={() => mutation.mutate()}
+          disabled={mutation.isPending || !eventDate || !message || isDemo}
+          className="flex-1 bg-primary hover:bg-primary-hover text-white font-semibold
+            py-3 rounded-btn transition-colors disabled:opacity-50"
+        >
+          {mutation.isPending ? 'Sending…' : 'Send Enquiry'}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={mutation.isPending}
+          className="px-4 py-3 border border-cream text-charcoal text-sm rounded-btn
+            hover:bg-sand transition-colors disabled:opacity-50"
+        >
+          Cancel
+        </button>
+      </div>
 
       {isDemo && (
         <p className="text-xs text-stone-warm text-center">
@@ -241,18 +254,24 @@ export default function BookingCard({ listing, plannerProfile }: Props) {
         <p className="text-sm text-stone-warm bg-sand rounded-xl p-3 text-center">
           Only clients can send enquiries.
         </p>
+      ) : plannerProfile?.isAcceptingInquiries === false ? (
+        <p className="text-sm text-stone-warm bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
+          This planner is not currently accepting new inquiries.
+        </p>
       ) : (
         <>
-          <button
-            onClick={() => setShowForm(v => !v)}
-            className="w-full bg-primary hover:bg-primary-hover text-white font-semibold
-              py-3 rounded-btn transition-colors"
-          >
-            {showForm ? 'Hide form' : 'Message Planner'}
-          </button>
-          {showForm && (
+          {!showForm ? (
+            <button
+              onClick={() => setShowForm(true)}
+              className="w-full bg-primary hover:bg-primary-hover text-white font-semibold
+                py-3 rounded-btn transition-colors"
+            >
+              Message Planner
+            </button>
+          ) : (
             <InquiryForm
               listing={listing}
+              onCancel={() => setShowForm(false)}
               onSuccess={(inquiry) => router.push(`/messages/${inquiry.id}`)}
             />
           )}

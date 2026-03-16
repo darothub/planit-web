@@ -11,7 +11,7 @@ import BookingCard from '@/components/listings/BookingCard'
 import ReviewList from '@/components/listings/ReviewList'
 import EventAmenities from '@/components/listings/EventAmenities'
 import AvailabilityCalendar from '@/components/listings/AvailabilityCalendar'
-import { formatPrice, cancellationPolicyLabel, TERRA_GRADIENT } from '@/lib/utils'
+import { formatPrice, TERRA_GRADIENT } from '@/lib/utils'
 
 type Props = {
   listing: EventListingDetailResponse
@@ -50,6 +50,21 @@ export default function ListingDetailPage({ listing, plannerProfile }: Props) {
       <PageShell>
         {/* Extra bottom padding on mobile for sticky bar */}
         <div className="max-w-7xl mx-auto px-4 py-8 pb-28 lg:pb-8">
+
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-1.5 text-sm text-stone-warm mb-6 flex-wrap">
+            <Link href="/listings" className="hover:text-primary transition-colors">Browse Events</Link>
+            <span>/</span>
+            <Link
+              href={`/listings?eventTypeId=${listing.eventType.id}`}
+              className="hover:text-primary transition-colors"
+            >
+              {listing.eventType.displayName}
+            </Link>
+            <span>/</span>
+            <span className="text-charcoal truncate max-w-[200px]">{listing.title}</span>
+          </nav>
+
           <PhotoGallery coverUrl={listing.coverImageUrl} images={listing.images} />
 
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12">
@@ -183,21 +198,6 @@ export default function ListingDetailPage({ listing, plannerProfile }: Props) {
                   <EventAmenities amenities={listing.amenities!} />
                 </div>
               )}
-
-              {/* Pricing */}
-              <div className="border-t border-cream mt-6 pt-6">
-                <h2 className="text-lg font-semibold text-charcoal mb-3">Pricing</h2>
-                <div className="flex items-baseline gap-2 mb-1">
-                  <p className="text-2xl font-bold text-charcoal">{formatPrice(listing.basePrice)}</p>
-                  <p className="text-stone-warm text-sm">starting price</p>
-                </div>
-                <p className="text-sm text-stone-warm">
-                  {listing.minGuests}–{listing.maxGuests} guests
-                </p>
-                <p className="text-sm text-stone-warm mt-1">
-                  {cancellationPolicyLabel[listing.cancellationPolicy]}
-                </p>
-              </div>
 
               {/* Availability */}
               <div className="border-t border-cream mt-6 pt-6">
