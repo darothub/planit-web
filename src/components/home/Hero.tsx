@@ -1,5 +1,3 @@
-import Link from 'next/link'
-
 const TRUST_SIGNALS = [
   { icon: '⭐', text: 'Trusted by 12,000+ clients' },
   { icon: '🔒', text: 'Secure payments' },
@@ -29,22 +27,6 @@ export default function Hero() {
           Connect with verified event planners and bring your perfect event to life —
           from intimate celebrations to grand occasions.
         </p>
-
-        {/* CTAs */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
-          <Link
-            href="/listings"
-            className="bg-primary hover:bg-primary-hover text-white font-semibold px-7 py-3 rounded-btn transition-colors"
-          >
-            Browse Events
-          </Link>
-          <Link
-            href="/planners"
-            className="bg-white/10 hover:bg-white/20 text-white font-semibold px-7 py-3 rounded-btn transition-colors border border-white/20"
-          >
-            Browse Planners
-          </Link>
-        </div>
 
         {/* Trust signals */}
         <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2">
