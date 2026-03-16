@@ -94,6 +94,8 @@ export default function BookingDetailPage() {
   const [disputeReason, setDisputeReason] = useState('')
   const [showDeclineModal, setShowDeclineModal] = useState(false)
   const [declineReason, setDeclineReason] = useState('')
+  const [showAcceptConfirm, setShowAcceptConfirm] = useState(false)
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
 
   const [showDateChangeModal, setShowDateChangeModal] = useState(false)
   const [dateChangeStep, setDateChangeStep] = useState<'form' | 'quote'>('form')
@@ -228,12 +230,6 @@ export default function BookingDetailPage() {
     (confirmMutation.error as any)?.response?.data?.message
 
   const handleDecline = () => setShowDeclineModal(true)
-
-  const handleCancel = () => {
-    if (window.confirm('Are you sure you want to cancel this booking? This cannot be undone.')) {
-      cancelMutation.mutate()
-    }
-  }
 
   if (!user || isLoading) return (
     <DashboardShell title="Booking">
@@ -371,36 +367,72 @@ export default function BookingDetailPage() {
 
           <div className="flex flex-wrap gap-3 items-center">
             {isPlanner && booking.status === 'REQUESTED' && (
-              <>
-                <button
-                  onClick={() => {
-                    if (window.confirm(`Accept this booking for ${formatPrice(booking.agreedPrice)}? The client's deposit will be captured.`)) {
-                      respondMutation.mutate({ accept: true })
-                    }
-                  }}
-                  disabled={isPending}
-                  className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-btn transition-colors disabled:opacity-50"
-                >
-                  {respondMutation.isPending ? 'Accepting…' : 'Accept Booking'}
-                </button>
-                <button
-                  onClick={handleDecline}
-                  disabled={isPending}
-                  className="px-5 py-2.5 border border-red-300 text-red-600 hover:bg-red-50 text-sm font-semibold rounded-btn transition-colors disabled:opacity-50"
-                >
-                  {respondMutation.isPending ? 'Declining…' : 'Decline'}
-                </button>
-              </>
+              showAcceptConfirm ? (
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="text-sm text-stone-warm">
+                    Accept for {formatPrice(booking.agreedPrice)}? The deposit will be captured.
+                  </span>
+                  <button
+                    onClick={() => respondMutation.mutate({ accept: true })}
+                    disabled={isPending}
+                    className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-btn transition-colors disabled:opacity-50"
+                  >
+                    {respondMutation.isPending ? 'Accepting…' : 'Yes, Accept'}
+                  </button>
+                  <button
+                    onClick={() => setShowAcceptConfirm(false)}
+                    className="px-5 py-2.5 border border-cream text-charcoal text-sm rounded-btn hover:bg-sand transition-colors"
+                  >
+                    No
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setShowAcceptConfirm(true)}
+                    disabled={isPending}
+                    className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-btn transition-colors disabled:opacity-50"
+                  >
+                    Accept Booking
+                  </button>
+                  <button
+                    onClick={handleDecline}
+                    disabled={isPending}
+                    className="px-5 py-2.5 border border-red-300 text-red-600 hover:bg-red-50 text-sm font-semibold rounded-btn transition-colors disabled:opacity-50"
+                  >
+                    Decline
+                  </button>
+                </>
+              )
             )}
 
             {!isPlanner && (booking.status === 'REQUESTED' || booking.status === 'ACCEPTED') && (
-              <button
-                onClick={handleCancel}
-                disabled={isPending}
-                className="px-5 py-2.5 border border-red-300 text-red-600 hover:bg-red-50 text-sm font-medium rounded-btn transition-colors disabled:opacity-50"
-              >
-                {cancelMutation.isPending ? 'Cancelling…' : 'Cancel Booking'}
-              </button>
+              showCancelConfirm ? (
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="text-sm text-stone-warm">Cancel this booking? This cannot be undone.</span>
+                  <button
+                    onClick={() => cancelMutation.mutate()}
+                    disabled={isPending}
+                    className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-btn transition-colors disabled:opacity-50"
+                  >
+                    {cancelMutation.isPending ? 'Cancelling…' : 'Yes, Cancel'}
+                  </button>
+                  <button
+                    onClick={() => setShowCancelConfirm(false)}
+                    className="px-5 py-2.5 border border-cream text-charcoal text-sm rounded-btn hover:bg-sand transition-colors"
+                  >
+                    No
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowCancelConfirm(true)}
+                  disabled={isPending}
+                  className="px-5 py-2.5 border border-red-300 text-red-600 hover:bg-red-50 text-sm font-medium rounded-btn transition-colors disabled:opacity-50"
+                >
+                  Cancel Booking
+                </button>
+              )
             )}
 
             {canRequestDateChange && !pendingDateChange && (

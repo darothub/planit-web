@@ -27,6 +27,8 @@ export default function BookingCard({ booking, role }: Props) {
   const qc = useQueryClient()
   const [showDeclineForm, setShowDeclineForm] = useState(false)
   const [declineReason, setDeclineReason] = useState('')
+  const [showAcceptConfirm, setShowAcceptConfirm] = useState(false)
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
 
   const respondMutation = useMutation({
     mutationFn: ({ accept, declineReason }: { accept: boolean; declineReason?: string }) =>
@@ -138,40 +140,69 @@ export default function BookingCard({ booking, role }: Props) {
 
           {/* Planner: accept / decline when REQUESTED */}
           {role === 'PLANNER' && booking.status === 'REQUESTED' && !showDeclineForm && (
-            <>
-              <button
-                onClick={() => {
-                  if (window.confirm(`Accept this booking for ${formatPrice(booking.agreedPrice)}? The client's deposit will be captured.`)) {
-                    respondMutation.mutate({ accept: true })
-                  }
-                }}
-                disabled={respondMutation.isPending}
-                className="text-sm font-semibold text-green-700 hover:text-green-900 transition-colors disabled:opacity-50"
-              >
-                Accept ✓
-              </button>
-              <button
-                onClick={() => setShowDeclineForm(true)}
-                className="text-sm font-semibold text-red-600 hover:text-red-800 transition-colors"
-              >
-                Decline ✗
-              </button>
-            </>
+            showAcceptConfirm ? (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-stone-warm">Accept for {formatPrice(booking.agreedPrice)}?</span>
+                <button
+                  onClick={() => respondMutation.mutate({ accept: true })}
+                  disabled={respondMutation.isPending}
+                  className="text-xs font-semibold text-green-700 hover:text-green-900 disabled:opacity-50"
+                >
+                  Yes, accept
+                </button>
+                <button
+                  onClick={() => setShowAcceptConfirm(false)}
+                  className="text-xs text-stone-warm hover:text-charcoal"
+                >
+                  No
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={() => setShowAcceptConfirm(true)}
+                  className="text-sm font-semibold text-green-700 hover:text-green-900 transition-colors"
+                >
+                  Accept ✓
+                </button>
+                <button
+                  onClick={() => setShowDeclineForm(true)}
+                  className="text-sm font-semibold text-red-600 hover:text-red-800 transition-colors"
+                >
+                  Decline ✗
+                </button>
+              </>
+            )
           )}
 
           {/* Client: cancel when REQUESTED/ACCEPTED */}
           {role === 'CLIENT' && (booking.status === 'REQUESTED' || booking.status === 'ACCEPTED') && (
-            <button
-              onClick={() => {
-                if (window.confirm('Cancel this booking? This cannot be undone.')) {
-                  cancelMutation.mutate()
-                }
-              }}
-              disabled={cancelMutation.isPending}
-              className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors disabled:opacity-50 ml-auto"
-            >
-              {cancelMutation.isPending ? 'Cancelling…' : 'Cancel'}
-            </button>
+            showCancelConfirm ? (
+              <div className="flex items-center gap-2 ml-auto flex-wrap">
+                <span className="text-xs text-stone-warm">Cancel booking?</span>
+                <button
+                  onClick={() => cancelMutation.mutate()}
+                  disabled={cancelMutation.isPending}
+                  className="text-xs font-semibold text-red-600 hover:text-red-800 disabled:opacity-50"
+                >
+                  Yes, cancel
+                </button>
+                <button
+                  onClick={() => setShowCancelConfirm(false)}
+                  className="text-xs text-stone-warm hover:text-charcoal"
+                >
+                  No
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowCancelConfirm(true)}
+                disabled={cancelMutation.isPending}
+                className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors disabled:opacity-50 ml-auto"
+              >
+                {cancelMutation.isPending ? 'Cancelling…' : 'Cancel'}
+              </button>
+            )
           )}
 
           {/* Both: confirm completion */}

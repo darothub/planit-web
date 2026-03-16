@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/authStore'
 import { api } from '@/lib/api'
@@ -132,8 +133,26 @@ export default function BookingsPage() {
 
       {/* Empty state */}
       {!isLoading && sorted.length === 0 && (
-        <div className="bg-white border border-cream rounded-xl p-8 text-center">
-          <p className="text-stone-warm">{emptyMessages[tab]}</p>
+        <div className="bg-white border border-cream rounded-xl p-10 text-center">
+          {bookings.length === 0 ? (
+            <>
+              <p className="text-3xl mb-3">📋</p>
+              <p className="font-medium text-charcoal mb-1">No bookings yet</p>
+              <p className="text-sm text-stone-warm mb-4">
+                {isPlanner
+                  ? 'Bookings will appear here once clients book your listings.'
+                  : 'You haven\'t made any bookings yet.'}
+              </p>
+              <Link
+                href={isPlanner ? '/dashboard/listings' : '/listings'}
+                className="inline-block text-primary text-sm font-semibold hover:underline"
+              >
+                {isPlanner ? 'Manage listings →' : 'Browse listings →'}
+              </Link>
+            </>
+          ) : (
+            <p className="text-stone-warm text-sm">{emptyMessages[tab]}</p>
+          )}
         </div>
       )}
 
