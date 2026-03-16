@@ -8,6 +8,7 @@ import {
   ChatBubbleLeftRightIcon,
   StarIcon,
 } from '@heroicons/react/24/outline'
+import { DEMO_PLANNER_STATS, DEMO_BOOKINGS_PLANNER } from '@/showcase/data'
 
 type StatCardProps = {
   label: string
@@ -30,20 +31,38 @@ function StatCard({ label, value, subtitle, icon: Icon, accent }: StatCardProps)
   )
 }
 
+function StatCardSkeleton() {
+  return (
+    <div className="bg-white border border-cream rounded-xl p-4 flex flex-col gap-2 animate-pulse">
+      <div className="h-3 w-20 bg-sand rounded" />
+      <div className="h-8 w-12 bg-sand rounded" />
+      <div className="h-3 w-24 bg-sand rounded" />
+    </div>
+  )
+}
+
 export default function PlannerStatsRow() {
   const { data: stats } = useQuery<PlannerStatsResponse>({
     queryKey: ['planner-stats'],
     queryFn: () => api.get('/planners/me/stats').then(r => r.data.data),
+    placeholderData: DEMO_PLANNER_STATS,
     retry: false,
   })
 
-  const { data: bookings = [] } = useQuery<BookingResponse[]>({
+  const { data: bookings = DEMO_BOOKINGS_PLANNER } = useQuery<BookingResponse[]>({
     queryKey: ['received-bookings'],
     queryFn: () => api.get('/bookings/received').then(r => r.data.data),
+    placeholderData: DEMO_BOOKINGS_PLANNER,
     retry: false,
   })
 
-  if (!stats) return null
+  if (!stats) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        {[1, 2, 3, 4].map(i => <StatCardSkeleton key={i} />)}
+      </div>
+    )
+  }
 
   const nextBooking = [...bookings]
     .filter(b => b.status === 'ACCEPTED' || b.status === 'REQUESTED')
@@ -62,7 +81,7 @@ export default function PlannerStatsRow() {
         icon={ClipboardDocumentListIcon}
       />
       <StatCard
-        label="Active Bookings"
+        label="Active Convos"
         value={stats.activeConversations}
         subtitle="In progress"
         icon={CheckCircleIcon}

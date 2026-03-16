@@ -66,7 +66,7 @@ export default function UpcomingBookingsTable({ bookings }: Props) {
                   </div>
                   <div className="flex gap-4 pl-12">
                     <button
-                      onClick={() => router.push(`/messages?bookingId=${booking.id}`)}
+                      onClick={() => router.push(`/messages/${booking.inquiryId}`)}
                       className="text-xs font-medium text-primary hover:underline"
                     >
                       Message
@@ -144,7 +144,7 @@ export default function UpcomingBookingsTable({ bookings }: Props) {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <button
-                            onClick={() => router.push(`/messages?bookingId=${booking.id}`)}
+                            onClick={() => router.push(`/messages/${booking.inquiryId}`)}
                             className="text-xs font-medium text-primary hover:underline whitespace-nowrap"
                           >
                             Message

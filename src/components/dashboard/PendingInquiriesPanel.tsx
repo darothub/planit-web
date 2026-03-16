@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { InquiryResponse } from '@/lib/types'
 import { formatRelativeTime } from '@/lib/utils'
@@ -12,6 +13,7 @@ type Props = { inquiries: InquiryResponse[] }
 
 export default function PendingInquiriesPanel({ inquiries }: Props) {
   const router = useRouter()
+  const [confirmDeclineId, setConfirmDeclineId] = useState<number | null>(null)
   const pending = inquiries.filter(i => i.status === 'PENDING')
 
   return (
@@ -34,6 +36,7 @@ export default function PendingInquiriesPanel({ inquiries }: Props) {
           {pending.map(inquiry => {
             const grad = AVATAR_GRADIENTS[Math.abs(inquiry.id) % AVATAR_GRADIENTS.length]
             const initials = `${inquiry.client.firstName[0]}${inquiry.client.lastName[0]}`
+            const isConfirming = confirmDeclineId === inquiry.id
             return (
               <div key={inquiry.id} className="px-5 py-4">
                 {/* Header row */}
@@ -67,24 +70,38 @@ export default function PendingInquiriesPanel({ inquiries }: Props) {
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-2 pl-12">
-                  <button
-                    onClick={() => router.push(`/messages/${inquiry.id}`)}
-                    className="flex-1 bg-primary text-white text-xs font-semibold py-2 rounded-btn hover:bg-primary-hover transition-colors"
-                  >
-                    Reply
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (confirm(`Decline inquiry from ${inquiry.client.firstName}?`)) {
-                        router.push(`/messages/${inquiry.id}`)
-                      }
-                    }}
-                    className="flex-1 bg-sand text-stone-warm text-xs font-semibold py-2 rounded-btn hover:bg-cream transition-colors"
-                  >
-                    Decline
-                  </button>
-                </div>
+                {isConfirming ? (
+                  <div className="flex items-center gap-3 pl-12">
+                    <span className="text-xs text-stone-warm">Decline this inquiry?</span>
+                    <button
+                      onClick={() => router.push(`/messages/${inquiry.id}`)}
+                      className="text-xs font-semibold text-red-600 hover:text-red-800"
+                    >
+                      Yes
+                    </button>
+                    <button
+                      onClick={() => setConfirmDeclineId(null)}
+                      className="text-xs text-stone-warm hover:text-charcoal"
+                    >
+                      No
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2 pl-12">
+                    <button
+                      onClick={() => router.push(`/messages/${inquiry.id}`)}
+                      className="flex-1 bg-primary text-white text-xs font-semibold py-2 rounded-btn hover:bg-primary-hover transition-colors"
+                    >
+                      Reply
+                    </button>
+                    <button
+                      onClick={() => setConfirmDeclineId(inquiry.id)}
+                      className="flex-1 bg-sand text-stone-warm text-xs font-semibold py-2 rounded-btn hover:bg-cream transition-colors"
+                    >
+                      Decline
+                    </button>
+                  </div>
+                )}
               </div>
             )
           })}
