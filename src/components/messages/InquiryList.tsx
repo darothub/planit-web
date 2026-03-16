@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { InquiryResponse, UserRole } from '@/lib/types'
-import { cn, getListingGradient, formatRelativeTime } from '@/lib/utils'
+import { cn, getListingGradient, formatRelativeTime, formatShortDate } from '@/lib/utils'
 
 type Props = {
   inquiries: InquiryResponse[]
@@ -34,21 +34,36 @@ export default function InquiryList({ inquiries, selectedId, role, className, ma
 
       <div className="flex-1 overflow-y-auto">
         {inquiries.length === 0 && (
-          <p className="text-stone-warm text-sm text-center py-8 px-4">No conversations yet.</p>
+          <div className="text-center py-10 px-5">
+            <p className="text-2xl mb-2">💬</p>
+            <p className="text-stone-warm text-sm mb-3">No conversations yet.</p>
+            {role === 'CLIENT' && (
+              <Link
+                href="/listings"
+                className="text-primary text-xs font-semibold hover:underline"
+              >
+                Browse listings →
+              </Link>
+            )}
+          </div>
         )}
         {inquiries.map(inq => {
           const other = role === 'CLIENT'
             ? (inq.planner.businessName ?? 'Planner')
             : `${inq.client.firstName} ${inq.client.lastName}`
           const dot = STATUS_DOT[inq.status] ?? 'bg-stone-300'
+          const isSelected = inq.id === selectedId
 
           return (
             <Link
               key={inq.id}
               href={href(inq.id)}
               className={cn(
-                'flex gap-3 px-4 py-3.5 border-b border-cream hover:bg-sand transition-colors',
-                inq.id === selectedId && 'bg-primary/5 border-l-2 border-l-primary',
+                // border-l-2 always present to avoid layout shift on selection
+                'flex gap-3 px-4 py-3.5 border-b border-cream border-l-2 hover:bg-sand transition-colors',
+                isSelected
+                  ? 'bg-primary/5 border-l-primary'
+                  : 'border-l-transparent',
               )}
             >
               {/* Thumbnail — gradient always as background */}
@@ -69,9 +84,14 @@ export default function InquiryList({ inquiries, selectedId, role, className, ma
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1">
-                  <p className="text-sm font-semibold text-charcoal truncate">{inq.listing.title}</p>
+                  <p className={cn(
+                    'text-sm font-semibold truncate',
+                    isSelected ? 'text-primary' : 'text-charcoal',
+                  )}>
+                    {inq.listing.title}
+                  </p>
                   <span className="text-[11px] text-stone-warm flex-shrink-0">
-                    {formatRelativeTime(inq.createdAt)}
+                    {formatShortDate(inq.createdAt)}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 mt-0.5">

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import Image from 'next/image'
 import { useQuery } from '@tanstack/react-query'
 import { ChevronLeftIcon } from '@heroicons/react/24/outline'
 import { useAuthStore } from '@/store/authStore'
 import { api } from '@/lib/api'
-import { InquiryResponse, InquiryMessageResponse } from '@/lib/types'
+import { InquiryResponse, InquiryMessageResponse, InquiryStatus } from '@/lib/types'
 import { useStompChat } from '@/hooks/useStompChat'
 import Navbar from '@/components/layout/Navbar'
 import ChatWindow from '@/components/messages/ChatWindow'
@@ -14,6 +14,18 @@ import InquiryList from '@/components/messages/InquiryList'
 import BookNowModal from '@/components/bookings/BookNowModal'
 import { formatShortDate, getListingGradient } from '@/lib/utils'
 import { DEMO_INQUIRIES_CLIENT, DEMO_INQUIRIES_RECEIVED, DEMO_MESSAGES } from '@/showcase/data'
+
+const STATUS_LABEL: Record<InquiryStatus, string> = {
+  PENDING: 'Pending',
+  ACTIVE:  'Active',
+  CLOSED:  'Closed',
+}
+
+const STATUS_COLOR: Record<InquiryStatus, string> = {
+  PENDING: 'text-yellow-700',
+  ACTIVE:  'text-green-700',
+  CLOSED:  'text-stone-warm',
+}
 
 export default function MessagesPage() {
   const router = useRouter()
@@ -93,12 +105,8 @@ export default function MessagesPage() {
         <p className="text-xs text-stone-warm mt-0.5">
           📅 {formatShortDate(currentInquiry.eventDate)} · 📍 {currentInquiry.eventLocation}
           {' · '}
-          <span className={`font-medium ${
-            currentInquiry.status === 'ACTIVE'  ? 'text-green-700' :
-            currentInquiry.status === 'CLOSED'  ? 'text-stone-warm' :
-            'text-yellow-700'
-          }`}>
-            {currentInquiry.status}
+          <span className={`font-medium ${STATUS_COLOR[currentInquiry.status] ?? 'text-stone-warm'}`}>
+            {STATUS_LABEL[currentInquiry.status] ?? currentInquiry.status}
           </span>
         </p>
       </div>
@@ -115,6 +123,12 @@ export default function MessagesPage() {
   )
 
   return (
+    <>
+    <Head>
+      <title>
+        {currentInquiry ? `${currentInquiry.listing.title} — Messages — Planit` : 'Messages — Planit'}
+      </title>
+    </Head>
     <div className="min-h-screen bg-sand flex flex-col">
       <Navbar />
 
@@ -158,5 +172,6 @@ export default function MessagesPage() {
         />
       )}
     </div>
+    </>
   )
 }
