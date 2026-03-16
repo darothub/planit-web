@@ -144,9 +144,12 @@ export default function ShowcaseListings() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 py-8">
-          <p className="text-stone-warm text-sm mb-6">
-            {filtered.length} {filtered.length === 1 ? 'event' : 'events'} found
-          </p>
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-charcoal">Browse Events</h1>
+            <p className="text-stone-warm text-sm mt-0.5">
+              {filtered.length} {filtered.length === 1 ? 'event' : 'events'} found
+            </p>
+          </div>
           <ListingGrid listings={filtered} isLoading={false} />
         </div>
       </PageShell>

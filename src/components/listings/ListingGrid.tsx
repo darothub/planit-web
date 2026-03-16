@@ -21,18 +21,18 @@ function SkeletonCard() {
 export default function ListingGrid({ listings, isLoading }: Props) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
-        {Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+        {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
       </div>
     )
   }
 
   if (!listings?.length) {
-    return <EmptyState message="No planners found. Try adjusting your filters." />
+    return <EmptyState message="No events found. Try adjusting your filters." />
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
       {listings.map(listing => (
         <ListingCard key={listing.id} listing={listing} />
       ))}

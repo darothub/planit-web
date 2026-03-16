@@ -167,7 +167,7 @@ export default function FilterBar() {
   )
 
   return (
-    <div className="bg-white border-b border-cream">
+    <div className="sticky top-16 z-40 bg-white border-b border-cream">
       <div className="max-w-7xl mx-auto px-4 py-3">
 
         {/* Desktop */}
