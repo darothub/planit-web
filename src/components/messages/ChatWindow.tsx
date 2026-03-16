@@ -11,6 +11,17 @@ type Props = {
   header?: React.ReactNode
 }
 
+function dateSeparatorLabel(iso: string): string {
+  const d = new Date(iso)
+  const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(today.getDate() - 1)
+
+  if (d.toDateString() === today.toDateString()) return 'Today'
+  if (d.toDateString() === yesterday.toDateString()) return 'Yesterday'
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
 export default function ChatWindow({ messages, currentUserId, onSend, connected, header }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -18,11 +29,24 @@ export default function ChatWindow({ messages, currentUserId, onSend, connected,
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // Build a flat list with date separators inserted
+  type Item = { type: 'msg'; msg: InquiryMessageResponse } | { type: 'sep'; label: string }
+  const items: Item[] = []
+  let lastLabel = ''
+  for (const msg of messages) {
+    const label = dateSeparatorLabel(msg.sentAt)
+    if (label !== lastLabel) {
+      items.push({ type: 'sep', label })
+      lastLabel = label
+    }
+    items.push({ type: 'msg', msg })
+  }
+
   return (
     <div className="flex-1 flex flex-col bg-white rounded-2xl border border-cream shadow-card overflow-hidden min-h-0">
       {/* Header */}
       {header && (
-        <div className="px-5 py-3.5 border-b border-cream bg-parchment flex-shrink-0">
+        <div className="px-5 py-3.5 border-b border-cream bg-sand flex-shrink-0">
           {header}
         </div>
       )}
@@ -41,13 +65,21 @@ export default function ChatWindow({ messages, currentUserId, onSend, connected,
             No messages yet. Say hello!
           </p>
         )}
-        {messages.map((msg, i) => (
-          <MessageBubble
-            key={msg.clientMsgId ?? msg.id ?? i}
-            message={msg}
-            isMine={msg.senderId === currentUserId}
-          />
-        ))}
+        {items.map((item, i) =>
+          item.type === 'sep' ? (
+            <div key={`sep-${i}`} className="flex items-center gap-3 my-1">
+              <div className="flex-1 h-px bg-cream" />
+              <span className="text-xs text-stone-warm font-medium">{item.label}</span>
+              <div className="flex-1 h-px bg-cream" />
+            </div>
+          ) : (
+            <MessageBubble
+              key={item.msg.clientMsgId ?? item.msg.id ?? i}
+              message={item.msg}
+              isMine={item.msg.senderId === currentUserId}
+            />
+          )
+        )}
         <div ref={bottomRef} />
       </div>
 

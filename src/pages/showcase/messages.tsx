@@ -8,9 +8,10 @@
  */
 import { useState } from 'react'
 import { useRouter } from 'next/router'
-import Link from 'next/link'
+import { ChevronLeftIcon } from '@heroicons/react/24/outline'
 import Navbar from '@/components/layout/Navbar'
 import ChatWindow from '@/components/messages/ChatWindow'
+import InquiryList from '@/components/messages/InquiryList'
 import BookNowModal from '@/components/bookings/BookNowModal'
 import ShowcaseShell from '@/showcase/ShowcaseShell'
 import {
@@ -19,7 +20,7 @@ import {
   DEMO_CLIENT_USER,
 } from '@/showcase/data'
 import { InquiryResponse } from '@/lib/types'
-import { formatShortDate } from '@/lib/utils'
+import { formatShortDate, getListingGradient } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
 export const getServerSideProps = () => {
@@ -27,63 +28,35 @@ export const getServerSideProps = () => {
   return { props: {} }
 }
 
-function ShowcaseInquiryList({
-  inquiries,
-  selectedId,
-}: {
-  inquiries: InquiryResponse[]
-  selectedId: number | null
-}) {
-  return (
-    <aside className="hidden md:flex flex-col w-72 flex-shrink-0 bg-white rounded-2xl border border-cream shadow-card overflow-hidden">
-      <div className="px-4 py-3.5 border-b border-cream">
-        <h2 className="font-semibold text-charcoal text-sm">Messages</h2>
-      </div>
-      <div className="flex-1 overflow-y-auto">
-        {inquiries.map(inq => {
-          const other = inq.planner.businessName ?? 'Planner'
-          return (
-            // Link stays within the showcase — avoids /messages/[id] redirect-to-login
-            <Link
-              key={inq.id}
-              href={`/showcase/messages?inquiryId=${inq.id}`}
-              scroll={false}
-              shallow
-              className={cn(
-                'flex gap-3 px-4 py-3.5 border-b border-cream hover:bg-sand transition-colors',
-                inq.id === selectedId && 'bg-primary/5 border-l-2 border-l-primary'
-              )}
-            >
-              <div className="w-10 h-10 rounded-lg bg-sand flex items-center justify-center flex-shrink-0 text-lg">
-                🎪
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-charcoal truncate">{inq.listing.title}</p>
-                <p className="text-xs text-stone-warm truncate">{other}</p>
-                {inq.lastMessage && (
-                  <p className="text-xs text-stone-warm truncate mt-0.5">{inq.lastMessage}</p>
-                )}
-              </div>
-            </Link>
-          )
-        })}
-      </div>
-    </aside>
-  )
-}
-
 function MessagesContent() {
   const router = useRouter()
   const inquiryId = router.query.inquiryId ? Number(router.query.inquiryId) : null
-  const currentInquiry = DEMO_INQUIRIES_CLIENT.find(i => i.id === inquiryId) ?? null
+  const currentInquiry: InquiryResponse | null =
+    DEMO_INQUIRIES_CLIENT.find(i => i.id === inquiryId) ?? null
   const [showBookNow, setShowBookNow] = useState(false)
 
+  const hasConversation = inquiryId !== null
   const canBook = currentInquiry?.status === 'ACTIVE'
 
   const chatHeader = currentInquiry && (
-    <div className="flex items-center justify-between gap-3">
-      <div>
-        <p className="font-semibold text-charcoal text-sm leading-tight">
+    <div className="flex items-center gap-3">
+      {/* Back button — mobile only */}
+      <button
+        onClick={() => router.push('/showcase/messages')}
+        className="md:hidden -ml-1 p-1 rounded-lg hover:bg-sand transition-colors flex-shrink-0"
+        aria-label="Back to inbox"
+      >
+        <ChevronLeftIcon className="w-5 h-5 text-charcoal" />
+      </button>
+
+      {/* Listing thumbnail */}
+      <div
+        className="relative w-9 h-9 rounded-lg flex-shrink-0 overflow-hidden hidden sm:block"
+        style={{ background: getListingGradient(currentInquiry.listing.id) }}
+      />
+
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold text-charcoal text-sm leading-tight truncate">
           {currentInquiry.listing.title}
         </p>
         <p className="text-xs text-stone-warm mt-0.5">
@@ -99,6 +72,7 @@ function MessagesContent() {
           </span>
         </p>
       </div>
+
       {canBook && (
         <button
           onClick={() => setShowBookNow(true)}
@@ -117,12 +91,15 @@ function MessagesContent() {
         className="flex-1 flex max-w-7xl mx-auto w-full px-4 py-4 gap-4 min-h-0"
         style={{ height: 'calc(100vh - 64px)' }}
       >
-        <ShowcaseInquiryList
+        <InquiryList
           inquiries={DEMO_INQUIRIES_CLIENT}
-          selectedId={inquiryId}
+          selectedId={inquiryId ?? -1}
+          role="CLIENT"
+          makeHref={id => `/showcase/messages?inquiryId=${id}`}
+          className={hasConversation ? 'hidden md:flex' : 'flex'}
         />
 
-        {inquiryId !== null ? (
+        {hasConversation ? (
           <ChatWindow
             messages={DEMO_MESSAGES}
             currentUserId={DEMO_CLIENT_USER.userId}
@@ -131,7 +108,7 @@ function MessagesContent() {
             header={chatHeader}
           />
         ) : (
-          <div className="flex-1 flex items-center justify-center bg-white rounded-2xl border border-cream shadow-card">
+          <div className="hidden md:flex flex-1 items-center justify-center bg-white rounded-2xl border border-cream shadow-card">
             <div className="text-center">
               <p className="text-4xl mb-3">💬</p>
               <p className="text-stone-warm text-sm">Select a conversation to start messaging</p>
