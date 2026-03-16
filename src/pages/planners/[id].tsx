@@ -52,8 +52,8 @@ export default function PlannerProfilePage({ planner, listings, reviews }: Props
       </Head>
 
       <PageShell>
-        {/* Hero — charcoal, intentional */}
-        <div className="bg-charcoal h-44 md:h-52" />
+        {/* Hero */}
+        <div className="bg-sand h-44 md:h-52" />
 
         <div className="max-w-5xl mx-auto px-4">
 
