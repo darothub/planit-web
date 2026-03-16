@@ -1,20 +1,15 @@
+// Trust signals are feature/guarantee-based — true from day one regardless of user count
 const TRUST_SIGNALS = [
-  { icon: '⭐', text: 'Trusted by 12,000+ clients' },
-  { icon: '🔒', text: 'Secure payments' },
   { icon: '✅', text: 'Verified planners only' },
+  { icon: '🔒', text: 'Payments held in escrow' },
   { icon: '💬', text: 'Free to message' },
+  { icon: '🛡️', text: 'Contact info protected' },
 ]
 
 export default function Hero() {
   return (
     <div className="bg-charcoal text-white">
       <div className="max-w-4xl mx-auto px-4 py-14 md:py-20 text-center">
-
-        {/* Trust badge */}
-        <div className="inline-flex items-center gap-2 bg-white/10 text-white/80 text-xs font-medium px-4 py-1.5 rounded-full mb-6 border border-white/10">
-          <span>✨</span>
-          <span>500+ verified planners across the UK</span>
-        </div>
 
         {/* Headline */}
         <h1 className="text-4xl md:text-6xl font-bold leading-tight tracking-tight mb-4">

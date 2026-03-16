@@ -1,9 +1,11 @@
 import Link from 'next/link'
 
-const STATS = [
-  { value: '500+',  label: 'Active planners' },
-  { value: '12k+',  label: 'Events planned' },
-  { value: '4.9★', label: 'Average rating' },
+// Benefits are feature-based — true from day one, no volume numbers needed
+const BENEFITS = [
+  { icon: '📋', text: 'Your own listings page' },
+  { icon: '💬', text: 'Inquiries direct to your inbox' },
+  { icon: '💳', text: 'Secure payments via Stripe' },
+  { icon: '🛡️', text: 'Dispute protection built in' },
 ]
 
 export default function PlannerCta() {
@@ -18,19 +20,19 @@ export default function PlannerCta() {
           Are you an event planner?
         </h2>
         <p className="text-white/60 max-w-lg mx-auto mb-10 leading-relaxed">
-          Join hundreds of verified planners on Planit. Showcase your work,
-          receive inquiries from serious clients, and get paid securely.
+          List your services on Planit. Receive inquiries from serious clients,
+          communicate on-platform, and get paid securely — all in one place.
         </p>
 
-        {/* Stats */}
-        <div className="flex flex-wrap justify-center gap-4 mb-10">
-          {STATS.map(stat => (
+        {/* Benefits grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10 max-w-2xl mx-auto">
+          {BENEFITS.map(b => (
             <div
-              key={stat.label}
-              className="bg-white/10 border border-white/10 rounded-xl px-8 py-4 min-w-[120px]"
+              key={b.text}
+              className="bg-white/10 border border-white/10 rounded-xl px-4 py-4 flex flex-col items-center gap-2"
             >
-              <p className="text-2xl font-bold">{stat.value}</p>
-              <p className="text-sm text-white/50 mt-0.5">{stat.label}</p>
+              <span className="text-2xl">{b.icon}</span>
+              <p className="text-xs text-white/60 leading-snug">{b.text}</p>
             </div>
           ))}
         </div>
