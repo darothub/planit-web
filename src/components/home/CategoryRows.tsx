@@ -59,7 +59,7 @@ function CategoryRowWithData({ eventType }: { eventType: EventType }) {
 
   return (
     // scroll-mt accounts for sticky Navbar (64px) + SearchStrip (~56px) + gap
-    <section id={`row-${eventType.name}`} className="scroll-mt-32">
+    <section>
       <CategoryRow
         title={ROW_LABEL[eventType.name] ?? eventType.displayName}
         seeAllHref={`/listings?eventTypeId=${eventType.id}`}
@@ -82,6 +82,7 @@ const DEMO_EVENT_TYPES: EventType[] = demoCategories.map((d, i) => ({
 // ── Section shell ─────────────────────────────────────────────────────────────
 
 export default function CategoryRows() {
+  // null = show all categories
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
 
   const { data: eventTypes = DEMO_EVENT_TYPES } = useQuery<EventType[]>({
@@ -92,48 +93,52 @@ export default function CategoryRows() {
     retry: false,
   })
 
-  const handlePillClick = (et: EventType) => {
-    setActiveCategory(et.name)
-    const row = document.getElementById(`row-${et.name}`)
-    if (!row) return
-    // offset = Navbar (64px) + SearchStrip (~56px) + 12px breathing room
-    const offset = 132
-    const rowTop = row.getBoundingClientRect().top + window.scrollY
-    window.scrollTo({ top: rowTop - offset, behavior: 'smooth' })
-  }
+  const visibleTypes = activeCategory
+    ? eventTypes.filter(et => et.name === activeCategory)
+    : eventTypes
 
   return (
     <main className="py-10">
       <div className="max-w-7xl mx-auto px-4">
 
-        {/* Category pill nav */}
+        {/* Category filter pills */}
         <div className="mb-10">
           <h2 className="text-lg font-semibold text-charcoal mb-4">Browse by category</h2>
           <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {eventTypes.map(et => {
-              const isActive = activeCategory === et.name
-              return (
-                <button
-                  key={et.id}
-                  onClick={() => handlePillClick(et)}
-                  className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5
-                    rounded-full text-sm font-medium border transition-colors whitespace-nowrap
-                    ${isActive
-                      ? 'bg-primary text-white border-primary'
-                      : 'bg-white text-charcoal border-cream hover:bg-sand hover:border-cream'
-                    }`}
-                >
-                  <span>{CATEGORY_ICONS[et.name] ?? '🎪'}</span>
-                  <span>{et.displayName}</span>
-                </button>
-              )
-            })}
+
+            {/* All pill */}
+            <button
+              onClick={() => setActiveCategory(null)}
+              className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium border transition-colors whitespace-nowrap
+                ${activeCategory === null
+                  ? 'bg-primary text-white border-primary'
+                  : 'bg-white text-charcoal border-cream hover:bg-sand'
+                }`}
+            >
+              All
+            </button>
+
+            {eventTypes.map(et => (
+              <button
+                key={et.id}
+                onClick={() => setActiveCategory(et.name)}
+                className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5
+                  rounded-full text-sm font-medium border transition-colors whitespace-nowrap
+                  ${activeCategory === et.name
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-white text-charcoal border-cream hover:bg-sand'
+                  }`}
+              >
+                <span>{CATEGORY_ICONS[et.name] ?? '🎪'}</span>
+                <span>{et.displayName}</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* One row per category */}
+        {/* Filtered rows */}
         <div className="flex flex-col gap-14">
-          {eventTypes.map(et => (
+          {visibleTypes.map(et => (
             <CategoryRowWithData key={et.id} eventType={et} />
           ))}
         </div>
