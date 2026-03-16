@@ -121,10 +121,13 @@ export default function ShowcasePlannersBrowse() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 py-8">
-          <p className="text-stone-warm text-sm mb-6">
-            {filtered.length} {filtered.length === 1 ? 'planner' : 'planners'} found
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-charcoal">Browse Planners</h1>
+            <p className="text-stone-warm text-sm mt-0.5">
+              {filtered.length} {filtered.length === 1 ? 'planner' : 'planners'} found
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
             {filtered.map(p => (
               <PlannerCard key={p.id} planner={p} />
             ))}

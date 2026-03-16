@@ -59,6 +59,9 @@ export default function PlannerCard({ planner }: Props) {
           {planner.rating != null && (
             <span className="text-xs text-charcoal font-medium flex-shrink-0">
               ★ {planner.rating.toFixed(1)}
+              {planner.reviewCount > 0 && (
+                <span className="text-stone-warm font-normal"> ({planner.reviewCount})</span>
+              )}
             </span>
           )}
         </div>

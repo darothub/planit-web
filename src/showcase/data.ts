@@ -19,7 +19,7 @@ import {
   PlannerSummaryResponse,
   AdminStatsResponse,
 } from '@/lib/types'
-import { getAllDemoListings } from '@/lib/demoData'
+import { getAllDemoListings, demoPlanners } from '@/lib/demoData'
 
 // ─── Users ────────────────────────────────────────────────────────────────────
 
@@ -739,109 +739,9 @@ export const DEMO_ADMIN_STATS: AdminStatsResponse = {
   totalRevenue:     284750,
 }
 
-// ─── Planners (browse) ────────────────────────────────────────────────────────
+// ─── Planners (browse) — sourced from demoData.ts ─────────────────────────────
 
-export const DEMO_PLANNERS: PlannerSummaryResponse[] = [
-  {
-    id: 2001,
-    businessName: 'Events by Rivera',
-    firstName: 'Alex',
-    profileImageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
-    location: 'London, UK',
-    bio: 'Award-winning wedding and corporate event specialist with over 10 years of experience creating unforgettable celebrations.',
-    rating: 4.9,
-    reviewCount: 48,
-    totalBookings: 62,
-    isAcceptingInquiries: true,
-    specialties: [
-      { id: 1, name: 'WEDDING', displayName: 'Wedding' },
-      { id: 3, name: 'CORPORATE', displayName: 'Corporate' },
-      { id: 7, name: 'ENGAGEMENT', displayName: 'Engagement' },
-    ],
-  },
-  {
-    id: 2002,
-    businessName: 'Bloom & Celebrate',
-    firstName: 'Priya',
-    profileImageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80',
-    location: 'Manchester, UK',
-    bio: 'Bringing floral artistry and meticulous planning to birthdays, baby showers, and intimate celebrations.',
-    rating: 4.7,
-    reviewCount: 31,
-    totalBookings: 38,
-    isAcceptingInquiries: true,
-    specialties: [
-      { id: 2, name: 'BIRTHDAY', displayName: 'Birthday' },
-      { id: 6, name: 'BABY_SHOWER', displayName: 'Baby Shower' },
-      { id: 4, name: 'ANNIVERSARY', displayName: 'Anniversary' },
-    ],
-  },
-  {
-    id: 2003,
-    businessName: 'Summit Events',
-    firstName: 'James',
-    profileImageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80',
-    location: 'Birmingham, UK',
-    bio: 'Corporate event experts. Conferences, product launches, team-building experiences and annual dinners.',
-    rating: 4.6,
-    reviewCount: 19,
-    totalBookings: 24,
-    isAcceptingInquiries: true,
-    specialties: [
-      { id: 3, name: 'CORPORATE', displayName: 'Corporate' },
-    ],
-  },
-  {
-    id: 2004,
-    businessName: 'Golden Hour Weddings',
-    firstName: 'Sophie',
-    profileImageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80',
-    location: 'Edinburgh, UK',
-    bio: 'Destination and countryside weddings are our passion. From intimate elopements to grand marquee receptions.',
-    rating: 5.0,
-    reviewCount: 12,
-    totalBookings: 15,
-    isAcceptingInquiries: true,
-    specialties: [
-      { id: 1, name: 'WEDDING', displayName: 'Wedding' },
-      { id: 7, name: 'ENGAGEMENT', displayName: 'Engagement' },
-    ],
-  },
-  {
-    id: 2005,
-    businessName: null,
-    firstName: 'Marcus',
-    profileImageUrl: null,
-    location: 'Bristol, UK',
-    bio: 'Specialising in graduation ceremonies and milestone birthday parties.',
-    rating: 4.4,
-    reviewCount: 8,
-    totalBookings: 11,
-    isAcceptingInquiries: false,
-    specialties: [
-      { id: 5, name: 'GRADUATION', displayName: 'Graduation' },
-      { id: 2, name: 'BIRTHDAY', displayName: 'Birthday' },
-    ],
-  },
-  {
-    id: 2006,
-    businessName: 'The Celebration Co.',
-    firstName: 'Aisha',
-    profileImageUrl: 'https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?w=400&q=80',
-    location: 'Leeds, UK',
-    bio: 'Full-service event design studio. We handle everything from concept to cleanup.',
-    rating: 4.8,
-    reviewCount: 27,
-    totalBookings: 33,
-    isAcceptingInquiries: true,
-    specialties: [
-      { id: 1, name: 'WEDDING', displayName: 'Wedding' },
-      { id: 2, name: 'BIRTHDAY', displayName: 'Birthday' },
-      { id: 3, name: 'CORPORATE', displayName: 'Corporate' },
-      { id: 4, name: 'ANNIVERSARY', displayName: 'Anniversary' },
-    ],
-  },
-]
+export const DEMO_PLANNERS = demoPlanners
 
 // ─── Planner Profiles (for dashboard showcase) ────────────────────────────────
 
