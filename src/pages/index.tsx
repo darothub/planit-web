@@ -3,6 +3,7 @@ import PageShell from '@/components/layout/PageShell'
 import Hero from '@/components/home/Hero'
 import SearchStrip from '@/components/home/SearchStrip'
 import FeaturedListings from '@/components/home/FeaturedListings'
+import CategoryRows from '@/components/home/CategoryRows'
 import HowItWorks from '@/components/home/HowItWorks'
 import PlannerCta from '@/components/home/PlannerCta'
 
@@ -20,6 +21,7 @@ export default function HomePage() {
         <Hero />
         <SearchStrip />
         <FeaturedListings />
+        <CategoryRows />
         <HowItWorks />
         <PlannerCta />
       </PageShell>

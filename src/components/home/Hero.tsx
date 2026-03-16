@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 // Trust signals are feature/guarantee-based — true from day one regardless of user count
 const TRUST_SIGNALS = [
   { icon: '✅', text: 'Verified planners only' },
@@ -18,10 +20,26 @@ export default function Hero() {
         </h1>
 
         {/* Subtitle */}
-        <p className="text-white/60 text-base md:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
+        <p className="text-white/60 text-base md:text-lg max-w-xl mx-auto mb-8 leading-relaxed">
           Connect with verified event planners and bring your perfect event to life —
           from intimate celebrations to grand occasions.
         </p>
+
+        {/* CTA buttons */}
+        <div className="flex items-center justify-center gap-4 mb-10 flex-wrap">
+          <Link
+            href="/listings"
+            className="bg-primary hover:bg-primary-hover text-white font-semibold px-8 py-3 rounded-btn transition-colors"
+          >
+            Browse Events →
+          </Link>
+          <Link
+            href="/auth/register?role=PLANNER"
+            className="text-white/60 hover:text-white text-sm font-medium transition-colors border border-white/20 hover:border-white/40 px-6 py-3 rounded-btn"
+          >
+            List your services
+          </Link>
+        </div>
 
         {/* Trust signals */}
         <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2">

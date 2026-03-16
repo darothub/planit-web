@@ -12,7 +12,7 @@ const DEMO_FEATURED: EventListingResponse[] = getAllDemoListings()
   .slice(0, 6)
 
 export default function FeaturedListings() {
-  const { data: listings = DEMO_FEATURED } = useQuery<EventListingResponse[]>({
+  const { data: listings = DEMO_FEATURED, isLoading } = useQuery<EventListingResponse[]>({
     queryKey: ['featured-listings'],
     queryFn: async () => {
       const r = await api.get('/listings', {
@@ -46,12 +46,30 @@ export default function FeaturedListings() {
           </Link>
         </div>
 
+        {/* Skeleton */}
+        {isLoading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-[15/16] rounded-card bg-cream" />
+                <div className="pt-3 space-y-2">
+                  <div className="h-4 bg-cream rounded w-3/4" />
+                  <div className="h-3 bg-cream rounded w-1/2" />
+                  <div className="h-3 bg-cream rounded w-1/3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* 3-column grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {listings.map(listing => (
-            <ListingCard key={listing.id} listing={listing} />
-          ))}
-        </div>
+        {!isLoading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {listings.map(listing => (
+              <ListingCard key={listing.id} listing={listing} />
+            ))}
+          </div>
+        )}
 
         {/* Mobile "View all" CTA */}
         <div className="mt-8 text-center sm:hidden">
