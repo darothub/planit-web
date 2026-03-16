@@ -2,7 +2,11 @@ import { useRouter } from 'next/router'
 import { InquiryResponse } from '@/lib/types'
 import { formatRelativeTime } from '@/lib/utils'
 
-const AVATAR_COLOURS = ['bg-charcoal', 'bg-primary', 'bg-accent']
+const AVATAR_GRADIENTS = [
+  'linear-gradient(135deg, #C1694F, #A85640)',
+  'linear-gradient(135deg, #2C2C2C, #4A5240)',
+  'linear-gradient(135deg, #4A5240, #7A8B70)',
+]
 
 type Props = { inquiries: InquiryResponse[] }
 
@@ -28,14 +32,16 @@ export default function PendingInquiriesPanel({ inquiries }: Props) {
       ) : (
         <div className="divide-y divide-cream">
           {pending.map(inquiry => {
-            const colourIdx = Math.abs(inquiry.id) % AVATAR_COLOURS.length
-            const colour = AVATAR_COLOURS[colourIdx]
+            const grad = AVATAR_GRADIENTS[Math.abs(inquiry.id) % AVATAR_GRADIENTS.length]
             const initials = `${inquiry.client.firstName[0]}${inquiry.client.lastName[0]}`
             return (
               <div key={inquiry.id} className="px-5 py-4">
                 {/* Header row */}
                 <div className="flex items-start gap-3 mb-2">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${colour}`}>
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                    style={{ background: grad }}
+                  >
                     <span className="text-white text-xs font-bold">{initials}</span>
                   </div>
                   <div className="flex-1 min-w-0">

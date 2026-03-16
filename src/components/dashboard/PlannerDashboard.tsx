@@ -73,7 +73,7 @@ export default function PlannerDashboard() {
         <PlannerStatsRow />
 
         {/* Two-column layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_260px] lg:grid-cols-[1fr_320px] gap-5">
           <UpcomingBookingsTable bookings={bookings} />
           <PendingInquiriesPanel inquiries={inquiries} />
         </div>

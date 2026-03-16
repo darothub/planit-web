@@ -3,7 +3,12 @@ import { BookingResponse } from '@/lib/types'
 import { formatShortDate, formatPrice } from '@/lib/utils'
 import BookingStatusBadge from '@/components/bookings/BookingStatusBadge'
 
-const AVATAR_COLOURS = ['bg-charcoal', 'bg-primary', 'bg-accent']
+// Terra-toned gradients from the reference design system
+const AVATAR_GRADIENTS = [
+  'linear-gradient(135deg, #C1694F, #A85640)',
+  'linear-gradient(135deg, #2C2C2C, #4A5240)',
+  'linear-gradient(135deg, #4A5240, #7A8B70)',
+]
 
 type Props = { bookings: BookingResponse[] }
 
@@ -16,7 +21,8 @@ export default function UpcomingBookingsTable({ bookings }: Props) {
     .slice(0, 5)
 
   return (
-    <div className="bg-white border border-cream rounded-xl overflow-hidden">
+    // overflow-hidden removed — table must fit; rounded-xl clips via border-radius without hiding content
+    <div className="bg-white border border-cream rounded-xl">
       <div className="px-5 py-4 border-b border-cream">
         <h2 className="text-base font-semibold text-charcoal">Upcoming Bookings</h2>
       </div>
@@ -27,16 +33,18 @@ export default function UpcomingBookingsTable({ bookings }: Props) {
         </div>
       ) : (
         <>
-          {/* ── Mobile: card list (< md) ───────────────────────── */}
+          {/* ── Mobile: card list (< md) ─────────────────────────── */}
           <div className="md:hidden divide-y divide-cream">
             {upcoming.map(booking => {
-              const colour = AVATAR_COLOURS[Math.abs(booking.id) % AVATAR_COLOURS.length]
+              const grad = AVATAR_GRADIENTS[Math.abs(booking.id) % AVATAR_GRADIENTS.length]
               const initials = `${booking.client.firstName[0]}${booking.client.lastName[0]}`
               return (
                 <div key={booking.id} className="px-5 py-4">
-                  {/* Client row */}
                   <div className="flex items-center gap-3 mb-2">
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${colour}`}>
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                      style={{ background: grad }}
+                    >
                       <span className="text-white text-xs font-bold">{initials}</span>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -47,7 +55,6 @@ export default function UpcomingBookingsTable({ bookings }: Props) {
                     </div>
                     <BookingStatusBadge status={booking.status} />
                   </div>
-                  {/* Meta row */}
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-stone-warm pl-12 mb-2">
                     <span>{formatShortDate(booking.eventDate)}</span>
                     <span>·</span>
@@ -57,7 +64,6 @@ export default function UpcomingBookingsTable({ bookings }: Props) {
                     <span>·</span>
                     <span className="truncate">{booking.listing.title}</span>
                   </div>
-                  {/* Actions */}
                   <div className="flex gap-4 pl-12">
                     <button
                       onClick={() => router.push(`/messages?bookingId=${booking.id}`)}
@@ -77,36 +83,44 @@ export default function UpcomingBookingsTable({ bookings }: Props) {
             })}
           </div>
 
-          {/* ── Desktop: table (md+) ────────────────────────────── */}
+          {/* ── Tablet / Desktop: table (md+) ───────────────────────
+              Column visibility:
+              md  (tablet): Client · Date · Status · Actions
+              lg  (desktop): + Amount
+              xl  (wide):    + Listing
+          ─────────────────────────────────────────────────────────── */}
           <div className="hidden md:block">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-cream bg-sand/50">
                   <th className="text-left px-5 py-3 text-xs font-semibold text-stone-warm uppercase tracking-wider">Client</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-warm uppercase tracking-wider whitespace-nowrap">Event Date</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-warm uppercase tracking-wider hidden lg:table-cell">Listing</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-warm uppercase tracking-wider">Amount</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-warm uppercase tracking-wider whitespace-nowrap">Date</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-warm uppercase tracking-wider hidden xl:table-cell">Listing</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-warm uppercase tracking-wider hidden lg:table-cell">Amount</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-stone-warm uppercase tracking-wider">Status</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-cream">
                 {upcoming.map(booking => {
-                  const colour = AVATAR_COLOURS[Math.abs(booking.id) % AVATAR_COLOURS.length]
+                  const grad = AVATAR_GRADIENTS[Math.abs(booking.id) % AVATAR_GRADIENTS.length]
                   const initials = `${booking.client.firstName[0]}${booking.client.lastName[0]}`
                   return (
                     <tr key={booking.id} className="hover:bg-sand/30 transition-colors">
                       {/* Client */}
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${colour}`}>
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                            style={{ background: grad }}
+                          >
                             <span className="text-white text-xs font-bold">{initials}</span>
                           </div>
-                          <div>
-                            <p className="font-medium text-charcoal">
+                          <div className="min-w-0">
+                            <p className="font-medium text-charcoal truncate">
                               {booking.client.firstName} {booking.client.lastName}
                             </p>
-                            <p className="text-xs text-stone-warm">{booking.eventLocation}</p>
+                            <p className="text-xs text-stone-warm truncate">{booking.eventLocation}</p>
                           </div>
                         </div>
                       </td>
@@ -114,12 +128,12 @@ export default function UpcomingBookingsTable({ bookings }: Props) {
                       <td className="px-4 py-3 text-charcoal whitespace-nowrap">
                         {formatShortDate(booking.eventDate)}
                       </td>
-                      {/* Listing — hide on md, show on lg */}
-                      <td className="px-4 py-3 text-stone-warm hidden lg:table-cell max-w-[180px] truncate">
+                      {/* Listing — xl only */}
+                      <td className="px-4 py-3 text-stone-warm hidden xl:table-cell max-w-[160px] truncate">
                         {booking.listing.title}
                       </td>
-                      {/* Amount */}
-                      <td className="px-4 py-3 font-medium text-charcoal whitespace-nowrap">
+                      {/* Amount — lg only */}
+                      <td className="px-4 py-3 font-medium text-charcoal hidden lg:table-cell whitespace-nowrap">
                         {formatPrice(booking.agreedPrice, booking.currency)}
                       </td>
                       {/* Status */}

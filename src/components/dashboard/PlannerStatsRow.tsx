@@ -54,7 +54,7 @@ export default function PlannerStatsRow() {
     : 'No upcoming bookings'
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
       <StatCard
         label="Total Bookings"
         value={stats.totalBookings}
