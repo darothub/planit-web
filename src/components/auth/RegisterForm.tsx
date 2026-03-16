@@ -14,6 +14,19 @@ type Props = {
   onSuccess: () => void
 }
 
+const ROLES = [
+  {
+    value: 'CLIENT' as const,
+    label: "I'm a Client",
+    description: 'Browse listings and book event planners',
+  },
+  {
+    value: 'PLANNER' as const,
+    label: "I'm a Planner",
+    description: 'List your services and manage bookings',
+  },
+]
+
 export default function RegisterForm({ onSuccess }: Props) {
   const router = useRouter()
   const [role, setRole] = useState<'CLIENT' | 'PLANNER'>('CLIENT')
@@ -26,9 +39,18 @@ export default function RegisterForm({ onSuccess }: Props) {
     }
   }, [router.isReady, router.query.role])
 
-  const { register, handleSubmit, formState: { errors } } = useForm<RegisterValues>({
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
   })
+
+  const passwordValue = watch('password', '')
+
+  const passwordReqs = [
+    { label: '8+ characters',      met: passwordValue.length >= 8 },
+    { label: 'Uppercase letter',   met: /[A-Z]/.test(passwordValue) },
+    { label: 'Number',             met: /[0-9]/.test(passwordValue) },
+    { label: 'Special character',  met: /[^A-Za-z0-9]/.test(passwordValue) },
+  ]
 
   const mutation = useMutation({
     mutationFn: (data: RegisterValues) => {
@@ -41,19 +63,22 @@ export default function RegisterForm({ onSuccess }: Props) {
   return (
     <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="flex flex-col gap-4">
 
-      {/* Role toggle */}
-      <div className="flex rounded-btn overflow-hidden border border-cream">
-        {(['CLIENT', 'PLANNER'] as const).map(r => (
+      {/* Role selector */}
+      <div className="grid grid-cols-2 gap-2">
+        {ROLES.map(r => (
           <button
-            key={r}
+            key={r.value}
             type="button"
-            onClick={() => setRole(r)}
+            onClick={() => setRole(r.value)}
             className={cn(
-              'flex-1 py-2.5 text-sm font-semibold transition-colors',
-              role === r ? 'bg-primary text-white' : 'bg-white text-stone-warm hover:bg-sand'
+              'py-3 px-4 text-left rounded-xl border-2 transition-colors',
+              role === r.value
+                ? 'border-primary bg-primary/5'
+                : 'border-cream bg-white hover:border-primary/30 hover:bg-sand',
             )}
           >
-            {r === 'CLIENT' ? "I'm a Client" : "I'm a Planner"}
+            <p className="text-sm font-semibold text-charcoal">{r.label}</p>
+            <p className="text-xs text-stone-warm mt-0.5 leading-snug">{r.description}</p>
           </button>
         ))}
       </div>
@@ -87,6 +112,22 @@ export default function RegisterForm({ onSuccess }: Props) {
 
       <FormField label="Password" error={errors.password?.message}>
         <PasswordInput {...register('password')} />
+        {passwordValue.length > 0 && (
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1 mt-2">
+            {passwordReqs.map(req => (
+              <div
+                key={req.label}
+                className={cn(
+                  'flex items-center gap-1.5 text-xs transition-colors',
+                  req.met ? 'text-green-600' : 'text-stone-warm',
+                )}
+              >
+                <span className="font-bold">{req.met ? '✓' : '○'}</span>
+                <span>{req.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </FormField>
 
       {role === 'PLANNER' && (
@@ -103,7 +144,7 @@ export default function RegisterForm({ onSuccess }: Props) {
 
       {mutation.isError && (
         <p className="text-red-600 text-sm text-center">
-          Something went wrong. Please check your details and try again.
+          {(mutation.error as any)?.response?.data?.message ?? 'Something went wrong. Please check your details and try again.'}
         </p>
       )}
 

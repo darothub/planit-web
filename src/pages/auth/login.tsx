@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { useAuthStore } from '@/store/authStore'
@@ -14,14 +15,19 @@ export default function LoginPage() {
   }, [token, router])
 
   return (
-    <AuthShell title="Welcome back">
-      <LoginForm />
-      <p className="text-center text-sm text-stone-warm mt-6">
-        Don&apos;t have an account?{' '}
-        <Link href="/auth/register" className="text-primary font-medium hover:underline">
-          Register here
-        </Link>
-      </p>
-    </AuthShell>
+    <>
+      <Head>
+        <title>Sign In — Planit</title>
+      </Head>
+      <AuthShell title="Welcome back" subtitle="Sign in to your Planit account.">
+        <LoginForm />
+        <p className="text-center text-sm text-stone-warm mt-6">
+          Don&apos;t have an account?{' '}
+          <Link href="/auth/register" className="text-primary font-medium hover:underline">
+            Create one
+          </Link>
+        </p>
+      </AuthShell>
+    </>
   )
 }

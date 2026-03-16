@@ -50,7 +50,7 @@ export default function LoginForm() {
 
       {mutation.isError && (
         <p className="text-red-600 text-sm text-center">
-          Invalid email or password. Please try again.
+          {(mutation.error as any)?.response?.data?.message ?? 'Invalid email or password. Please try again.'}
         </p>
       )}
 
