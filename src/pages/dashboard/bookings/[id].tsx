@@ -10,6 +10,9 @@ import DashboardShell from '@/components/dashboard/DashboardShell'
 import BookingStatusBadge from '@/components/bookings/BookingStatusBadge'
 import ReviewForm from '@/components/reviews/ReviewForm'
 import { formatPrice, formatShortDate, getListingGradient } from '@/lib/utils'
+import { DEMO_BOOKINGS_CLIENT, DEMO_BOOKINGS_PLANNER, DEMO_BOOKING_DETAIL } from '@/showcase/data'
+
+const DEMO_ALL_BOOKINGS = [...DEMO_BOOKINGS_CLIENT, ...DEMO_BOOKINGS_PLANNER, DEMO_BOOKING_DETAIL]
 
 const disputeStatusColour: Record<string, string> = {
   OPEN:               'bg-orange-100 text-orange-800',
@@ -108,10 +111,13 @@ export default function BookingDetailPage() {
   const isPlanner = user?.role === 'PLANNER'
   const endpoint = isPlanner ? `/bookings/received/${id}` : `/bookings/my/${id}`
 
+  const demoBooking = DEMO_ALL_BOOKINGS.find(b => String(b.id) === String(id))
+
   const { data: booking, isLoading } = useQuery<BookingResponse>({
     queryKey: ['booking', id],
     queryFn: () => api.get(endpoint).then(r => r.data.data),
     enabled: !!token && !!id,
+    placeholderData: demoBooking,
     retry: false,
   })
 
