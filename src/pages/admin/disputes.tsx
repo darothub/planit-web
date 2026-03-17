@@ -156,10 +156,9 @@ export default function AdminDisputesPage() {
   const [resolveError, setResolveError]   = useState<string | null>(null)
   const [tab, setTab]                     = useState<Tab>('all')
 
-  const { data: disputes = DEMO_ADMIN_DISPUTES, isLoading } = useQuery<DisputeResponse[]>({
+  const { data: disputes = [], isLoading } = useQuery<DisputeResponse[]>({
     queryKey: ['admin-disputes'],
     queryFn: () => api.get('/disputes').then(r => r.data.data),
-    placeholderData: DEMO_ADMIN_DISPUTES,
     retry: false,
   })
 

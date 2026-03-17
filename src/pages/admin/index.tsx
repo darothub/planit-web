@@ -5,7 +5,11 @@ import AdminShell from '@/components/admin/AdminShell'
 import { api } from '@/lib/api'
 import { AdminStatsResponse } from '@/lib/types'
 import { formatPrice, cn } from '@/lib/utils'
-import { DEMO_ADMIN_STATS } from '@/showcase/data'
+const EMPTY_STATS: AdminStatsResponse = {
+  pendingPlanners: 0, verifiedPlanners: 0, openDisputes: 0,
+  totalClients: 0, totalPlanners: 0, publishedListings: 0,
+  totalBookings: 0, totalRevenue: 0,
+}
 
 function StatCard({
   label,
@@ -80,10 +84,9 @@ function QuickActionCard({ href, icon, iconBg, iconColor, title, description, ba
 }
 
 export default function AdminOverviewPage() {
-  const { data: stats = DEMO_ADMIN_STATS, isLoading } = useQuery<AdminStatsResponse>({
+  const { data: stats = EMPTY_STATS, isLoading } = useQuery<AdminStatsResponse>({
     queryKey: ['admin-stats'],
     queryFn: () => api.get('/admin/stats').then(r => r.data.data),
-    placeholderData: DEMO_ADMIN_STATS,
     retry: false,
     refetchInterval: 60_000,
   })

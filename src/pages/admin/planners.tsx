@@ -70,10 +70,10 @@ export default function AdminPlannersPage() {
   const [approvingId, setApprovingId]         = useState<number | null>(null)
   const [actionError, setActionError]         = useState<string | null>(null)
 
-  const { data: planners = DEMO_PENDING_PLANNERS, isLoading } = useQuery<PendingPlannerResponse[]>({
+  const { data: planners = [], isLoading } = useQuery<PendingPlannerResponse[]>({
     queryKey: ['admin-pending-planners'],
     queryFn: () => api.get('/admin/planners/pending').then(r => r.data.data),
-    placeholderData: DEMO_PENDING_PLANNERS,
+    retry: false,
   })
 
   const approveMutation = useMutation({
