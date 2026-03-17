@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import LogoIcon from '@/components/ui/LogoIcon'
 
 type Props = {
   title: string
@@ -11,9 +12,8 @@ export default function AuthShell({ title, subtitle, children }: Props) {
     <div className="min-h-screen bg-gradient-to-br from-sand to-parchment flex flex-col items-center justify-center px-4 py-12">
 
       {/* Logo */}
-      <Link href="/" className="flex items-center gap-2 mb-8">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/favicon.ico" alt="" aria-hidden className="w-7 h-7 object-contain" />
+      <Link href="/" className="flex items-center mb-8">
+        <LogoIcon size={48} />
         <span className="text-2xl font-bold text-accent tracking-tight">planit</span>
       </Link>
 

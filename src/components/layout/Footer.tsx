@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { useAuthStore } from '@/store/authStore'
+import LogoIcon from '@/components/ui/LogoIcon'
 
 export default function Footer() {
   const { user } = useAuthStore()
@@ -10,7 +11,10 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-10">
 
           <div>
-            <p className="text-xl font-bold mb-3">planit</p>
+            <div className="flex items-center mb-3">
+              <LogoIcon size={36} className="brightness-0 invert" />
+              <span className="text-xl font-bold">planit</span>
+            </div>
             <p className="text-accent-light text-sm leading-relaxed">
               Find and book verified event planners for your perfect occasion.
             </p>
