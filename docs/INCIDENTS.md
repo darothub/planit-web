@@ -2,6 +2,56 @@
 
 ---
 
+## INC-002 — Mock Data in Production Database + Flash of Fake Admin Stats
+
+**Date:** 2026-03-17
+**Severity:** Medium (misleading admin stats; listing deletion blocked by orphaned inquiry)
+**Status:** Resolved
+
+---
+
+### Summary
+
+After the initial deployment, the production database contained seeded mock data (users, planners, listings, inquiries) left over from development. This caused two visible issues: (1) a listing could not be deleted because a mock inquiry was associated with it, and (2) admin dashboard pages flashed large fake numbers (187 clients, 142 bookings, £284,750 revenue) before real data loaded due to the React Query `placeholderData: DEMO_DATA` pattern used on admin queries.
+
+---
+
+### Root Causes
+
+1. **Mock data in production DB** — Development seeding scripts or manual testing left 14 users, 4 planners, 1 listing, 1 inquiry, and 2 inquiry messages in the production Railway PostgreSQL database. The listing deletion endpoint correctly blocks deletion when active inquiries exist, which surfaced the orphaned data.
+
+2. **`placeholderData: DEMO_DATA` on admin pages** — The demo-first React Query pattern (required for public-facing pages so they render without a backend) was also applied to admin stat pages. On admin pages this is actively harmful — it flashes inflated fake numbers to admins before real data loads, creating confusion about the actual state of the platform.
+
+---
+
+### Fix
+
+**DB cleanup** — Connected directly via `psql` and deleted all non-admin rows in FK order:
+```sql
+DELETE FROM inquiry_messages;
+DELETE FROM inquiries;
+DELETE FROM event_listing_images;
+DELETE FROM event_listing_amenities;
+DELETE FROM event_listings;
+DELETE FROM portfolio_images;
+DELETE FROM planner_specialties;
+DELETE FROM planners;
+DELETE FROM users WHERE role != 'ADMIN';
+```
+Result: DB left with 1 row (admin user) and all event types intact.
+
+**Admin page fix** — Removed `placeholderData: DEMO_DATA` from `admin/index.tsx`, `admin/disputes.tsx`, and `admin/planners.tsx`. The stats page now uses `EMPTY_STATS` (all zeros) as its error/unavailable fallback instead of demo data. During loading, the existing skeleton UI is shown.
+
+---
+
+### Prevention
+
+- **Never apply `placeholderData: DEMO_DATA` to admin or dashboard data queries.** The demo-first pattern is for public-facing pages only (listings, home, planner profiles). Admin pages should show skeletons on load and zeros on error.
+- **Add a DB cleanup step to the post-deployment checklist** in `.workflow/CONFIG-SERVER-MIGRATION.md` to wipe any seeded test data before going live.
+- **Before deleting a listing via the admin UI**, ensure associated inquiries are cleared first, or build a cascade-delete admin endpoint.
+
+---
+
 ## INC-001 — Cloudflare Turnstile CAPTCHA Not Working on Vercel Deployment
 
 **Date:** 2026-03-17
