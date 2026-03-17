@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import LogoIcon from '@/components/ui/LogoIcon'
 import { useAuthStore } from '@/store/authStore'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
@@ -58,8 +59,7 @@ export default function Navbar() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/favicon.ico" alt="" aria-hidden className="w-6 h-6 object-contain" />
+          <LogoIcon size={44} />
           <span className="text-xl font-bold text-accent tracking-tight">planit</span>
         </Link>
 
