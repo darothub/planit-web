@@ -9,11 +9,11 @@ type Props = {
 
 function SkeletonCard() {
   return (
-    <div className="animate-pulse">
-      <div className="bg-cream rounded-card aspect-[15/16] mb-3" />
-      <div className="bg-cream h-3.5 rounded-full w-3/4 mb-2" />
-      <div className="bg-cream h-3 rounded-full w-1/2 mb-2" />
-      <div className="bg-cream h-3 rounded-full w-1/3" />
+    <div>
+      <div className="shimmer rounded-card aspect-[15/16] mb-3" />
+      <div className="shimmer h-3.5 rounded-full w-3/4 mb-2" />
+      <div className="shimmer h-3 rounded-full w-1/2 mb-2" />
+      <div className="shimmer h-3 rounded-full w-1/3" />
     </div>
   )
 }

@@ -79,7 +79,7 @@ export default function PlannersPage() {
     retry: false,
   })
 
-  const { data = DEMO_PAGE, isLoading } = useQuery<PageResponse<PlannerSummaryResponse>>({
+  const { data = DEMO_PAGE, isLoading, isPlaceholderData } = useQuery<PageResponse<PlannerSummaryResponse>>({
     queryKey: ['planners', query],
     queryFn: () =>
       api.get('/planners', { params: query }).then(r => r.data.data),
@@ -215,15 +215,15 @@ export default function PlannersPage() {
         )}
 
         {/* Grid */}
-        {isLoading && !data.content.length ? (
+        {isPlaceholderData ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="aspect-square rounded-card bg-cream" />
+              <div key={i}>
+                <div className="shimmer aspect-square rounded-card" />
                 <div className="mt-2.5 space-y-1.5">
-                  <div className="h-3.5 bg-cream rounded-full w-3/4" />
-                  <div className="h-3 bg-cream rounded-full w-1/2" />
-                  <div className="h-3 bg-cream rounded-full w-2/3" />
+                  <div className="shimmer h-3.5 rounded-full w-3/4" />
+                  <div className="shimmer h-3 rounded-full w-1/2" />
+                  <div className="shimmer h-3 rounded-full w-2/3" />
                 </div>
               </div>
             ))}

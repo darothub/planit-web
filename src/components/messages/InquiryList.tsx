@@ -7,6 +7,7 @@ type Props = {
   inquiries: InquiryResponse[]
   selectedId: number
   role: UserRole
+  isLoading?: boolean
   className?: string
   makeHref?: (id: number) => string
 }
@@ -17,7 +18,7 @@ const STATUS_DOT: Record<string, string> = {
   CLOSED:  'bg-stone-300',
 }
 
-export default function InquiryList({ inquiries, selectedId, role, className, makeHref }: Props) {
+export default function InquiryList({ inquiries, selectedId, role, isLoading, className, makeHref }: Props) {
   const href = makeHref ?? ((id: number) => `/messages/${id}`)
 
   return (
@@ -33,7 +34,20 @@ export default function InquiryList({ inquiries, selectedId, role, className, ma
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {inquiries.length === 0 && (
+        {isLoading && (
+          <div className="flex flex-col gap-px">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex gap-3 px-4 py-3.5 border-b border-cream">
+                <div className="shimmer w-10 h-10 rounded-lg flex-shrink-0" />
+                <div className="flex-1 min-w-0 space-y-2 pt-0.5">
+                  <div className="shimmer h-3.5 rounded-full w-3/4" />
+                  <div className="shimmer h-3 rounded-full w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {!isLoading && inquiries.length === 0 && (
           <div className="text-center py-10 px-5">
             <p className="text-2xl mb-2">💬</p>
             <p className="text-stone-warm text-sm mb-3">No conversations yet.</p>
@@ -47,7 +61,7 @@ export default function InquiryList({ inquiries, selectedId, role, className, ma
             )}
           </div>
         )}
-        {inquiries.map(inq => {
+        {!isLoading && inquiries.map(inq => {
           const other = role === 'CLIENT'
             ? (inq.planner.businessName ?? 'Planner')
             : `${inq.client.firstName} ${inq.client.lastName}`

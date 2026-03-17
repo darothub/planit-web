@@ -42,7 +42,7 @@ export default function MessagesPage() {
   const inboxEndpoint = isPlanner ? '/inquiries/received' : '/inquiries/my'
   const DEMO_INQUIRIES = isPlanner ? DEMO_INQUIRIES_RECEIVED : DEMO_INQUIRIES_CLIENT
 
-  const { data: inquiries = DEMO_INQUIRIES } = useQuery<InquiryResponse[]>({
+  const { data: inquiries = DEMO_INQUIRIES, isPlaceholderData: inboxPlaceholder } = useQuery<InquiryResponse[]>({
     queryKey: ['inquiries-inbox', user?.role],
     queryFn: () => api.get(inboxEndpoint).then(r => r.data.data),
     enabled: !!user,
@@ -140,6 +140,7 @@ export default function MessagesPage() {
           inquiries={inquiries}
           selectedId={inquiryId}
           role={user.role}
+          isLoading={inboxPlaceholder}
           className={hasConversation ? 'hidden md:flex' : 'flex'}
         />
 

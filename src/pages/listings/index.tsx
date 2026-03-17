@@ -43,7 +43,7 @@ export default function DiscoveryPage() {
     retry: false,
   })
 
-  const { data = DEMO_PAGE, isLoading } = useQuery<PageResponse<EventListingResponse>>({
+  const { data = DEMO_PAGE, isLoading, isPlaceholderData } = useQuery<PageResponse<EventListingResponse>>({
     queryKey: ['listings', query],
     queryFn: () =>
       api.get('/listings', { params: query }).then(r => r.data.data),
@@ -152,11 +152,11 @@ export default function DiscoveryPage() {
           {/* Results — dimmed during refetch when we already have data */}
           <div className={cn(
             'transition-opacity duration-200',
-            isLoading && data.content.length > 0 ? 'opacity-50 pointer-events-none' : 'opacity-100',
+            isLoading && !isPlaceholderData ? 'opacity-50 pointer-events-none' : 'opacity-100',
           )}>
             <ListingGrid
               listings={data.content}
-              isLoading={isLoading && data.content.length === 0}
+              isLoading={isPlaceholderData}
             />
           </div>
 

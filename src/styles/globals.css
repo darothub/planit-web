@@ -29,6 +29,23 @@
   --shadow-modal:      0 20px 60px rgba(44, 44, 44, 0.2);
 }
 
+/* ─── Shimmer skeleton animation ────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400% 0; }
+  100% { background-position:  400% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-cream) 25%,
+    #F7F1E8 50%,
+    var(--color-cream) 75%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
 /* ─── Base Styles ────────────────────────────────────────────── */
 body {
   background-color: var(--color-sand);
