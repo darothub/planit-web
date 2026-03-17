@@ -2,6 +2,62 @@
 
 ---
 
+## INC-003 — Planner Browse Broken: `lower(bytea)` Error + HikariCP Connection Drops + 10-Minute Startup
+
+**Date:** 2026-03-17
+**Severity:** High (planner browse page completely broken; connection pool errors on every cold start)
+**Status:** Resolved
+
+---
+
+### Summary
+
+Three related production issues surfaced after the Fly.io migration:
+
+1. **`lower(bytea)` SQL error** — the planner search endpoint crashed with `function lower(bytea) does not exist` whenever a location filter was applied. The browse page was completely broken for filtered searches.
+2. **HikariCP connection drops** — Railway PostgreSQL was closing idle connections in ~58 seconds; HikariCP's keepalive was set to 60 seconds, too slow to prevent the drop.
+3. **10-minute startup / health check timeout** — Spring Boot took ~614 seconds to start on a shared-cpu-1x Fly.io machine (Hibernate `ddl-auto: update` doing cross-Atlantic schema validation). The health check grace period was only 60 seconds, causing restart failures.
+
+---
+
+### Root Causes
+
+**1. Hibernate 6 `bytea` inference bug**
+In Hibernate 6 (ORM 7.x), untyped JPQL parameters inside SQL functions like `CONCAT()` are inferred as `bytea` by the PostgreSQL JDBC driver when no explicit type is provided. The query:
+```java
+"LOWER(CONCAT('%', :location, '%'))"
+```
+caused PostgreSQL to receive `lower(bytea)` which has no matching function overload. This only surfaces with real PostgreSQL — H2 in integration tests handles it silently.
+
+**2. Railway idle connection timeout < 60 seconds**
+Railway's managed PostgreSQL closes idle connections in under 60 seconds. HikariCP's `keepalive-time` was configured at 60,000 ms — just too slow to send the keepalive query before Railway terminated the connection.
+
+**3. Health check grace period too short**
+The Fly.io health check `grace_period` was set to 60s. Spring Boot initialization (`WebApplicationContext` + Hibernate schema update over a remote DB) takes ~614 seconds on a `shared-cpu-1x` machine. Every restart failed the health check until the machine was eventually healthy.
+
+---
+
+### Fixes
+
+| # | Fix | File(s) |
+|---|---|---|
+| 1 | Added `cast(:location as string)` in JPQL to give Hibernate an explicit type, generating `CAST(? AS varchar)` | `planner/repository/PlannerRepository.java` |
+| 2 | Reduced `keepalive-time` from 60,000 ms → 30,000 ms | `planit-config-repo/planit-prod.yml` |
+| 3 | Increased health check `grace_period` from 60s → 720s | `fly.toml` |
+
+Also added: `max-lifetime: 540000` (9 min) and `maximum-pool-size: 5` to HikariCP config.
+
+---
+
+### Prevention
+
+- **Always cast untyped JPQL parameters in function calls.** Use `cast(:param as string)` for any string parameter inside `CONCAT()`, `LOWER()`, or similar functions. The H2 integration tests do not catch this — it only fails on real PostgreSQL.
+- **Set `keepalive-time` well below the DB server's idle timeout.** Railway's timeout is ~58 seconds; always use at most half that (30 seconds) as the keepalive interval.
+- **Set `grace_period` based on actual measured startup time**, not a guess. After any significant infrastructure change, measure the real startup time from logs (`Started PlanitApplication in X seconds`) and set `grace_period` to at least 120% of that value.
+- **Long-term: move the database to Fly.io.** Cross-cloud (Fly.io London → Railway) round trips are the main cause of the 10-minute Hibernate startup. A same-region Fly.io Postgres instance would bring startup to ~1-2 minutes and eliminate idle connection timeout issues entirely.
+
+---
+
 ## INC-002 — Mock Data in Production Database + Flash of Fake Admin Stats
 
 **Date:** 2026-03-17
