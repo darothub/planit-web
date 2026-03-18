@@ -13,8 +13,6 @@ import ChatWindow from '@/components/messages/ChatWindow'
 import InquiryList from '@/components/messages/InquiryList'
 import BookNowModal from '@/components/bookings/BookNowModal'
 import { formatShortDate, getListingGradient } from '@/lib/utils'
-import { DEMO_INQUIRIES_CLIENT, DEMO_INQUIRIES_RECEIVED, DEMO_MESSAGES } from '@/showcase/data'
-
 const STATUS_LABEL: Record<InquiryStatus, string> = {
   PENDING: 'Pending',
   ACTIVE:  'Active',
@@ -40,13 +38,11 @@ export default function MessagesPage() {
 
   const isPlanner = user?.role === 'PLANNER'
   const inboxEndpoint = isPlanner ? '/inquiries/received' : '/inquiries/my'
-  const DEMO_INQUIRIES = isPlanner ? DEMO_INQUIRIES_RECEIVED : DEMO_INQUIRIES_CLIENT
 
-  const { data: inquiries = DEMO_INQUIRIES, isPlaceholderData: inboxPlaceholder } = useQuery<InquiryResponse[]>({
+  const { data: inquiries = [], isPlaceholderData: inboxPlaceholder } = useQuery<InquiryResponse[]>({
     queryKey: ['inquiries-inbox', user?.role],
     queryFn: () => api.get(inboxEndpoint).then(r => r.data.data),
     enabled: !!user,
-    placeholderData: DEMO_INQUIRIES,
     retry: false,
   })
 
@@ -54,7 +50,6 @@ export default function MessagesPage() {
     queryKey: ['messages', inquiryId],
     queryFn: () => api.get(`/inquiries/${inquiryId}/messages`).then(r => r.data.data),
     enabled: !!inquiryId && !isNaN(inquiryId),
-    placeholderData: DEMO_MESSAGES,
     retry: false,
   })
 

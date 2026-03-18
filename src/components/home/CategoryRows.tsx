@@ -12,7 +12,6 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { EventType, EventListingResponse, PageResponse } from '@/lib/types'
-import { demoCategories, getDemoListings } from '@/lib/demoData'
 import CategoryRow from './CategoryRow'
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -38,12 +37,9 @@ const ROW_LABEL: Record<string, string> = {
 // ── Single category row ───────────────────────────────────────────────────────
 
 function CategoryRowWithData({ eventType }: { eventType: EventType }) {
-  const demoFallback = getDemoListings(eventType.name)
-
   const { data: listings = [] } = useQuery<EventListingResponse[]>({
     queryKey: ['category-listings', eventType.id],
     queryFn: async () => {
-      if (eventType.id < 0) return []
       const r = await api.get('/listings', {
         params: { eventTypeId: eventType.id, sortBy: 'RATING', size: 8, page: 0 },
       })
@@ -51,7 +47,6 @@ function CategoryRowWithData({ eventType }: { eventType: EventType }) {
       return page.content
     },
     staleTime: 1000 * 60 * 5,
-    placeholderData: demoFallback,
     retry: false,
   })
 
@@ -69,27 +64,16 @@ function CategoryRowWithData({ eventType }: { eventType: EventType }) {
   )
 }
 
-// ── Stable demo types (placeholder + offline fallback) ────────────────────────
-
-const DEMO_EVENT_TYPES: EventType[] = demoCategories.map((d, i) => ({
-  id: -(i + 1),
-  name: d.eventTypeName,
-  displayName: d.displayName,
-  description: '',
-  isActive: true,
-}))
-
 // ── Section shell ─────────────────────────────────────────────────────────────
 
 export default function CategoryRows() {
   // null = show all categories
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
 
-  const { data: eventTypes = DEMO_EVENT_TYPES } = useQuery<EventType[]>({
+  const { data: eventTypes = [] } = useQuery<EventType[]>({
     queryKey: ['event-types'],
     queryFn: () => api.get('/event-types').then(r => r.data.data as EventType[]),
     staleTime: Infinity,
-    placeholderData: DEMO_EVENT_TYPES,
     retry: false,
   })
 

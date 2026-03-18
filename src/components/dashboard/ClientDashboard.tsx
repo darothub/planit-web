@@ -6,25 +6,21 @@ import { BookingResponse, InquiryResponse } from '@/lib/types'
 import DashboardShell from './DashboardShell'
 import BookingCard from '@/components/bookings/BookingCard'
 import InquiryCard from '@/components/inquiries/InquiryCard'
-import { DEMO_BOOKINGS_CLIENT, DEMO_INQUIRIES_CLIENT } from '@/showcase/data'
-
 export default function ClientDashboard() {
   const { user } = useAuthStore()
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 
-  const { data: bookings = DEMO_BOOKINGS_CLIENT } = useQuery<BookingResponse[]>({
+  const { data: bookings = [] } = useQuery<BookingResponse[]>({
     queryKey: ['my-bookings'],
     queryFn: () => api.get('/bookings/my').then(r => r.data.data),
-    placeholderData: DEMO_BOOKINGS_CLIENT,
     retry: false,
   })
 
-  const { data: inquiries = DEMO_INQUIRIES_CLIENT } = useQuery<InquiryResponse[]>({
+  const { data: inquiries = [] } = useQuery<InquiryResponse[]>({
     queryKey: ['my-inquiries'],
     queryFn: () => api.get('/inquiries/my').then(r => r.data.data),
-    placeholderData: DEMO_INQUIRIES_CLIENT,
     retry: false,
   })
 

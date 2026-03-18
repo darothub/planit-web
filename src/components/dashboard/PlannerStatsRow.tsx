@@ -8,8 +8,6 @@ import {
   ChatBubbleLeftRightIcon,
   StarIcon,
 } from '@heroicons/react/24/outline'
-import { DEMO_PLANNER_STATS, DEMO_BOOKINGS_PLANNER } from '@/showcase/data'
-
 type StatCardProps = {
   label: string
   value: string | number
@@ -45,14 +43,12 @@ export default function PlannerStatsRow() {
   const { data: stats } = useQuery<PlannerStatsResponse>({
     queryKey: ['planner-stats'],
     queryFn: () => api.get('/planners/me/stats').then(r => r.data.data),
-    placeholderData: DEMO_PLANNER_STATS,
     retry: false,
   })
 
-  const { data: bookings = DEMO_BOOKINGS_PLANNER } = useQuery<BookingResponse[]>({
+  const { data: bookings = [] } = useQuery<BookingResponse[]>({
     queryKey: ['received-bookings'],
     queryFn: () => api.get('/bookings/received').then(r => r.data.data),
-    placeholderData: DEMO_BOOKINGS_PLANNER,
     retry: false,
   })
 

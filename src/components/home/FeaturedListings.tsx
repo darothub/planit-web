@@ -2,26 +2,18 @@ import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { EventListingResponse, PageResponse } from '@/lib/types'
-import { getAllDemoListings } from '@/lib/demoData'
 import ListingCard from '@/components/listings/ListingCard'
 
-// 6 highest-rated demo listings — placeholder while API loads, fallback when offline
-const DEMO_FEATURED: EventListingResponse[] = getAllDemoListings()
-  .filter(l => l.averageRating != null)
-  .sort((a, b) => (b.averageRating ?? 0) - (a.averageRating ?? 0))
-  .slice(0, 6)
-
 export default function FeaturedListings() {
-  const { data: listings = DEMO_FEATURED, isPlaceholderData } = useQuery<EventListingResponse[]>({
+  const { data: listings = [], isLoading } = useQuery<EventListingResponse[]>({
     queryKey: ['featured-listings'],
     queryFn: async () => {
       const r = await api.get('/listings', {
         params: { sortBy: 'RATING', size: 6, page: 0 },
       })
       const page = r.data.data as PageResponse<EventListingResponse>
-      return page.content.length > 0 ? page.content : DEMO_FEATURED
+      return page.content
     },
-    placeholderData: DEMO_FEATURED,
     staleTime: 1000 * 60 * 5,
     retry: false,
   })
@@ -47,7 +39,7 @@ export default function FeaturedListings() {
         </div>
 
         {/* Skeleton */}
-        {isPlaceholderData && (
+        {isLoading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map(i => (
               <div key={i}>
@@ -61,7 +53,7 @@ export default function FeaturedListings() {
         )}
 
         {/* 3-column grid */}
-        {!isPlaceholderData && (
+        {!isLoading && listings.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {listings.map(listing => (
               <ListingCard key={listing.id} listing={listing} />

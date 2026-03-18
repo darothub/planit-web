@@ -8,33 +8,24 @@ import PlannerStatsRow from './PlannerStatsRow'
 import UpcomingBookingsTable from './UpcomingBookingsTable'
 import PendingInquiriesPanel from './PendingInquiriesPanel'
 import PlannerOnboarding from './PlannerOnboarding'
-import {
-  DEMO_BOOKINGS_PLANNER,
-  DEMO_INQUIRIES_RECEIVED,
-  DEMO_PLANNER_PROFILE_VERIFIED,
-} from '@/showcase/data'
-
 export default function PlannerDashboard() {
   const { user } = useAuthStore()
 
   const { data: plannerProfile } = useQuery<PlannerProfileResponse>({
     queryKey: ['planner-profile'],
     queryFn: () => api.get('/planners/me').then(r => r.data.data),
-    placeholderData: DEMO_PLANNER_PROFILE_VERIFIED,
     retry: false,
   })
 
-  const { data: bookings = DEMO_BOOKINGS_PLANNER } = useQuery<BookingResponse[]>({
+  const { data: bookings = [] } = useQuery<BookingResponse[]>({
     queryKey: ['received-bookings'],
     queryFn: () => api.get('/bookings/received').then(r => r.data.data),
-    placeholderData: DEMO_BOOKINGS_PLANNER,
     retry: false,
   })
 
-  const { data: inquiries = DEMO_INQUIRIES_RECEIVED } = useQuery<InquiryResponse[]>({
+  const { data: inquiries = [] } = useQuery<InquiryResponse[]>({
     queryKey: ['received-inquiries'],
     queryFn: () => api.get('/inquiries/received').then(r => r.data.data),
-    placeholderData: DEMO_INQUIRIES_RECEIVED,
     retry: false,
   })
 

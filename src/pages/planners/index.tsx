@@ -4,30 +4,14 @@ import { useQuery } from '@tanstack/react-query'
 import { AdjustmentsHorizontalIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { api } from '@/lib/api'
 import { EventType, PageResponse, PlannerSummaryResponse } from '@/lib/types'
-import { demoPlanners } from '@/lib/demoData'
 import { cn } from '@/lib/utils'
 import PageShell from '@/components/layout/PageShell'
 import PlannerCard from '@/components/planners/PlannerCard'
 import Pagination from '@/components/ui/Pagination'
 
-const DEMO_TYPES: EventType[] = [
-  { id: -1, name: 'WEDDING',     displayName: 'Wedding',     description: '', isActive: true },
-  { id: -2, name: 'BIRTHDAY',    displayName: 'Birthday',    description: '', isActive: true },
-  { id: -3, name: 'CORPORATE',   displayName: 'Corporate',   description: '', isActive: true },
-  { id: -4, name: 'ANNIVERSARY', displayName: 'Anniversary', description: '', isActive: true },
-  { id: -5, name: 'GRADUATION',  displayName: 'Graduation',  description: '', isActive: true },
-  { id: -6, name: 'BABY_SHOWER', displayName: 'Baby Shower', description: '', isActive: true },
-  { id: -7, name: 'ENGAGEMENT',  displayName: 'Engagement',  description: '', isActive: true },
-]
-
-const DEMO_PAGE: PageResponse<PlannerSummaryResponse> = {
-  content: demoPlanners,
-  page: 0,
-  size: demoPlanners.length,
-  totalElements: demoPlanners.length,
-  totalPages: 1,
-  first: true,
-  last: true,
+const EMPTY_PAGE: PageResponse<PlannerSummaryResponse> = {
+  content: [], page: 0, size: 10,
+  totalElements: 0, totalPages: 0, first: true, last: true,
 }
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -72,18 +56,18 @@ export default function PlannersPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedLocation])
 
-  const { data: eventTypes = DEMO_TYPES } = useQuery<EventType[]>({
+  const { data: eventTypes = [] } = useQuery<EventType[]>({
     queryKey: ['event-types'],
     queryFn: () => api.get('/event-types').then(r => r.data.data),
     staleTime: Infinity,
     retry: false,
   })
 
-  const { data = DEMO_PAGE, isLoading, isPlaceholderData } = useQuery<PageResponse<PlannerSummaryResponse>>({
+  const { data = EMPTY_PAGE, isLoading, isPlaceholderData } = useQuery<PageResponse<PlannerSummaryResponse>>({
     queryKey: ['planners', query],
     queryFn: () =>
       api.get('/planners', { params: query }).then(r => r.data.data),
-    placeholderData: (prev) => prev ?? DEMO_PAGE,
+    placeholderData: (prev) => prev,
     enabled: router.isReady,
     retry: false,
   })

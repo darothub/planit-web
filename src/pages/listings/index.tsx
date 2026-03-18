@@ -4,50 +4,33 @@ import { useQuery } from '@tanstack/react-query'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { api } from '@/lib/api'
 import { EventListingResponse, EventType, PageResponse } from '@/lib/types'
-import { getAllDemoListings, demoCategories } from '@/lib/demoData'
 import PageShell from '@/components/layout/PageShell'
 import FilterBar from '@/components/listings/FilterBar'
 import ListingGrid from '@/components/listings/ListingGrid'
 import Pagination from '@/components/ui/Pagination'
 import { cn } from '@/lib/utils'
 
-const ALL_DEMO = getAllDemoListings()
-
-const DEMO_PAGE: PageResponse<EventListingResponse> = {
-  content: ALL_DEMO,
-  page: 0,
-  size: ALL_DEMO.length,
-  totalElements: ALL_DEMO.length,
-  totalPages: 1,
-  first: true,
-  last: true,
+const EMPTY_PAGE: PageResponse<EventListingResponse> = {
+  content: [], page: 0, size: 10,
+  totalElements: 0, totalPages: 0, first: true, last: true,
 }
-
-const DEMO_EVENT_TYPES: EventType[] = demoCategories.map((d, i) => ({
-  id: -(i + 1),
-  name: d.eventTypeName,
-  displayName: d.displayName,
-  description: '',
-  isActive: true,
-}))
 
 export default function DiscoveryPage() {
   const router = useRouter()
   const query = router.query
 
-  const { data: eventTypes = DEMO_EVENT_TYPES } = useQuery<EventType[]>({
+  const { data: eventTypes = [] } = useQuery<EventType[]>({
     queryKey: ['event-types'],
     queryFn: () => api.get('/event-types').then(r => r.data.data),
     staleTime: Infinity,
-    placeholderData: DEMO_EVENT_TYPES,
     retry: false,
   })
 
-  const { data = DEMO_PAGE, isLoading, isPlaceholderData } = useQuery<PageResponse<EventListingResponse>>({
+  const { data = EMPTY_PAGE, isLoading, isPlaceholderData } = useQuery<PageResponse<EventListingResponse>>({
     queryKey: ['listings', query],
     queryFn: () =>
       api.get('/listings', { params: query }).then(r => r.data.data),
-    placeholderData: (prev) => prev ?? DEMO_PAGE,
+    placeholderData: (prev) => prev,
     enabled: router.isReady,
     retry: false,
   })
