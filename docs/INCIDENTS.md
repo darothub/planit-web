@@ -2,6 +2,142 @@
 
 ---
 
+## INC-005 — Showcase Demo Data Leaking into Production Pages
+
+**Date:** 2026-03-18
+**Severity:** High (fake listings, messages, and bookings visible to real users; stale JWTs kept deleted accounts "signed in")
+**Status:** Resolved
+
+---
+
+### Summary
+
+After the production database was wiped and the real user base was still small, several production pages continued to display mock data — "Luxury Marquee", "Luxury Rooftop" listings in the messages inbox, fake featured events on the homepage, phantom bookings on the planner dashboard, and demo inquiry threads. Separately, users whose accounts had been deleted (during the DB wipe) remained "signed in" on the UI because no 401 interceptor existed to purge their stale JWT cookies.
+
+The root cause was the demo-first React Query pattern (`placeholderData: DEMO_DATA` + `data = DEMO_*` default) which had been applied to every page during initial development — including authenticated pages where it is actively harmful.
+
+---
+
+### Root Causes
+
+**1. Demo data as `placeholderData` and error-state default**
+Every page query used `placeholderData: DEMO_*` (shown during loading) and `data = DEMO_*` as the destructuring default (shown when the query fails or returns nothing). This meant:
+- On first load: fake listings/planners/bookings flashed before the real API response arrived.
+- On API error: the page silently fell back to demo fixtures — appearing full of data even when the DB was empty or the user's session was invalid.
+
+Affected pages:
+- `FeaturedListings.tsx` — demo featured listings on homepage
+- `CategoryRows.tsx` — demo event categories and listings on homepage
+- `listings/index.tsx` — demo listing page on browse page
+- `planners/index.tsx` — demo planner page on browse page
+- `messages/[inquiryId].tsx` — demo inquiries and messages in the inbox
+- `PlannerDashboard.tsx` — demo bookings, inquiries, and planner profile
+- `ClientDashboard.tsx` — demo bookings and inquiries on client dashboard
+- `PlannerStatsRow.tsx` — demo stats and bookings on planner dashboard
+
+**2. No global 401 interceptor**
+When the production database was wiped, all existing user accounts were deleted. However, their JWTs had a 7-day expiry — so existing cookies remained valid client-side. On every API call, the server returned 401 (user not found), but the frontend had no interceptor to handle this response. The Zustand auth store (persisted to `localStorage`) still held the user object, and the 401 errors were silently swallowed — leaving the UI in a "signed in with no account" limbo state, which caused further API failures and cascade fallbacks to demo data.
+
+---
+
+### Fix
+
+**Part 1 — Global 401 interceptor** (`src/lib/api.ts`)
+
+Added an Axios response interceptor that on any 401:
+1. Removes the `planit_token` cookie
+2. Calls `useAuthStore.getState().logout()` (Zustand static getter — safe outside React)
+3. Redirects to `/auth/login` via `window.location.replace`
+
+**Part 2 — Remove demo data from production pages** (8 files)
+
+| File | Removed | Replaced with |
+|---|---|---|
+| `FeaturedListings.tsx` | `DEMO_FEATURED`, `placeholderData` | `[]`, skeleton on `isLoading` |
+| `CategoryRows.tsx` | `DEMO_EVENT_TYPES`, `getDemoListings`, `placeholderData` | `[]` |
+| `listings/index.tsx` | `DEMO_PAGE`, `DEMO_EVENT_TYPES` | `EMPTY_PAGE`, `[]` |
+| `planners/index.tsx` | `DEMO_TYPES`, `DEMO_PAGE` | `EMPTY_PAGE`, `[]` |
+| `messages/[inquiryId].tsx` | `DEMO_INQUIRIES_*`, `DEMO_MESSAGES` | `[]` |
+| `PlannerDashboard.tsx` | `DEMO_BOOKINGS_PLANNER`, `DEMO_INQUIRIES_RECEIVED`, `DEMO_PLANNER_PROFILE_VERIFIED` | `[]`, `undefined` |
+| `ClientDashboard.tsx` | `DEMO_BOOKINGS_CLIENT`, `DEMO_INQUIRIES_CLIENT` | `[]` |
+| `PlannerStatsRow.tsx` | `DEMO_PLANNER_STATS`, `DEMO_BOOKINGS_PLANNER` | `undefined`, `[]` |
+
+For pagination pages (`listings`, `planners`), `placeholderData: (prev) => prev` is kept — this retains the previous real page during filter changes, preventing flicker. It is safe because it only activates when a prior real API result exists.
+
+---
+
+### Prevention
+
+- **The demo-first React Query pattern is for public unauthenticated pages only** (homepage, public listing browse, public planner browse). It must never be used on:
+  - Authenticated dashboard pages (client, planner)
+  - Admin pages
+  - Inbox / messages pages
+  - Any page where showing fake data could mislead a real user
+- **Always add a global 401 interceptor** in `api.ts` from the start of any project. Stale JWTs are inevitable — the app must handle them gracefully rather than silently degrading to demo state.
+- **Showcase demo data (`src/showcase/data.ts`) must never be imported outside `src/pages/showcase/` and `src/showcase/`.** Any import of showcase fixtures in a production page is a bug.
+
+---
+
+## INC-004 — Database Migration to Fly.io: SSL Handshake Failure on First Deploy
+
+**Date:** 2026-03-18
+**Severity:** Medium (API failed to start on first migration deploy; self-resolved within minutes)
+**Status:** Resolved
+
+---
+
+### Summary
+
+The production database was migrated from Railway PostgreSQL to a Fly.io Postgres cluster (`planit-db`, London region) to eliminate cross-cloud latency and idle connection timeout issues. The first deploy after switching the JDBC URL failed because the JDBC driver attempted an SSL handshake to an internal Fly.io address that does not speak SSL on that interface. A second deploy with `sslmode=disable` resolved the issue. The app started in 36 seconds — down from 614 seconds on Railway.
+
+---
+
+### Timeline
+
+| Time | Event |
+|---|---|
+| T+0 | Created Fly.io Postgres cluster `planit-db` in `lhr` (London) region, `shared-cpu-1x`, 10 GB volume |
+| T+0:05 | Created `planit` database via `fly proxy` tunnel + local psql |
+| T+0:10 | Updated `planit-config-repo/planit-prod.yml`: switched JDBC URL to `planit-db.flycast:5432/planit`, relaxed HikariCP settings (max-lifetime 30 min, keepalive 60s) |
+| T+0:15 | First deploy failed — `SSL error: Remote host terminated the handshake` |
+| T+0:20 | Added `?sslmode=disable` to JDBC URL. Redeployed. |
+| T+0:25 | App started successfully in **36 seconds**. Admin user and event types seeded on fresh DB. |
+
+---
+
+### Root Cause
+
+Fly.io's private networking (`.flycast` / `.internal`) routes traffic through WireGuard — the connection is already encrypted at the network level. The Fly.io Postgres cluster does not present an SSL certificate on the internal interface. The PostgreSQL JDBC driver defaults to `sslmode=prefer`, which attempts SSL and fails when the server terminates the handshake. Adding `sslmode=disable` tells the driver to skip SSL negotiation for internal connections.
+
+---
+
+### Fix
+
+```
+# planit-config-repo/planit-prod.yml
+spring.datasource.url: jdbc:postgresql://planit-db.flycast:5432/planit?sslmode=disable
+```
+
+---
+
+### Outcome
+
+| Metric | Before (Railway) | After (Fly.io) |
+|---|---|---|
+| Startup time | ~614 seconds | ~36 seconds |
+| Connection idle timeout | ~58 seconds (Railway kills connections) | No issue (same-region, stable) |
+| HikariCP keepalive needed | 30s (to beat 58s timeout) | 60s (relaxed) |
+| Cross-cloud latency | Fly.io London → Railway DB | Same-region internal (WireGuard) |
+
+---
+
+### Prevention
+
+- **Always add `?sslmode=disable` when connecting to Fly.io Postgres via `.flycast` or `.internal`.** The internal network is secured by WireGuard — SSL at the JDBC layer is redundant and unsupported on the internal interface.
+- **For external connections** (e.g. local `fly proxy` tunnel), SSL works normally and should be kept enabled.
+
+---
+
 ## INC-003 — Planner Browse Broken: `lower(bytea)` Error + HikariCP Connection Drops + 10-Minute Startup
 
 **Date:** 2026-03-17
