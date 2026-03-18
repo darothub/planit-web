@@ -38,7 +38,7 @@ Dev server: `npm run dev` → http://localhost:3000
 
 ## Critical Rules — Read Before Every Task
 
-1. **Demo-first React Query.** Every `useQuery` call must have both `placeholderData: DEMO_DATA` AND `data = DEMO_DATA` as the default in destructuring. `retry: false` always. This makes pages render instantly with demo content even when the API is unavailable.
+1. **Demo-first React Query — public pages only.** For public unauthenticated pages (`/`, `/listings`, `/planners`), use `placeholderData: DEMO_DATA` AND `data = DEMO_DATA` as the destructuring default so the page renders instantly without a backend. Always add `retry: false`. **Never use demo data as a fallback on authenticated pages** (dashboard, messages, admin) — it causes showcase fixtures to appear as real data for real users. On authenticated pages, use `[]` / `undefined` / an empty-value constant as the default, and show a skeleton or empty state on load.
 
 2. **Tailwind v4 — no `tailwind.config.ts`.** Custom tokens are defined with `@theme {}` in `src/styles/globals.css`. Use `bg-primary`, `text-charcoal`, `rounded-card` etc. directly. Never add a `tailwind.config.ts`.
 
@@ -92,7 +92,7 @@ For any non-trivial task, read the relevant doc first:
 1. Read the relevant `docs/agent/` file for the task type.
 2. Read the existing files you'll be touching — understand before modifying.
 3. Add new types to `src/lib/types.ts` if the API shape is new.
-4. Follow the demo-first React Query pattern for any data fetching.
+4. Follow the demo-first React Query pattern for public unauthenticated pages only. Use empty defaults (`[]`, `undefined`) on authenticated pages.
 5. Add demo data to `src/showcase/data.ts` if building a new page.
 6. Create or update the corresponding showcase page in `src/pages/showcase/`.
 7. Update `src/pages/showcase/index.tsx` with the new entry.
