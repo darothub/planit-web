@@ -2,6 +2,86 @@
 
 ---
 
+## INC-006 — API OOM Kill: JVM Overcommitting Memory on 512MB Machine
+
+**Date:** 2026-03-18
+**Severity:** High (API repeatedly killed by Linux OOM killer; health checks failing; connection pool exhausted)
+**Status:** Resolved
+**Duration:** ~40 minutes (23:27 UTC → 00:05 UTC OOM kill, then ~2 min auto-restart)
+
+---
+
+### Summary
+
+The `planit-api` Fly.io machine (512MB RAM) was killed by the Linux OOM killer after running for approximately 10 hours. The JVM was configured with `-XX:MaxRAMPercentage=75.0` and `-XX:MaxMetaspaceSize=128m`, which allocated up to 384MB heap + 128MB metaspace + ~100MB JVM overhead = ~612MB total — exceeding the 512MB machine limit. As memory pressure built, GC pauses grew to 1–6 minutes, starving HikariCP's housekeeper thread, causing connection pool exhaustion and health check failures before the kernel finally killed the process.
+
+---
+
+### Timeline
+
+| Time (UTC) | Event |
+|---|---|
+| 12:55 | App started after previous restart. HikariPool started successfully. |
+| 23:27 | First health check failure — JVM GC pausing long enough to miss the 10s timeout |
+| 23:27–00:00 | `HikariPool-1 - Thread starvation or clock leap detected` logged repeatedly with GC pause deltas of 1–6 minutes. HikariPool housekeeper starved → all 5 connections held → `Connection is not available, request timed out after 32s` |
+| 00:05 | **`Out of memory: Killed process 646 (java) anon-rss:391624kB`** — Linux OOM killer terminated the JVM |
+| 00:05 | Fly.io detected crash, auto-restarted the machine |
+| 00:07 | Spring Boot startup began. App became healthy ~2 minutes later. |
+
+---
+
+### Root Cause
+
+**JVM memory overcommitment on a 512MB container.**
+
+The Dockerfile `ENTRYPOINT` was:
+```
+java -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:MaxMetaspaceSize=128m -jar app.jar
+```
+
+On a 512MB machine, this allocates:
+| Region | Size |
+|---|---|
+| Heap (`MaxRAMPercentage=75%`) | 384MB |
+| Metaspace | 128MB |
+| JVM overhead (code cache, thread stacks, GC) | ~100MB |
+| **Total** | **~612MB** |
+
+This exceeds the 512MB machine limit. The JVM could not GC fast enough to stay within bounds. GC pauses grew to minutes, starving all other threads including the HikariCP housekeeper (which manages keepalives and pool maintenance). The cascading effect:
+
+1. Housekeeper starved → connections not returned to pool
+2. New requests waited 30s for a connection → `SQLTransientConnectionException`
+3. `/actuator/health` couldn't get a connection → health check failed
+4. Eventually the kernel OOM-killed the JVM process
+
+The `spring.jpa.open-in-view is enabled by default` warning in the logs is also relevant — Open Session in View keeps a Hibernate session (and DB connection) open for the entire HTTP request lifecycle, including view rendering. This increases per-request connection hold time and amplifies pool exhaustion under memory pressure.
+
+---
+
+### Fix
+
+| Change | Before | After | File |
+|---|---|---|---|
+| Machine RAM | 512MB | **1GB** | `fly.toml` |
+| JVM heap ceiling | 75% of RAM = 384MB | **60% of RAM = 614MB** | `Dockerfile` |
+| **Total JVM footprint** | ~612MB (over limit) | ~850MB (150MB headroom) | — |
+| HikariCP pool size | 5 | **10** | `planit-prod.yml` |
+| HikariCP `connection-timeout` | 30s | **10s** (fail fast) | `planit-prod.yml` |
+| HikariCP `leak-detection-threshold` | not set | **15s** (logs stack trace if connection held > 15s) | `planit-prod.yml` |
+
+With 1GB RAM and `MaxRAMPercentage=60%`: heap = 614MB, metaspace = 128MB, overhead ~100MB = ~850MB total, leaving ~174MB free for the OS and other processes.
+
+---
+
+### Prevention
+
+- **Spring Boot on Fly.io requires at minimum 1GB RAM for production.** The JVM (heap + metaspace + code cache + thread stacks) for a full Spring Boot app with Hibernate, Security, WebSocket, and Spring Cloud Client routinely exceeds 500MB. Never deploy to a 512MB machine.
+- **Never use `MaxRAMPercentage` above 60% on a container.** Leave headroom for metaspace, code cache, thread stacks, and the OS. Rule of thumb: `MaxRAMPercentage=60` + `MaxMetaspaceSize=128m` on a 1GB machine.
+- **`spring.jpa.open-in-view=false` should be set explicitly.** The default (`true`) holds a DB connection open for the entire HTTP request, increasing connection hold time. Disable it in `application.yml` to reduce connection pressure.
+- **Always set `leak-detection-threshold`** in HikariCP from the start — it logs the exact stack trace of any connection held longer than the threshold, making future pool exhaustion immediately diagnosable.
+
+---
+
 ## INC-005 — Showcase Demo Data Leaking into Production Pages
 
 **Date:** 2026-03-18
