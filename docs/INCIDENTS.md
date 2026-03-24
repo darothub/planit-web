@@ -68,6 +68,7 @@ The `spring.jpa.open-in-view is enabled by default` warning in the logs is also 
 | HikariCP pool size | 5 | **10** | `planit-prod.yml` |
 | HikariCP `connection-timeout` | 30s | **10s** (fail fast) | `planit-prod.yml` |
 | HikariCP `leak-detection-threshold` | not set | **15s** (logs stack trace if connection held > 15s) | `planit-prod.yml` |
+| `spring.jpa.open-in-view` | `true` (default) | **`false`** — connections released at end of `@Transactional`, not end of HTTP request | `planit-prod.yml` |
 
 With 1GB RAM and `MaxRAMPercentage=60%`: heap = 614MB, metaspace = 128MB, overhead ~100MB = ~850MB total, leaving ~174MB free for the OS and other processes.
 
