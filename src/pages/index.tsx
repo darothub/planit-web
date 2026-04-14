@@ -161,7 +161,10 @@ export default function HomePage() {
   const [expanded,    setExpanded]    = useState(false)
 
   // Fetch all published listings — demo-first pattern (public page)
-  const { data: apiListings = ALL_DEMO_LISTINGS } = useQuery<EventListingResponse[]>({
+  // placeholderData  → shown while loading (page renders instantly)
+  // default (= DEMO) → shown if the query errors (no backend / network failure)
+  // isPlaceholderData → true only during the initial load; false once real data arrives
+  const { data: apiListings = ALL_DEMO_LISTINGS, isPlaceholderData } = useQuery<EventListingResponse[]>({
     queryKey: ['listings-home'],
     queryFn: () =>
       api.get<{ data: { content: EventListingResponse[] } }>('/listings', { params: { page: 0, size: 60 } })
@@ -171,11 +174,23 @@ export default function HomePage() {
     retry: false,
   })
 
-  // Per-category merge: use API listings if any exist for that type, otherwise demo
-  const categories = demoCategories.map(cat => {
-    const real = apiListings.filter(l => l.eventType.name === cat.eventTypeName)
-    return { ...cat, listings: real.length > 0 ? real : cat.listings }
-  })
+  // While loading (isPlaceholderData) → render demo categories so the page isn't blank.
+  // Once real data arrives → group real listings by event type; hide empty categories.
+  // If the query errors and falls back to ALL_DEMO_LISTINGS → same grouping applies,
+  //   so demo data acts as a site-wide fallback (not a per-category patch on top of real data).
+  const categories = (() => {
+    if (isPlaceholderData) return demoCategories
+
+    const byType = apiListings.reduce<Record<string, EventListingResponse[]>>((acc, l) => {
+      const key = l.eventType.name;
+      (acc[key] ??= []).push(l)
+      return acc
+    }, {})
+
+    return demoCategories
+      .map(cat => ({ ...cat, listings: byType[cat.eventTypeName] ?? [] }))
+      .filter(cat => cat.listings.length > 0)
+  })()
 
   const discoverItems = DISCOVER_DATA[discoverTab] ?? []
   const visibleItems  = expanded ? discoverItems : discoverItems.slice(0, INITIAL_SHOW)
