@@ -35,6 +35,22 @@
   100% { background-position:  400% 0; }
 }
 
+/* ─── Page / scroll animations ───────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0);   opacity: 0.6; }
+  50%       { transform: translateY(6px); opacity: 1; }
+}
+
 .shimmer {
   background: linear-gradient(
     90deg,
@@ -53,6 +69,10 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
+
+/* ─── Scrollbar hide utility ─────────────────────────────────── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* ─── Reusable utility classes ───────────────────────────────── */
 
