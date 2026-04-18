@@ -86,7 +86,7 @@ function QuickActionCard({ href, icon, iconBg, iconColor, title, description, ba
 export default function AdminOverviewPage() {
   const { data: stats = EMPTY_STATS, isLoading } = useQuery<AdminStatsResponse>({
     queryKey: ['admin-stats'],
-    queryFn: () => api.get('/admin/stats').then(r => r.data.data),
+    queryFn: () => api.get('/admin/stats').then(r => ({ ...EMPTY_STATS, ...r.data.data })),
     retry: false,
     refetchInterval: 60_000,
   })
