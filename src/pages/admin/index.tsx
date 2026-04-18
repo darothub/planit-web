@@ -137,61 +137,6 @@ export default function AdminOverviewPage() {
           </div>
         )}
 
-        {/* Users section */}
-        <p className="text-xs font-semibold text-stone-warm uppercase tracking-wider mb-3">Users</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-          {isLoading ? (
-            [1, 2, 3, 4].map(i => <StatCardSkeleton key={i} />)
-          ) : (
-            <>
-              <StatCard label="Total clients"    value={stats.totalClients.toLocaleString()} />
-              <StatCard label="Total planners"   value={stats.totalPlanners.toLocaleString()} />
-              <StatCard
-                label="Verified planners"
-                value={stats.verifiedPlanners.toLocaleString()}
-                sub={`${stats.totalPlanners - stats.verifiedPlanners} pending`}
-              />
-              <StatCard
-                label="Pending approvals"
-                value={stats.pendingPlanners}
-                variant={stats.pendingPlanners > 0 ? 'warn' : 'default'}
-              />
-            </>
-          )}
-        </div>
-
-        {/* Planner status section */}
-        <p className="text-xs font-semibold text-stone-warm uppercase tracking-wider mb-3">Planner Status</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-          {isLoading ? (
-            [1, 2, 3].map(i => <StatCardSkeleton key={i} />)
-          ) : (
-            <>
-              <Link href="/admin/approved-planners" className="block hover:opacity-80 transition-opacity">
-                <StatCard
-                  label="Approved planners"
-                  value={stats.verifiedPlanners.toLocaleString()}
-                  variant="accent"
-                />
-              </Link>
-              <Link href="/admin/banned-planners" className="block hover:opacity-80 transition-opacity">
-                <StatCard
-                  label="Banned planners"
-                  value={stats.bannedPlanners.toLocaleString()}
-                  variant={stats.bannedPlanners > 0 ? 'danger' : 'default'}
-                />
-              </Link>
-              <Link href="/admin/rejected-planners" className="block hover:opacity-80 transition-opacity">
-                <StatCard
-                  label="Rejected planners"
-                  value={stats.rejectedPlanners.toLocaleString()}
-                  sub="Blocked from re-registration"
-                />
-              </Link>
-            </>
-          )}
-        </div>
-
         {/* Marketplace section */}
         <p className="text-xs font-semibold text-stone-warm uppercase tracking-wider mb-3">Marketplace</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
