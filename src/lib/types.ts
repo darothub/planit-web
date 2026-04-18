@@ -345,12 +345,45 @@ export type UploadResponse = {
 export type AdminStatsResponse = {
   pendingPlanners: number
   verifiedPlanners: number
+  bannedPlanners: number
+  rejectedPlanners: number
   openDisputes: number
   totalClients: number
   totalPlanners: number
   publishedListings: number
   totalBookings: number
   totalRevenue: number
+}
+
+export type BannedPlannerResponse = {
+  id: number
+  email: string
+  firstName: string
+  lastName: string
+  phone: string | null
+  businessName: string | null
+  verificationStatus: VerificationStatus
+  banReason: string
+  banMitigationText: string
+  bannedAt: string
+  profileImageUrl: string | null
+  location: string | null
+  specialties: string[]
+}
+
+export type VerifiedPlannerResponse = {
+  id: number
+  email: string
+  firstName: string
+  lastName: string
+  businessName: string | null
+  location: string | null
+  profileImageUrl: string | null
+  specialties: string[]
+  isBanned: boolean
+  totalBookings: number
+  reviewCount: number
+  createdAt: string
 }
 
 export type PendingPlannerResponse = {
@@ -370,4 +403,5 @@ export type PendingPlannerResponse = {
   portfolioImageCount: number
   registeredAt: string
   profileImageUrl: string | null
+  verificationNotes: string | null
 }

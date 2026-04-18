@@ -660,6 +660,7 @@ export const DEMO_PENDING_PLANNERS: PendingPlannerResponse[] = [
     portfolioImageCount: 12,
     registeredAt: '2026-03-01T10:30:00Z',
     profileImageUrl: null,
+    verificationNotes: null,
   },
   {
     id: 3002,
@@ -678,6 +679,7 @@ export const DEMO_PENDING_PLANNERS: PendingPlannerResponse[] = [
     portfolioImageCount: 5,
     registeredAt: '2026-03-03T14:15:00Z',
     profileImageUrl: null,
+    verificationNotes: null,
   },
   {
     id: 3003,
@@ -696,6 +698,7 @@ export const DEMO_PENDING_PLANNERS: PendingPlannerResponse[] = [
     portfolioImageCount: 0,
     registeredAt: '2026-03-07T09:00:00Z',
     profileImageUrl: null,
+    verificationNotes: null,
   },
 ]
 
@@ -743,6 +746,8 @@ export const DEMO_ADMIN_DISPUTES: DisputeResponse[] = [
 export const DEMO_ADMIN_STATS: AdminStatsResponse = {
   pendingPlanners:  3,
   verifiedPlanners: 24,
+  bannedPlanners:   2,
+  rejectedPlanners: 5,
   openDisputes:     2,
   totalClients:     187,
   totalPlanners:    27,

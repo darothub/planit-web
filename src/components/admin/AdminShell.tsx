@@ -33,10 +33,13 @@ export default function AdminShell({ title, children }: Props) {
   }
 
   const navLinks = [
-    { href: '/admin',          label: 'Overview'      },
-    { href: '/admin/planners', label: 'Planner Queue'  },
-    { href: '/admin/disputes', label: 'Disputes'       },
-    { href: '/admin/listings', label: 'Listings'       },
+    { href: '/admin',                    label: 'Overview'          },
+    { href: '/admin/planners',           label: 'Planner Queue'     },
+    { href: '/admin/approved-planners',  label: 'Approved'          },
+    { href: '/admin/banned-planners',    label: 'Banned'            },
+    { href: '/admin/rejected-planners',  label: 'Rejected'          },
+    { href: '/admin/disputes',           label: 'Disputes'          },
+    { href: '/admin/listings',           label: 'Listings'          },
   ]
 
   return (

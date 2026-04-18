@@ -6,9 +6,9 @@ import { api } from '@/lib/api'
 import { AdminStatsResponse } from '@/lib/types'
 import { formatPrice, cn } from '@/lib/utils'
 const EMPTY_STATS: AdminStatsResponse = {
-  pendingPlanners: 0, verifiedPlanners: 0, openDisputes: 0,
-  totalClients: 0, totalPlanners: 0, publishedListings: 0,
-  totalBookings: 0, totalRevenue: 0,
+  pendingPlanners: 0, verifiedPlanners: 0, bannedPlanners: 0, rejectedPlanners: 0,
+  openDisputes: 0, totalClients: 0, totalPlanners: 0,
+  publishedListings: 0, totalBookings: 0, totalRevenue: 0,
 }
 
 function StatCard({
@@ -91,7 +91,7 @@ export default function AdminOverviewPage() {
     refetchInterval: 60_000,
   })
 
-  const hasAlerts = stats.pendingPlanners > 0 || stats.openDisputes > 0
+  const hasAlerts = stats.pendingPlanners > 0 || stats.openDisputes > 0 || stats.bannedPlanners > 0
 
   return (
     <>
@@ -123,6 +123,17 @@ export default function AdminOverviewPage() {
                 open {stats.openDisputes === 1 ? 'dispute' : 'disputes'} needing resolution
               </Link>
             )}
+            {stats.bannedPlanners > 0 && (
+              <Link
+                href="/admin/banned-planners"
+                className="flex items-center gap-2 bg-gray-50 border border-gray-200 text-gray-800 text-sm font-medium px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <span className="w-5 h-5 rounded-full bg-gray-600 text-white text-xs flex items-center justify-center font-bold">
+                  {stats.bannedPlanners}
+                </span>
+                {stats.bannedPlanners === 1 ? 'planner' : 'planners'} currently banned
+              </Link>
+            )}
           </div>
         )}
 
@@ -145,6 +156,38 @@ export default function AdminOverviewPage() {
                 value={stats.pendingPlanners}
                 variant={stats.pendingPlanners > 0 ? 'warn' : 'default'}
               />
+            </>
+          )}
+        </div>
+
+        {/* Planner status section */}
+        <p className="text-xs font-semibold text-stone-warm uppercase tracking-wider mb-3">Planner Status</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+          {isLoading ? (
+            [1, 2, 3].map(i => <StatCardSkeleton key={i} />)
+          ) : (
+            <>
+              <Link href="/admin/approved-planners" className="block hover:opacity-80 transition-opacity">
+                <StatCard
+                  label="Approved planners"
+                  value={stats.verifiedPlanners.toLocaleString()}
+                  variant="accent"
+                />
+              </Link>
+              <Link href="/admin/banned-planners" className="block hover:opacity-80 transition-opacity">
+                <StatCard
+                  label="Banned planners"
+                  value={stats.bannedPlanners.toLocaleString()}
+                  variant={stats.bannedPlanners > 0 ? 'danger' : 'default'}
+                />
+              </Link>
+              <Link href="/admin/rejected-planners" className="block hover:opacity-80 transition-opacity">
+                <StatCard
+                  label="Rejected planners"
+                  value={stats.rejectedPlanners.toLocaleString()}
+                  sub="Blocked from re-registration"
+                />
+              </Link>
             </>
           )}
         </div>
@@ -203,6 +246,36 @@ export default function AdminOverviewPage() {
             iconColor="text-blue-700"
             title="Listings"
             description="Search, review, and bulk-delete event listings"
+          />
+          <QuickActionCard
+            href="/admin/approved-planners"
+            icon="✅"
+            iconBg="bg-green-100"
+            iconColor="text-green-700"
+            title="Approved Planners"
+            description="View verified planners — ban those in violation"
+            badge={stats.verifiedPlanners}
+            badgeColor="bg-green-100 text-green-800"
+          />
+          <QuickActionCard
+            href="/admin/banned-planners"
+            icon="🚫"
+            iconBg="bg-gray-100"
+            iconColor="text-gray-700"
+            title="Banned Planners"
+            description="View and unban planners suspended from the platform"
+            badge={stats.bannedPlanners}
+            badgeColor="bg-gray-100 text-gray-800"
+          />
+          <QuickActionCard
+            href="/admin/rejected-planners"
+            icon="❌"
+            iconBg="bg-rose-100"
+            iconColor="text-rose-700"
+            title="Rejected Planners"
+            description="Rejected applications — email/phone blocked from re-registration"
+            badge={stats.rejectedPlanners}
+            badgeColor="bg-rose-100 text-rose-800"
           />
         </div>
 
