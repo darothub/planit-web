@@ -13,7 +13,7 @@ import LogoIcon from '@/components/ui/LogoIcon'
 const SUPPORT_LINKS = [
   { label: 'Help Centre',          href: '#' },
   { label: 'Safety information',   href: '#' },
-  { label: 'Cancellation options', href: '#' },
+  { label: 'Cancellation options', href: '/refund-policy' },
   { label: 'Anti-discrimination',  href: '#' },
   { label: 'Report a concern',     href: '#' },
 ]
@@ -87,11 +87,11 @@ export default function AirbnbFooter() {
           </div>
           <span className="text-white/40 text-xs">© {new Date().getFullYear()} Planit, Inc.</span>
           <span className="text-white/30 text-xs hidden sm:inline">·</span>
-          <Link href="#" className="text-xs text-white/50 hover:text-white transition-colors">Privacy</Link>
+          <Link href="/privacy" className="text-xs text-white/50 hover:text-white transition-colors">Privacy</Link>
           <span className="text-white/30 text-xs">·</span>
-          <Link href="#" className="text-xs text-white/50 hover:text-white transition-colors">Terms</Link>
+          <Link href="/terms" className="text-xs text-white/50 hover:text-white transition-colors">Terms</Link>
           <span className="text-white/30 text-xs">·</span>
-          <Link href="#" className="text-xs text-white/50 hover:text-white transition-colors">Sitemap</Link>
+          <Link href="/refund-policy" className="text-xs text-white/50 hover:text-white transition-colors">Refunds</Link>
         </div>
 
         {/* Social icons */}
