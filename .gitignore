@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 .env.local
 .env.production
+
+# Stray screenshots
+Screenshot*.png
