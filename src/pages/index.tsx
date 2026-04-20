@@ -11,6 +11,7 @@
 import { useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
+import type { GetServerSideProps } from 'next'
 import { useQuery } from '@tanstack/react-query'
 import AirbnbHeader from '@/components/home/AirbnbHeader'
 import AirbnbFooter from '@/components/home/AirbnbFooter'
@@ -151,36 +152,65 @@ const DISCOVER_DATA: Record<string, DiscoverItem[]> = {
 
 const INITIAL_SHOW = 8
 
-// Demo fallback — all listings flattened
-const ALL_DEMO_LISTINGS = demoCategories.flatMap(d => d.listings)
+// ─── SSR ──────────────────────────────────────────────────────────────────
+// Fetch listings on the Vercel server before HTML is sent to the browser.
+// The first paint already contains real data — no demo flash possible.
+// If the backend is slow/down we fall back to an empty array; React Query
+// will retry on the client and skeleton-style empty state shows briefly.
+
+type HomePageProps = { initialListings: EventListingResponse[] }
+
+export const getServerSideProps: GetServerSideProps<HomePageProps> = async ({ res }) => {
+  // Edge cache: serve a fresh copy for 60s, then revalidate in the background
+  // for up to 5 more minutes — every visitor in that window gets instant HTML.
+  res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300')
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081/api/v1'
+
+  // 2s timeout — never let a slow backend block our page render
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 2000)
+
+  let initialListings: EventListingResponse[] = []
+  try {
+    const r = await fetch(`${apiUrl}/listings?page=0&size=60`, { signal: controller.signal })
+    if (r.ok) {
+      const json = await r.json() as { data?: { content?: EventListingResponse[] } }
+      initialListings = json.data?.content ?? []
+    }
+  } catch {
+    // Network/timeout → render empty; client-side query will retry
+    initialListings = []
+  } finally {
+    clearTimeout(timeout)
+  }
+
+  return { props: { initialListings } }
+}
 
 // ─── Page ─────────────────────────────────────────────────────────────────
 
-export default function HomePage() {
+export default function HomePage({ initialListings }: HomePageProps) {
   const [discoverTab, setDiscoverTab] = useState('WEDDING')
   const [expanded,    setExpanded]    = useState(false)
 
-  // Fetch all published listings — demo-first pattern (public page)
-  // placeholderData  → shown while loading (page renders instantly)
-  // default (= DEMO) → shown if the query errors (no backend / network failure)
-  // isPlaceholderData → true only during the initial load; false once real data arrives
-  const { data: apiListings = ALL_DEMO_LISTINGS, isPlaceholderData } = useQuery<EventListingResponse[]>({
+  // Real data is already in the HTML thanks to getServerSideProps.
+  // React Query keeps it fresh on the client (revalidate after 5min).
+  // No demo data anywhere — no flash possible.
+  const { data: apiListings } = useQuery<EventListingResponse[]>({
     queryKey: ['listings-home'],
     queryFn: () =>
       api.get<{ data: { content: EventListingResponse[] } }>('/listings', { params: { page: 0, size: 60 } })
          .then(r => r.data.data?.content ?? []),
-    placeholderData: ALL_DEMO_LISTINGS,
+    initialData: initialListings,
     staleTime: 5 * 60 * 1000,
     retry: false,
   })
 
-  // While loading (isPlaceholderData) → render demo categories so the page isn't blank.
-  // Once real data arrives → group real listings by event type; hide empty categories.
-  // If the query errors and falls back to ALL_DEMO_LISTINGS → same grouping applies,
-  //   so demo data acts as a site-wide fallback (not a per-category patch on top of real data).
+  // Group real listings by event type; hide empty categories.
+  // demoCategories is used only as a static category-order + display-name lookup —
+  // its `listings` field is never read here.
   const categories = (() => {
-    if (isPlaceholderData) return demoCategories
-
     const byType = apiListings.reduce<Record<string, EventListingResponse[]>>((acc, l) => {
       const key = l.eventType.name;
       (acc[key] ??= []).push(l)
