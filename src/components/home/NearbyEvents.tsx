@@ -27,6 +27,7 @@ export type UserLocation = {
   lng: number
   city: string                       // human-readable label, eg "London"
   source: 'gps' | 'ip' | 'manual'    // how we learned the location
+  country?: string | null            // ISO-3166-1 alpha-2 (eg "GB", "NG"), used by the city picker
 }
 
 /** A listing annotated with its distance from the user. */
