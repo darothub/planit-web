@@ -89,6 +89,7 @@ const sections: Section[] = [
       { href: '/showcase/planners-browse', name: 'Browse Planners', description: 'Planner search grid — filter by location and specialty' },
       { href: '/showcase/home',            name: 'Home',            description: 'Search strip, category rows, how it works' },
       { href: '/showcase/home-nearby',     name: 'Home — Location-aware', description: 'Stream A: "Find events near you" with proximity sort, distance badges, IP/GPS/manual scenarios' },
+      { href: '/showcase/ai-agent',        name: 'AI Agent', description: 'Stream B Phase 1: chat shell, tool-call pills, inline result cards, language switcher (EN/Pidgin/FR/Yoruba), privacy badge — Client + Planner audiences' },
       { href: '/showcase/listing-detail',        name: 'Listing Detail',          description: 'Full listing page with gallery, booking card, amenities (guest view)' },
       { href: '/showcase/listing-detail-client', name: 'Listing Detail (Client)', description: 'Full listing page — signed-in CLIENT view with enquiry form' },
       { href: '/showcase/planner-profile',       name: 'Planner Profile',         description: 'Public planner profile — bio, services, reviews, contact form' },
